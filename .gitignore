@@ -11,3 +11,5 @@ frontend/dist/
 frontend/.env
 frontend/vite.log
 uvicorn.log
+
+.vercel
