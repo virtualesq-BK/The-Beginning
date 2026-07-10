@@ -1,18 +1,17 @@
 import json
 import sys
 from datetime import datetime, timezone
+from pathlib import Path
 
 from agents.document_parser import parse_contract
 from agents.translator import translate_clause
 from agents.risk_analyzer import summarize_document, analyze_clause
+from agents.file_extractor import extract_text
 
 DISCLAIMER = "본 분석은 참고용입니다. 법적 효력이 없으며, 위험도 4점 이상 조항은 반드시 변호사 검토가 필요합니다."
 
 
-def run_pipeline(contract_path: str) -> dict:
-    with open(contract_path, "r", encoding="utf-8") as f:
-        raw_text = f.read()
-
+def run_pipeline(raw_text: str) -> dict:
     print("[Agent 1] 문서 파싱 및 조항 분류 중...")
     parsed = parse_contract(raw_text)
     clauses = parsed["clauses"]
@@ -45,8 +44,9 @@ def run_pipeline(contract_path: str) -> dict:
 
 
 if __name__ == "__main__":
-    path = sys.argv[1] if len(sys.argv) > 1 else "sample_contract.txt"
-    report = run_pipeline(path)
+    path = Path(sys.argv[1] if len(sys.argv) > 1 else "sample_contract.txt")
+    raw_text = extract_text(path.read_bytes(), path.name)
+    report = run_pipeline(raw_text)
 
     out_path = "output_report.json"
     with open(out_path, "w", encoding="utf-8") as f:

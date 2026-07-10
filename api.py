@@ -1,11 +1,10 @@
-import tempfile
-import os
 from pathlib import Path
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from pipeline import run_pipeline
+from agents.file_extractor import extract_text, SUPPORTED_EXTENSIONS
 
 app = FastAPI(title="The Beginning - Legal Intelligence API")
 
@@ -16,8 +15,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-ALLOWED_EXTENSIONS = {".txt"}
-
 
 @app.get("/health")
 def health():
@@ -27,19 +24,18 @@ def health():
 @app.post("/api/v1/contracts/analyze")
 async def analyze_contract(file: UploadFile = File(...)):
     ext = Path(file.filename).suffix.lower()
-    if ext not in ALLOWED_EXTENSIONS:
-        raise HTTPException(status_code=400, detail=f"지원하지 않는 파일 형식입니다: {ext} (현재 MVP는 .txt만 지원)")
+    if ext not in SUPPORTED_EXTENSIONS:
+        allowed = ", ".join(sorted(SUPPORTED_EXTENSIONS))
+        raise HTTPException(status_code=400, detail=f"지원하지 않는 파일 형식입니다: {ext} (지원 형식: {allowed})")
 
     contents = await file.read()
-    with tempfile.NamedTemporaryFile(mode="wb", suffix=ext, delete=False) as tmp:
-        tmp.write(contents)
-        tmp_path = tmp.name
 
     try:
-        report = run_pipeline(tmp_path)
+        raw_text = extract_text(contents, file.filename)
+        report = run_pipeline(raw_text)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"분석 중 오류가 발생했습니다: {e}")
-    finally:
-        os.unlink(tmp_path)
 
     return report

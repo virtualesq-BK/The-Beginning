@@ -74,7 +74,7 @@ export default function App() {
           <input
             ref={inputRef}
             type="file"
-            accept=".txt"
+            accept=".txt,.pdf,.docx"
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
@@ -90,7 +90,7 @@ export default function App() {
             {status !== "loading" && <span aria-hidden>→</span>}
           </button>
           <p className="mt-4 text-xs text-slate-400 dark:text-slate-500">
-            MVP 단계: .txt 파일만 지원됩니다
+            지원 형식: .txt · .pdf · .docx (스캔 이미지 PDF, 구형 .doc는 미지원)
           </p>
         </div>
 
