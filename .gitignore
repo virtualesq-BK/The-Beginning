@@ -1,0 +1,13 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+output/
+output_report.json
+
+# frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/vite.log
+uvicorn.log

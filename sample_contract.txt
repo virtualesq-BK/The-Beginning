@@ -1,0 +1,11 @@
+Clause 12.1 Delay Damages
+If the Contractor fails to comply with the Time for Completion, the Contractor shall pay Delay Damages to the Employer for every day which shall elapse between the relevant Time for Completion and the date stated in the Taking-Over Certificate. Delay Damages shall accrue without any limit as to amount and shall be payable in addition to any other damages, compensation or remedies the Employer may be entitled to under this Contract.
+
+Clause 17.3 Employer's Risks
+The Employer shall not be liable for any loss or damage caused by any act or omission of the Employer, its agents, or other contractors, whether negligent, willful, or otherwise, and the Contractor waives all claims arising therefrom.
+
+Clause 20.6 Arbitration
+Any dispute arising out of or in connection with this Contract shall be finally settled by arbitration administered in the Employer's home country under the Employer's chosen arbitration rules, in the Employer's national language.
+
+Clause 11.9 Defects Liability Period
+The Defects Liability Period shall be 60 months from the date of the Taking-Over Certificate.
