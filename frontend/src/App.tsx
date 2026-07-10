@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { analyzeContract } from "./lib/api";
 import { ReportView } from "./components/ReportView";
 import type { ContractReport } from "./types";
+import founderPhoto from "./assets/founder.jpg";
 
 type Status = "idle" | "loading" | "error";
 
@@ -57,6 +58,11 @@ export default function App() {
       </header>
 
       <section className="mx-auto max-w-4xl px-6 pb-20 pt-24 text-center">
+        <img
+          src={founderPhoto}
+          alt="The Beginning 대표"
+          className="mx-auto mb-6 h-24 w-24 rounded-full object-cover ring-4 ring-blue-50 dark:ring-blue-950/50"
+        />
         <span className="mb-5 inline-block rounded-full bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
           해외 법률 시장의 민주화
         </span>
@@ -74,7 +80,7 @@ export default function App() {
           <input
             ref={inputRef}
             type="file"
-            accept=".txt,.pdf,.docx"
+            accept=".txt,.pdf,.docx,.doc"
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
@@ -90,7 +96,7 @@ export default function App() {
             {status !== "loading" && <span aria-hidden>→</span>}
           </button>
           <p className="mt-4 text-xs text-slate-400 dark:text-slate-500">
-            지원 형식: .txt · .pdf · .docx (스캔 이미지 PDF, 구형 .doc는 미지원)
+            지원 형식: .txt · .pdf · .docx · .doc (스캔 이미지 PDF는 미지원)
           </p>
         </div>
 
