@@ -3,6 +3,7 @@ import type { Clause, ContractReport } from "../types";
 import { requestExpert, openExpertMailto, type ExpertRequestType } from "../lib/api";
 import { RiskBadge } from "./RiskBadge";
 import { ClauseTypeIcon } from "./ClauseTypeIcon";
+import { useAuth } from "../contexts/AuthContext";
 
 const EXPERT_EMAIL = "virtual.esq@gmail.com";
 
@@ -56,12 +57,38 @@ function ClauseDetailCard({ clause }: { clause: Clause }) {
 }
 
 export function ReportView({ report }: { report: ContractReport }) {
+  const { requireAuth } = useAuth();
   const [showRiskDetails, setShowRiskDetails] = useState(false);
   const [showExpertOptions, setShowExpertOptions] = useState(false);
   const [expertStatus, setExpertStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [expertMessage, setExpertMessage] = useState<string | null>(null);
 
+  function handleToggleRiskDetails() {
+    if (showRiskDetails) {
+      setShowRiskDetails(false);
+      return;
+    }
+    if (
+      !requireAuth(
+        "주요 리스크 상세를 보려면 회원 가입 또는 로그인이 필요합니다.",
+      )
+    ) {
+      return;
+    }
+    setShowRiskDetails(true);
+  }
+
   async function handleExpertRequest(requestType: ExpertRequestType) {
+    const label =
+      requestType === "translation_review" ? "전문가 번역 검수" : "해외 법률 전문가 연결";
+    if (
+      !requireAuth(
+        `${label} 요청을 진행하려면 회원 가입 또는 로그인이 필요합니다.`,
+      )
+    ) {
+      return;
+    }
+
     setExpertStatus("loading");
     setExpertMessage(null);
     try {
@@ -158,8 +185,8 @@ export function ReportView({ report }: { report: ContractReport }) {
 
         <button
           type="button"
-          onClick={() => setShowRiskDetails((v) => !v)}
-          className="mt-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+          onClick={handleToggleRiskDetails}
+          className="mt-5 inline-flex items-center gap-2 border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
         >
           {showRiskDetails ? "주요 리스크 접기" : "주요 리스크 더보기"}
           <span aria-hidden>{showRiskDetails ? "↑" : "↓"}</span>

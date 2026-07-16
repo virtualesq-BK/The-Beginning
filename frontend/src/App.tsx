@@ -3,6 +3,7 @@ import { analyzeContract } from "./lib/api";
 import { ReportView } from "./components/ReportView";
 import type { ContractReport } from "./types";
 import founderPhoto from "./assets/founder.jpg";
+import { useAuth } from "./contexts/AuthContext";
 
 type Status = "idle" | "loading" | "error";
 
@@ -29,6 +30,7 @@ const VALUE_PROPS = [
 ];
 
 export default function App() {
+  const { user, openAuth, signOut } = useAuth();
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<ContractReport | null>(null);
@@ -57,18 +59,42 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[var(--tb-sand)] text-[var(--tb-ink)]">
       <header className="sticky top-0 z-20 border-b border-[var(--tb-line)]/80 bg-[var(--tb-sand)]/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
           <a href="#" className="font-display text-2xl font-semibold tracking-tight text-[var(--tb-ink)]">
             The Beginning
           </a>
-          <button
-            type="button"
-            onClick={triggerUpload}
-            disabled={status === "loading"}
-            className="bg-[var(--tb-green)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--tb-green-deep)] disabled:opacity-50"
-          >
-            {status === "loading" ? "분석 중..." : "계약서 검토 시작"}
-          </button>
+          <div className="flex items-center gap-2 sm:gap-3">
+            {user ? (
+              <>
+                <span className="hidden max-w-[180px] truncate text-sm text-[var(--tb-muted)] sm:inline">
+                  {user.email}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => void signOut()}
+                  className="border border-[var(--tb-line)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)]"
+                >
+                  로그아웃
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => openAuth("signup")}
+                className="border border-[var(--tb-line)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)]"
+              >
+                회원 가입
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={triggerUpload}
+              disabled={status === "loading"}
+              className="bg-[var(--tb-green)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--tb-green-deep)] disabled:opacity-50"
+            >
+              {status === "loading" ? "분석 중..." : "계약서 검토 시작"}
+            </button>
+          </div>
         </div>
       </header>
 
