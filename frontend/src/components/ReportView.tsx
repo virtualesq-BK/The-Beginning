@@ -13,7 +13,7 @@ function ClauseDetailCard({ clause }: { clause: Clause }) {
         <div className="flex items-start gap-3">
           <ClauseTypeIcon clauseType={clause.clause_type} />
           <div>
-            <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+            <span className="text-xs font-medium text-[var(--tb-green)]">
               {clause.clause_type}
             </span>
             <h3 className="font-semibold text-slate-900 dark:text-white">{clause.title}</h3>
@@ -31,7 +31,7 @@ function ClauseDetailCard({ clause }: { clause: Clause }) {
           <span className="font-semibold text-slate-900 dark:text-white">위험 근거 </span>
           <span className="text-slate-600 dark:text-slate-300">{clause.risk.risk_reason}</span>
         </p>
-        <p className="border-l-2 border-blue-200 pl-3 italic text-slate-500 dark:border-blue-800 dark:text-slate-400">
+        <p className="border-l-2 border-[var(--tb-green)]/30 pl-3 italic text-slate-500">
           “{clause.risk.evidence_quote}”
         </p>
         <p>
@@ -103,7 +103,7 @@ export function ReportView({ report }: { report: ContractReport }) {
 
       {/* 1. 번역 요약 */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-950">
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-[var(--tb-green)]">
           번역 요약
         </h2>
         <p className="leading-relaxed text-slate-700 dark:text-slate-200">
@@ -129,7 +129,7 @@ export function ReportView({ report }: { report: ContractReport }) {
 
       {/* 2. 주요 리스크 */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-950">
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--tb-green)]">
           주요 리스크
         </h2>
 
@@ -176,7 +176,7 @@ export function ReportView({ report }: { report: ContractReport }) {
 
       {/* 3. 협상 체크리스트 */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-950">
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--tb-green)]">
           협상 체크리스트
         </h2>
 
@@ -213,7 +213,7 @@ export function ReportView({ report }: { report: ContractReport }) {
 
       {/* 4. 전문가 연결 */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-950">
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-[var(--tb-green)]">
           전문가 연결
         </h2>
         <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
@@ -223,7 +223,7 @@ export function ReportView({ report }: { report: ContractReport }) {
         <button
           type="button"
           onClick={() => setShowExpertOptions((v) => !v)}
-          className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+          className="inline-flex items-center gap-2 bg-[var(--tb-green)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--tb-green-deep)]"
         >
           전문가 연결
           <span aria-hidden>{showExpertOptions ? "↑" : "→"}</span>

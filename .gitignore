@@ -17,3 +17,6 @@ api/static/
 public/
 
 .vercel
+
+# External reference repos (clone locally, do not commit)
+mvp_proj/refs/

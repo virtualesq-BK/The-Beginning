@@ -1,10 +1,88 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+  --tb-ink: #12241c;
+  --tb-muted: #5a6e64;
+  --tb-green: #1f8a5b;
+  --tb-green-deep: #146346;
+  --tb-green-soft: #e7f5ee;
+  --tb-sand: #f3f7f4;
+  --tb-line: #d5e3db;
+  --font-display:
+    "Pretendard Variable", "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic",
+    "Segoe UI", sans-serif;
+  --font-body:
+    "Pretendard Variable", "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic",
+    "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  color: var(--tb-ink);
+  font-family: var(--font-body);
+  background: var(--tb-sand);
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+@keyframes tb-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tb-ken {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes tb-loop-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(31, 138, 91, 0.28);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(31, 138, 91, 0);
+  }
+}
+
+.tb-fade-up {
+  animation: tb-fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tb-fade-up-delay-1 {
+  animation-delay: 0.12s;
+}
+
+.tb-fade-up-delay-2 {
+  animation-delay: 0.24s;
+}
+
+.tb-fade-up-delay-3 {
+  animation-delay: 0.36s;
+}
+
+.tb-hero-media {
+  animation: tb-ken 8s ease-out both;
+}
+
+.tb-loop-node {
+  animation: tb-loop-pulse 2.8s ease-in-out infinite;
 }
