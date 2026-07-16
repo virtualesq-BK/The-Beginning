@@ -1,6 +1,9 @@
 import type { ContractReport } from "../types";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000";
+// 로컬: Vite DEV면 백엔드(8000), 프로덕션: 같은 오리진(상대 경로)
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ??
+  (import.meta.env.DEV ? "http://127.0.0.1:8000" : "");
 
 export type ExpertRequestType = "translation_review" | "legal_expert";
 
