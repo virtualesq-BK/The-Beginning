@@ -96,7 +96,7 @@ export default function App() {
             {status !== "loading" && <span aria-hidden>→</span>}
           </button>
           <p className="mt-4 text-xs text-slate-400 dark:text-slate-500">
-            지원 형식: .txt · .pdf · .docx · .doc (스캔 이미지 PDF는 미지원)
+            지원 형식: .txt · .pdf · .docx · .doc · 최대 5페이지 (스캔 이미지 PDF는 미지원)
           </p>
         </div>
 
