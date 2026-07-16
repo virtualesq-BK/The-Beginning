@@ -12,4 +12,7 @@ frontend/.env
 frontend/vite.log
 uvicorn.log
 
+# Vercel build output (frontend copied here)
+api/static/
+
 .vercel

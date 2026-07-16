@@ -3,5 +3,4 @@ __pycache__
 *.pyc
 sample_contract.txt
 frontend/node_modules
-frontend/dist
 .env
