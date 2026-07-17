@@ -44,6 +44,7 @@ export function AuthModal() {
       if (message) {
         if (message.includes("가입 메일") || message.includes("확인 링크")) {
           setInfo(message);
+          openAuth("login", "이메일 확인 후 로그인해 주세요.");
         } else {
           setError(message);
         }

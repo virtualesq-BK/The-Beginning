@@ -30,7 +30,7 @@ const VALUE_PROPS = [
 ];
 
 export default function App() {
-  const { user, openAuth, signOut } = useAuth();
+  const { user, authNotice, clearAuthNotice, openAuth, signOut } = useAuth();
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<ContractReport | null>(null);
@@ -97,6 +97,21 @@ export default function App() {
           </div>
         </div>
       </header>
+
+      {authNotice && (
+        <div className="border-b border-[var(--tb-green)]/20 bg-[var(--tb-green-soft)] px-6 py-3">
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
+            <p className="text-sm text-[var(--tb-green-deep)]">{authNotice}</p>
+            <button
+              type="button"
+              onClick={clearAuthNotice}
+              className="shrink-0 text-sm font-semibold text-[var(--tb-green-deep)]"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Hero — Ironclad-style: brand, headline, support, CTA, full-bleed visual */}
       <section className="relative min-h-[min(92vh,920px)] overflow-hidden">
