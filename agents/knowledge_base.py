@@ -6,6 +6,7 @@ doc_id 단위로 확장하여 Pinecone에 적재한다.
 """
 
 from .vector_store import LocalVectorStore
+from .standard_contract_catalog import build_standard_contract_seed_docs
 
 SEED_DOCS = [
     {
@@ -58,7 +59,8 @@ SEED_DOCS = [
 
 def build_knowledge_store() -> LocalVectorStore:
     store = LocalVectorStore()
-    texts = [f"[{d['clause_type']}] {d['text']}" for d in SEED_DOCS]
-    metadatas = [{"doc_id": d["doc_id"], "clause_type": d["clause_type"], "text": d["text"]} for d in SEED_DOCS]
+    docs = SEED_DOCS + build_standard_contract_seed_docs()
+    texts = [f"[{d['clause_type']}] {d['text']}" for d in docs]
+    metadatas = [{"doc_id": d["doc_id"], "clause_type": d["clause_type"], "text": d["text"]} for d in docs]
     store.add(texts, metadatas)
     return store

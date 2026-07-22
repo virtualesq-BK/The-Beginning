@@ -25,3 +25,9 @@
 ## 참고
 - 본 문서는 분석 가능한 정보가 충분했던 서비스만 기준으로 작성됨.
 - thecodit.com/kr-ko, superlawyer.co.kr는 충분한 분석 정보가 없어 제외.
+
+## 공적 계약 레퍼런스
+- Korea Eximbank 영문국제계약양식 (`knowledge/KoreaEximbank/`)
+  - 약 80종(목록 77건) DOC 영문 계약 서식
+  - 수출·건설·PF·보증/신용장 등 분류
+  - The Beginning의 해외계약 리스크·협상 체크리스트 보강용

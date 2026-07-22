@@ -63,3 +63,23 @@ export async function requestExpert(requestType: ExpertRequestType): Promise<voi
     throw new Error(errorDetail(body, `전문가 연결 요청에 실패했습니다 (HTTP ${res.status})`));
   }
 }
+
+export type StandardContractItem = {
+  id: string;
+  title: string;
+  category: string;
+  group: string;
+  description: string;
+  detail: string;
+  url: string;
+  tags: string[];
+};
+
+export async function getStandardContracts(): Promise<StandardContractItem[]> {
+  const res = await fetch(`${API_BASE}/api/v1/standard-contracts`);
+  if (!res.ok) {
+    throw new Error("표준계약서 자료를 불러오지 못했습니다.");
+  }
+  const body = await res.json();
+  return body.items ?? [];
+}

@@ -7,9 +7,12 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from anthropic import PermissionDeniedError as AnthropicPermissionDeniedError
+
 from pipeline import run_pipeline
 from agents.file_extractor import extract_text, SUPPORTED_EXTENSIONS
 from agents.mailer import send_expert_request
+from agents.standard_contract_catalog import STANDARD_CONTRACT_RESOURCES
 
 app = FastAPI(title="The Beginning - Legal Intelligence API")
 
@@ -50,6 +53,11 @@ async def analyze_contract(file: UploadFile = File(...)):
         report = run_pipeline(raw_text)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except AnthropicPermissionDeniedError as e:
+        raise HTTPException(
+            status_code=502,
+            detail="모델 호출이 차단되었습니다. Anthropic 키, 라우터 권한, 또는 현재 모델 접근 설정을 확인해 주세요.",
+        ) from e
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"분석 중 오류가 발생했습니다: {e}")
 
@@ -64,6 +72,11 @@ def create_expert_request(body: ExpertRequestBody):
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"전문가 연결 요청 메일 발송에 실패했습니다: {e}")
+
+
+@app.get("/api/v1/standard-contracts")
+def list_standard_contracts():
+    return {"items": STANDARD_CONTRACT_RESOURCES}
 
 
 def _register_frontend_routes() -> None:
