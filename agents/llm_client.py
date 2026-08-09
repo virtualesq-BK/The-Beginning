@@ -7,6 +7,16 @@ load_dotenv()
 
 _ANTHROPIC_CLIENT = None
 _OPENAI_CLIENT = None
+_UNIVERSAL_CLIENT = None
+
+if os.environ.get("Universal_API"):
+    from openai import OpenAI
+
+    _UNIVERSAL_CLIENT = OpenAI(
+        api_key=os.environ["Universal_API"],
+        base_url=os.environ.get("Universal_URL"),
+        default_headers={"User-Agent": "curl/8.4.0"},
+    )
 
 if os.environ.get("OPENAI_API_KEY"):
     from openai import OpenAI
@@ -27,6 +37,7 @@ if os.environ.get("ANTHROPIC_API_KEY") and os.environ.get("ANTHROPIC_ENABLE", "0
 
 _MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-3-5-sonnet-latest")
 _OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+_UNIVERSAL_MODEL = os.environ.get("Universal_MODEL", "gpt-5-nano-chat")
 
 
 def _extract_text(response) -> str:
@@ -77,6 +88,31 @@ def chat(system: str, user: str, temperature: float = 0.2, json_mode: bool = Fal
     if _OPENAI_CLIENT is None:
         raise RuntimeError("No LLM client configured")
 
+
+
+def chat_universal(
+    system: str,
+    user: str,
+    temperature: float = 0.2,
+    json_mode: bool = False,
+    model: str | None = None,
+) -> str:
+    """Universal_API/Universal_URL 게이트웨이(monorouter) 전용 클라이언트로 호출한다."""
+    if _UNIVERSAL_CLIENT is None:
+        raise RuntimeError("Universal LLM client is not configured (Universal_API/Universal_URL)")
+    kwargs = {}
+    if json_mode:
+        kwargs["response_format"] = {"type": "json_object"}
+    resp = _UNIVERSAL_CLIENT.chat.completions.create(
+        model=model or _UNIVERSAL_MODEL,
+        temperature=temperature,
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ],
+        **kwargs,
+    )
+    return _extract_text(resp)
 
 
 def chat_json(system: str, user: str, temperature: float = 0.2) -> dict:

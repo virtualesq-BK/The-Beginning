@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc --noEmit)",
+      "Bash(npx vitest run)",
+      "Bash(vercel env ls)",
+      "Bash(git check-ignore *)",
+      "Bash(vercel --version)"
+    ]
+  }
+}

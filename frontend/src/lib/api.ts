@@ -83,3 +83,67 @@ export async function getStandardContracts(): Promise<StandardContractItem[]> {
   const body = await res.json();
   return body.items ?? [];
 }
+
+export type ContractTemplateFieldOption = { value: string; label: string };
+
+export type ContractTemplateField = {
+  key: string;
+  label: string;
+  type: "text" | "textarea" | "select" | "date" | "number";
+  required?: boolean;
+  placeholder?: string;
+  options?: ContractTemplateFieldOption[];
+};
+
+export type ContractTemplate = {
+  id: string;
+  title: string;
+  family: string;
+  description: string;
+  fields: ContractTemplateField[];
+};
+
+export async function getContractTemplates(): Promise<ContractTemplate[]> {
+  const res = await fetch(`${API_BASE}/api/v1/contract-templates`);
+  if (!res.ok) {
+    throw new Error("계약서 템플릿 목록을 불러오지 못했습니다.");
+  }
+  const body = await res.json();
+  return body.items ?? [];
+}
+
+export type GeneratedClause = {
+  clause_no: number;
+  heading: string;
+  body_en: string;
+  commentary_kr: string;
+};
+
+export type GeneratedContract = {
+  template_id: string;
+  template_title: string;
+  title: string;
+  recitals: string;
+  clauses: GeneratedClause[];
+  signature_block: string;
+  references: { doc_id: string; score: number }[];
+  disclaimer: string;
+};
+
+export async function generateContract(
+  templateId: string,
+  answers: Record<string, string>,
+): Promise<GeneratedContract> {
+  const res = await fetch(`${API_BASE}/api/v1/contract-templates/${templateId}/generate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ answers }),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(errorDetail(body, `계약서 초안 생성에 실패했습니다 (HTTP ${res.status})`));
+  }
+
+  return res.json();
+}

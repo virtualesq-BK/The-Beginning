@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { analyzeContract, getStandardContracts, type StandardContractItem } from "./lib/api";
 import { useEffect, useMemo } from "react";
 import { StandardContractDetail } from "./components/StandardContractDetail";
+import { ContractGenerator } from "./components/ContractGenerator";
 import { saveContractUpload } from "./lib/contracts";
 import { ReportView } from "./components/ReportView";
 import type { ContractReport } from "./types";
@@ -42,6 +43,7 @@ export default function App() {
   const [detailId, setDetailId] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const uploadRef = useRef<HTMLElement>(null);
+  const generatorRef = useRef<HTMLElement>(null);
 
   useState(() => {
     void getStandardContracts()
@@ -136,6 +138,13 @@ export default function App() {
             )}
             <button
               type="button"
+              onClick={() => generatorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              className="border border-[var(--tb-line)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)]"
+            >
+              계약서 자동 생성
+            </button>
+            <button
+              type="button"
               onClick={triggerUpload}
               disabled={status === "loading"}
               className="bg-[var(--tb-green)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--tb-green-deep)] disabled:opacity-50"
@@ -178,9 +187,9 @@ export default function App() {
             The Beginning
           </p>
           <h1 className="tb-fade-up tb-fade-up-delay-1 mt-5 max-w-3xl font-display text-3xl font-medium leading-[1.15] tracking-tight text-white sm:text-4xl md:text-5xl">
-            해외 계약을 움직이고,
+            해외 계약 서명 전,
             <br />
-            <em className="not-italic text-[var(--tb-green-soft)]">리스크를 먼저 드러냅니다</em>
+            <em className="not-italic text-[var(--tb-green-soft)]">5분이면 충분합니다</em>
           </h1>
           <p className="tb-fade-up tb-fade-up-delay-2 mt-5 max-w-xl text-base leading-relaxed text-white/80 sm:text-lg">
             특히 대규모 해외 건설 사업인 FIDIC·EPC 실무도 포함하여 AI가 번역 요약부터 주요 리스크, 협상 체크리스트까지 한 번에
@@ -389,6 +398,26 @@ export default function App() {
         </div>
       </section>
 
+      {/* Contract generator */}
+      <section ref={generatorRef} className="border-t border-[var(--tb-line)] bg-[var(--tb-sand)] px-6 py-20">
+        <div className="mx-auto max-w-6xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
+            Contract Generator
+          </p>
+          <h2 className="mt-3 max-w-2xl font-display text-3xl font-semibold tracking-tight text-[var(--tb-ink)] sm:text-4xl">
+            인하우스 변호사 없이도,
+            <br />
+            몇 가지 질문으로 영문 계약서 초안을
+          </h2>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-[var(--tb-muted)]">
+            해외 진출을 준비하는 중소기업·스타트업을 위한 서비스입니다. 계약 유형을 고르고 거래 조건을
+            입력하면, 표준계약서 자료를 근거로 영문 초안과 조항별 한국어 해설을 함께 만들어 드립니다.
+          </p>
+
+          <ContractGenerator requireAuth={requireAuth} />
+        </div>
+      </section>
+
       {/* Upload / results anchor */}
       <section ref={uploadRef} className="border-t border-[var(--tb-line)] px-6 py-20">
         <div className="mx-auto max-w-6xl">
@@ -439,8 +468,7 @@ export default function App() {
           <div>
             <p className="font-display text-2xl font-semibold text-white">The Beginning</p>
             <p className="mt-2 max-w-lg text-sm leading-relaxed">
-              본 서비스는 참고용 정보를 제공하며 법적 효력이 없습니다. 해외 건설·인프라 계약의 1차 AI
-              검토에 집중합니다.
+              본 서비스는 참고용 정보를 제공하며 법적 효력이 없습니다.
             </p>
           </div>
           <p className="text-xs">© 2026 The Beginning · NoFear</p>

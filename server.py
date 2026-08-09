@@ -13,6 +13,8 @@ from pipeline import run_pipeline
 from agents.file_extractor import extract_text, SUPPORTED_EXTENSIONS
 from agents.mailer import send_expert_request
 from agents.standard_contract_catalog import STANDARD_CONTRACT_RESOURCES
+from agents.contract_templates import list_templates
+from agents.contract_generator import generate_contract
 
 app = FastAPI(title="The Beginning - Legal Intelligence API")
 
@@ -32,6 +34,10 @@ if not STATIC_DIR.is_dir():
 
 class ExpertRequestBody(BaseModel):
     request_type: Literal["translation_review", "legal_expert"]
+
+
+class ContractGenerateBody(BaseModel):
+    answers: dict[str, str] = {}
 
 
 @app.get("/health")
@@ -77,6 +83,26 @@ def create_expert_request(body: ExpertRequestBody):
 @app.get("/api/v1/standard-contracts")
 def list_standard_contracts():
     return {"items": STANDARD_CONTRACT_RESOURCES}
+
+
+@app.get("/api/v1/contract-templates")
+def list_contract_templates():
+    return {"items": list_templates()}
+
+
+@app.post("/api/v1/contract-templates/{template_id}/generate")
+def create_contract_draft(template_id: str, body: ContractGenerateBody):
+    try:
+        return generate_contract(template_id, body.answers)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except AnthropicPermissionDeniedError as e:
+        raise HTTPException(
+            status_code=502,
+            detail="모델 호출이 차단되었습니다. Anthropic 키, 라우터 권한, 또는 현재 모델 접근 설정을 확인해 주세요.",
+        ) from e
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"계약서 초안 생성 중 오류가 발생했습니다: {e}")
 
 
 def _register_frontend_routes() -> None:
