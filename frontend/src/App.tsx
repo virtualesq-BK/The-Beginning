@@ -15,7 +15,7 @@ const LIFECYCLE = [
   { step: "01", title: "번역 요약", desc: "해외 계약 조항을 한국어로 정리합니다." },
   { step: "02", title: "리스크 검토", desc: "고위험 조항과 근거를 먼저 보여줍니다." },
   { step: "03", title: "협상 체크", desc: "수정·협상 포인트를 체크리스트로 만듭니다." },
-  { step: "04", title: "전문가 연결", desc: "필요하면 검수·법률 전문가로 이어집니다." },
+  { step: "04", title: "전 세계 전문가 연결", desc: "필요하면 검수·법률 전문가로 이어집니다." },
 ];
 
 const VALUE_PROPS = [
@@ -47,6 +47,27 @@ export default function App() {
   const inputRef = useRef<HTMLInputElement>(null);
   const uploadRef = useRef<HTMLElement>(null);
   const generatorRef = useRef<HTMLElement>(null);
+  const introVideoRef = useRef<HTMLVideoElement>(null);
+  const [showIntro, setShowIntro] = useState(true);
+  const [needsSoundTap, setNeedsSoundTap] = useState(false);
+
+  useEffect(() => {
+    const video = introVideoRef.current;
+    if (!video) return;
+    video.play().catch(() => setNeedsSoundTap(true));
+  }, []);
+
+  function closeIntro() {
+    setShowIntro(false);
+  }
+
+  function unmuteIntro() {
+    const video = introVideoRef.current;
+    if (!video) return;
+    video.muted = false;
+    video.play().catch(() => {});
+    setNeedsSoundTap(false);
+  }
 
   useState(() => {
     void getStandardContracts()
@@ -111,6 +132,35 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[var(--tb-sand)] text-[var(--tb-ink)]">
+      {showIntro && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 px-4">
+          <div className="relative w-full max-w-2xl">
+            <button
+              type="button"
+              onClick={closeIntro}
+              className="absolute -top-10 right-0 text-sm font-semibold text-white/80 hover:text-white"
+            >
+              닫기 ✕
+            </button>
+            <video
+              ref={introVideoRef}
+              src="/hero.mp4"
+              playsInline
+              onEnded={closeIntro}
+              className="w-full bg-black"
+            />
+            {needsSoundTap && (
+              <button
+                type="button"
+                onClick={unmuteIntro}
+                className="absolute inset-0 flex items-center justify-center bg-black/40 text-base font-semibold text-white"
+              >
+                🔊 소리와 함께 재생하기
+              </button>
+            )}
+          </div>
+        </div>
+      )}
       <div className="sticky top-0 z-30">
         {isPromoActive() && (
           <div className="bg-[var(--tb-green-deep)] px-6 py-2.5 text-center text-sm font-semibold text-white">
@@ -205,7 +255,7 @@ export default function App() {
             <em className="not-italic text-[var(--tb-green-soft)]">5분이면 충분합니다</em>
           </h1>
           <p className="tb-fade-up tb-fade-up-delay-2 mt-5 max-w-xl text-base leading-relaxed text-white/80 sm:text-lg">
-            특히 대규모 해외 건설 사업인 FIDIC·EPC 실무도 포함하여 AI가 번역 요약부터 주요 리스크, 협상 체크리스트까지 한 번에
+            각종 해외 계약서(복잡한 대규모 해외 인프라 투자/건설 PF 사업 관련 FIDIC·EPC 실무 포함)를 해외 법률 전문가들이 직접 훈련시킨 AI가 번역 요약부터 주요 리스크, 협상 체크리스트까지 한 번에
             정리합니다.
           </p>
           <div className="tb-fade-up tb-fade-up-delay-3 mt-8 flex flex-wrap items-center gap-4">
@@ -246,7 +296,7 @@ export default function App() {
           {[
             { label: "1차 검토 속도", value: "수 분 내", note: "업로드 후 AI 분석" },
             { label: "검토 범위", value: "번역·리스크·협상", note: "의사결정에 필요한 핵심만" },
-            { label: "다음 단계", value: "전문가 연결", note: "검수·해외 법률 자문" },
+            { label: "다음 단계", value: "전 세계 전문가 연결", note: "검수·해외 법률 자문" },
           ].map((item) => (
             <div key={item.label}>
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--tb-green)]">

@@ -14,7 +14,6 @@ uvicorn.log
 
 # build outputs copied for Vercel
 api/static/
-public/
 
 .vercel
 
