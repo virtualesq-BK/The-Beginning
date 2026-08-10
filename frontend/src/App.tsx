@@ -7,6 +7,7 @@ import { saveContractUpload } from "./lib/contracts";
 import { ReportView } from "./components/ReportView";
 import type { ContractReport } from "./types";
 import founderPhoto from "./assets/founder.jpg";
+import heroVideo from "./assets/the beginning.mp4";
 import { useAuth } from "./contexts/AuthContext";
 
 type Status = "idle" | "loading" | "error";
@@ -144,7 +145,7 @@ export default function App() {
             </button>
             <video
               ref={introVideoRef}
-              src="/hero.mp4"
+              src={heroVideo}
               playsInline
               onEnded={closeIntro}
               className="w-full bg-black"
