@@ -111,15 +111,16 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[var(--tb-sand)] text-[var(--tb-ink)]">
-      {isPromoActive() && (
-        <div className="relative z-30 bg-[var(--tb-green-deep)] px-6 py-2.5 text-center text-sm font-semibold text-white">
-          <span className="mr-2 rounded-full bg-white/15 px-2 py-0.5 text-xs font-bold uppercase tracking-[0.1em]">
-            MVP 베타 출시
-          </span>
-          회원가입 시 8월 말까지 무제한 사용 · 지금 가입하고 바로 시작하세요
-        </div>
-      )}
-      <header className="sticky top-0 z-20 border-b border-[var(--tb-line)]/80 bg-[var(--tb-sand)]/90 backdrop-blur-md">
+      <div className="sticky top-0 z-30">
+        {isPromoActive() && (
+          <div className="bg-[var(--tb-green-deep)] px-6 py-2.5 text-center text-sm font-semibold text-white">
+            <span className="mr-2 rounded-full bg-white/15 px-2 py-0.5 text-xs font-bold uppercase tracking-[0.1em]">
+              MVP 베타 출시
+            </span>
+            회원가입 시 8월 말까지 무제한 사용 · 지금 가입하고 바로 시작하세요
+          </div>
+        )}
+        <header className="border-b border-[var(--tb-line)]/80 bg-[var(--tb-sand)]/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
           <a href="#" className="font-display text-2xl font-semibold tracking-tight text-[var(--tb-ink)]">
             The Beginning
@@ -164,7 +165,8 @@ export default function App() {
             </button>
           </div>
         </div>
-      </header>
+        </header>
+      </div>
 
       {authNotice && (
         <div className="border-b border-[var(--tb-green)]/20 bg-[var(--tb-green-soft)] px-6 py-3">
