@@ -7,7 +7,7 @@ import { saveContractUpload } from "./lib/contracts";
 import { ReportView } from "./components/ReportView";
 import type { ContractReport } from "./types";
 import founderPhoto from "./assets/-OzlO6oyRj3-T6ROIXgs_Dropshot.jpg";
-import heroVideo from "./assets/the beginning.mp4";
+import heroVideo from "./assets/0812.mp4";
 import { useAuth } from "./contexts/AuthContext";
 
 type Status = "idle" | "loading" | "error";
@@ -168,7 +168,7 @@ export default function App() {
             <span className="mr-2 rounded-full bg-white/15 px-2 py-0.5 text-xs font-bold uppercase tracking-[0.1em]">
               MVP 베타 출시
             </span>
-            회원가입 시 8월 말까지 무제한 사용 · 지금 가입하고 바로 시작하세요
+            회원가입 시 8월 말까지 무료로 무제한 사용 · 지금 가입하고 바로 시작하세요
           </div>
         )}
         <header className="border-b border-[var(--tb-line)]/80 bg-[var(--tb-sand)]/90 backdrop-blur-md">
