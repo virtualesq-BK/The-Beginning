@@ -6,7 +6,7 @@ import { ContractGenerator } from "./components/ContractGenerator";
 import { saveContractUpload } from "./lib/contracts";
 import { ReportView } from "./components/ReportView";
 import type { ContractReport } from "./types";
-import founderPhoto from "./assets/founder.jpg";
+import founderPhoto from "./assets/-OzlO6oyRj3-T6ROIXgs_Dropshot.jpg";
 import heroVideo from "./assets/the beginning.mp4";
 import { useAuth } from "./contexts/AuthContext";
 
