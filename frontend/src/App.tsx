@@ -535,7 +535,7 @@ export default function App() {
 
       <section className="border-t border-[var(--tb-line)] bg-[var(--tb-sand)] px-6 py-20">
         <div className="mx-auto max-w-6xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green-deep)]">
+          <p className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
             해외 건설 계약 Special
           </p>
 
