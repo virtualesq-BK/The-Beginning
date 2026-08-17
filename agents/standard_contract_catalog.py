@@ -50,6 +50,16 @@ STANDARD_CONTRACT_RESOURCES = [
         "tags": ["CISG", "UNCITRAL", "비엔나협약", "국제매매"],
     },
     {
+        "id": "fidic-standard-form-overview",
+        "title": "FIDIC 해외건설 표준계약 비교 요약",
+        "category": "법률·실무 요약",
+        "group": "건설·플랜트",
+        "description": "FIDIC의 Red/Yellow/Silver Book 구조와 리스크 배분, 핵심 조항, 협상 포인트를 저작권-safe하게 정리한 비교 자료입니다.",
+        "detail": "FIDIC 원문을 그대로 복제하지 않고, 패밀리별 책임 구조와 비교 포인트를 중심으로 해외건설 계약 검토에 필요한 실무 관점을 정리했습니다. 초기 협상, 위험 분류, 표준계약서 비교 분석에 유용합니다.",
+        "url": "#",
+        "tags": ["FIDIC", "건설", "EPC", "표준계약", "해외건설"],
+    },
+    {
         "id": "kotra-trade-forms",
         "title": "KOTRA 무역자료실 영문 표준계약서",
         "category": "무료·영문 표준계약",
@@ -123,6 +133,11 @@ def build_standard_contract_seed_docs():
             "doc_id": "STD-CISG-001",
             "clause_type": "표준계약서",
             "text": "CISG(비엔나협약)는 한국을 포함한 체약국 소재 당사자 간 국제물품매매계약에 별도 합의 없이도 자동 적용되는 UN 조약으로, 준거법 조항만으로는 적용이 배제되지 않을 수 있어 계약서에 명시적 배제/적용 여부를 기재해야 한다. 검사·통지 기한(수령 후 2년 이내), 근본적 위반 요건에 따른 계약해제 제한, 위험이전 시점 등이 국내 민법과 달라 국제물품매매계약·구매계약 체결 시 반드시 확인해야 한다.",
+        },
+        {
+            "doc_id": "STD-FIDIC-001",
+            "clause_type": "표준계약서",
+            "text": "FIDIC 표준계약은 건설·플랜트·EPC 프로젝트에서 가장 널리 쓰이는 국제 표준 체계로, Red Book(Construction), Yellow Book(Plant & Design-Build), Silver Book(EPC/Turnkey)으로 위험 배분이 나뉜다. 각 패밀리는 설계 책임, 변경지시, 공기 연장, 지체상금, 하자보수, 책임한도, 분쟁해결 구조가 달라 협상 시 비교 검토가 필수적이다.",
         },
         {
             "doc_id": "STD-KOTRA-FORMS-001",
