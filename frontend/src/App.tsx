@@ -8,6 +8,7 @@ import { ReportView } from "./components/ReportView";
 import type { ContractReport } from "./types";
 import founderPhoto from "./assets/-OzlO6oyRj3-T6ROIXgs_Dropshot.jpg";
 import heroVideo from "./assets/0812.mp4";
+import testimonialsImage from "./assets/testimonials.png";
 import { useAuth } from "./contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
@@ -448,6 +449,25 @@ export default function App() {
                 <p className="mt-3 text-sm leading-relaxed text-[var(--tb-muted)]">{item.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* User testimonials */}
+      <section className="border-t border-[var(--tb-line)] bg-white px-6 py-20">
+        <div className="mx-auto max-w-6xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
+            Testimonials
+          </p>
+          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+            사용자 후기
+          </h2>
+          <div className="mt-8 overflow-hidden rounded-2xl border border-[var(--tb-line)]">
+            <img
+              src={testimonialsImage}
+              alt="사용자 후기: 글로벌 마케팅 매니저, 스타트업 대표, 수출입 담당자의 실제 이용 후기"
+              className="mx-auto max-w-xl w-full"
+            />
           </div>
         </div>
       </section>
