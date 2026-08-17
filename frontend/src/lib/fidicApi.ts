@@ -18,6 +18,7 @@ export type FIDICComparisonResponse = {
   focus_areas: string[];
   balance: "발주자 유리" | "시공사 유리" | "균형형";
   bias_scores: { employer: number; contractor: number };
+  contract_text?: string;
 };
 
 const API_BASE =
@@ -54,6 +55,7 @@ export async function getFIDICComparisonById(comparisonId: string): Promise<FIDI
         focus_areas: data.focus_areas,
         balance: data.balance,
         bias_scores: data.bias_scores,
+        contract_text: data.contract_text ?? "",
       } as FIDICComparisonResponse;
     }
   }
@@ -72,6 +74,7 @@ export async function getFIDICComparisonById(comparisonId: string): Promise<FIDI
     focus_areas: body.focus_areas,
     balance: body.balance,
     bias_scores: body.bias_scores,
+    contract_text: body.contract_text ?? "",
   } as FIDICComparisonResponse;
 }
 
@@ -135,7 +138,7 @@ export async function listSavedFIDICComparisons(): Promise<{ id: string; overall
         .select("comparison_id, overall_score, balance")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
-        .limit(5);
+        .limit(10);
 
       if (!error && data) {
         return (data ?? []).map((item) => ({
@@ -155,6 +158,34 @@ export async function listSavedFIDICComparisons(): Promise<{ id: string; overall
     overall_score: item.overall_score,
     balance: item.balance,
   }));
+}
+
+export async function deleteFIDICComparisonById(comparisonId: string): Promise<void> {
+  if (supabase) {
+    const userResult = await supabase.auth.getUser();
+    const user = userResult.data?.user ?? null;
+
+    if (user) {
+      const { error } = await supabase
+        .from("fidic_comparisons")
+        .delete()
+        .eq("comparison_id", comparisonId)
+        .eq("user_id", user.id);
+
+      if (!error) {
+        return;
+      }
+    }
+  }
+
+  const res = await fetch(`${API_BASE}/api/v1/fidic/compare/history/${comparisonId}`, {
+    method: "DELETE",
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body?.detail ?? "저장 내역 삭제에 실패했습니다.");
+  }
 }
 
 export async function exportFIDICComparisonReport(contractText: string): Promise<void> {

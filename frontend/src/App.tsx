@@ -11,6 +11,7 @@ import heroVideo from "./assets/0812.mp4";
 import { useAuth } from "./contexts/AuthContext";
 import {
   compareDraftToFIDICAPI,
+  deleteFIDICComparisonById,
   exportFIDICComparisonJSONReport,
   exportFIDICComparisonReport,
   getFIDICComparisonById,
@@ -64,6 +65,8 @@ export default function App() {
   const [contractTextInput, setContractTextInput] = useState<string>("");
   const [comparisonResult, setComparisonResult] = useState<FIDICComparisonResponse | null>(null);
   const [savedComparisons, setSavedComparisons] = useState<Array<{ id: string; overall_score: number; balance: string }>>([]);
+  const [historyView, setHistoryView] = useState<"list" | "detail">("list");
+  const [selectedSavedComparisonId, setSelectedSavedComparisonId] = useState<string | null>(null);
   const [comparisonError, setComparisonError] = useState<string | null>(null);
   const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -229,10 +232,58 @@ export default function App() {
   async function handleLoadSavedComparison(comparisonId: string) {
     try {
       const result = await getFIDICComparisonById(comparisonId);
+      setSelectedSavedComparisonId(comparisonId);
       setComparisonResult(result);
-      setContractTextInput(contractTextInput || "");
+      setContractTextInput(result.contract_text ?? contractTextInput);
+      setHistoryView("detail");
     } catch (e) {
       setComparisonError(e instanceof Error ? e.message : "저장된 비교 결과를 불러오지 못했습니다.");
+    }
+  }
+
+  async function handleDeleteSavedComparison(comparisonId: string) {
+    if (!window.confirm("이 저장 내역을 삭제하시겠습니까?")) return;
+
+    try {
+      await deleteFIDICComparisonById(comparisonId);
+      if (selectedSavedComparisonId === comparisonId) {
+        setSelectedSavedComparisonId(null);
+        setHistoryView("list");
+      }
+      if (comparisonResult && comparisonResult.contract_text && comparisonId === selectedSavedComparisonId) {
+        setComparisonResult(null);
+      }
+      await refreshSavedComparisons();
+    } catch (e) {
+      setComparisonError(e instanceof Error ? e.message : "저장 내역 삭제에 실패했습니다.");
+    }
+  }
+
+  async function handleExportSavedComparisonReport() {
+    const savedText = comparisonResult?.contract_text ?? contractTextInput;
+    if (!savedText.trim()) {
+      setComparisonError("내보낼 저장된 계약 내용을 찾을 수 없습니다.");
+      return;
+    }
+
+    try {
+      await exportFIDICComparisonReport(savedText);
+    } catch (e) {
+      setComparisonError(e instanceof Error ? e.message : "저장 결과 PDF 내보내기에 실패했습니다.");
+    }
+  }
+
+  async function handleExportSavedComparisonJSONReport() {
+    const savedText = comparisonResult?.contract_text ?? contractTextInput;
+    if (!savedText.trim()) {
+      setComparisonError("내보낼 저장된 계약 내용을 찾을 수 없습니다.");
+      return;
+    }
+
+    try {
+      await exportFIDICComparisonJSONReport(savedText);
+    } catch (e) {
+      setComparisonError(e instanceof Error ? e.message : "저장 결과 JSON 내보내기에 실패했습니다.");
     }
   }
 
@@ -750,31 +801,79 @@ export default function App() {
             </div>
           )}
 
-          {savedComparisons.length > 0 && (
-            <div className="mt-8 rounded-2xl border border-[var(--tb-line)] bg-white p-5 shadow-sm">
+          <div className="mt-8 rounded-2xl border border-[var(--tb-line)] bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--tb-green)]">내 저장 내역</p>
+              <button
+                type="button"
+                onClick={() => setHistoryView((current) => (current === "list" ? "detail" : "list"))}
+                className="text-xs font-semibold text-[var(--tb-green)] underline-offset-2 hover:underline"
+              >
+                {historyView === "list" ? "상세 보기" : "목록 보기"}
+              </button>
+            </div>
+
+            {historyView === "list" && savedComparisons.length > 0 && (
               <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {savedComparisons.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => void handleLoadSavedComparison(item.id)}
-                    className="rounded-xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-3 text-left transition hover:border-[var(--tb-green)] hover:bg-[var(--tb-green-soft)]"
-                  >
-                    <div className="text-xs text-[var(--tb-muted)]">{item.id.slice(0, 8)}</div>
-                    <div className="mt-2 text-lg font-semibold text-[var(--tb-ink)]">{item.overall_score}</div>
-                    <div className="text-sm text-[var(--tb-muted)]">{item.balance}</div>
-                  </button>
+                  <div key={item.id} className="rounded-xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-3">
+                    <button
+                      type="button"
+                      onClick={() => void handleLoadSavedComparison(item.id)}
+                      className="block w-full text-left"
+                    >
+                      <div className="text-xs text-[var(--tb-muted)]">{item.id.slice(0, 8)}</div>
+                      <div className="mt-2 text-lg font-semibold text-[var(--tb-ink)]">{item.overall_score}</div>
+                      <div className="text-sm text-[var(--tb-muted)]">{item.balance}</div>
+                    </button>
+                  </div>
                 ))}
               </div>
-            </div>
-          )}
+            )}
 
-          {!user && savedComparisons.length === 0 && (
-            <div className="mt-8 rounded-2xl border border-dashed border-[var(--tb-line)] bg-white p-5 text-sm text-[var(--tb-muted)]">
-              로그인하면 비교 결과를 개인별 저장 목록에서 다시 조회할 수 있습니다.
-            </div>
-          )}
+            {historyView === "detail" && comparisonResult && (
+              <div className="mt-4 rounded-xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <div className="text-xs text-[var(--tb-muted)]">{selectedSavedComparisonId?.slice(0, 8)}</div>
+                    <div className="mt-1 text-xl font-semibold text-[var(--tb-ink)]">점수 {comparisonResult.overall_score} / 100</div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={handleExportSavedComparisonReport}
+                      className="border border-[var(--tb-line)] bg-white px-3 py-2 text-xs font-semibold text-[var(--tb-ink)] hover:bg-[var(--tb-green-soft)]"
+                    >
+                      PDF 재다운로드
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleExportSavedComparisonJSONReport}
+                      className="border border-[var(--tb-line)] bg-white px-3 py-2 text-xs font-semibold text-[var(--tb-ink)] hover:bg-[var(--tb-green-soft)]"
+                    >
+                      JSON 재다운로드
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void handleDeleteSavedComparison(selectedSavedComparisonId ?? "")}
+                      className="border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-100"
+                    >
+                      삭제
+                    </button>
+                  </div>
+                </div>
+                <p className="mt-4 text-sm leading-relaxed text-[var(--tb-muted)]">{comparisonResult.summary}</p>
+              </div>
+            )}
+
+            {savedComparisons.length === 0 && (
+              <div className="mt-4 rounded-xl border border-dashed border-[var(--tb-line)] bg-[var(--tb-sand)] p-4 text-sm text-[var(--tb-muted)]">
+                {user
+                  ? "저장된 비교 내역이 아직 없습니다. 계약서를 비교해 첫 기록을 남겨보세요."
+                  : "로그인하면 비교 결과를 개인별 저장 목록에서 다시 조회할 수 있습니다."}
+              </div>
+            )}
+          </div>
         </div>
       </section>
 

@@ -132,7 +132,14 @@ def save_fidic_comparison(body: FIDICComparisonSaveBody):
     try:
         result = compare_contract_to_fidic(body.contract_text)
         comparison_id = body.comparison_id or f"fidic-{len(COMPARISON_RESULTS) + 1}"
-        COMPARISON_RESULTS[comparison_id] = {"id": comparison_id, "user_id": body.user_id, **result}
+        payload = {
+            "id": comparison_id,
+            "comparison_id": comparison_id,
+            "user_id": body.user_id,
+            "contract_text": body.contract_text,
+            **result,
+        }
+        COMPARISON_RESULTS[comparison_id] = payload
         return {"comparison_id": comparison_id, "result": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"FIDIC 비교 결과 저장 중 오류가 발생했습니다: {e}")
@@ -149,6 +156,14 @@ def get_fidic_comparison_history_item(comparison_id: str):
     if not item:
         raise HTTPException(status_code=404, detail="저장된 비교 결과를 찾을 수 없습니다.")
     return item
+
+
+@app.delete("/api/v1/fidic/compare/history/{comparison_id}")
+def delete_fidic_comparison_history_item(comparison_id: str):
+    if comparison_id not in COMPARISON_RESULTS:
+        raise HTTPException(status_code=404, detail="삭제할 저장 내역이 없습니다.")
+    del COMPARISON_RESULTS[comparison_id]
+    return {"deleted": True, "comparison_id": comparison_id}
 
 
 @app.post("/api/v1/fidic/compare/export")

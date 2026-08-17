@@ -1,6 +1,9 @@
 import unittest
 
+from fastapi.testclient import TestClient
+
 from agents.fidic_comparison import compare_contract_to_fidic, generate_fidic_pdf_bytes
+from server import app, COMPARISON_RESULTS
 
 
 class FIDICComparisonEngineTest(unittest.TestCase):
@@ -28,6 +31,23 @@ class FIDICComparisonEngineTest(unittest.TestCase):
         })
         self.assertTrue(pdf_bytes.startswith(b"%PDF"))
         self.assertGreater(len(pdf_bytes), 100)
+
+    def test_history_delete_endpoint_roundtrip(self):
+        COMPARISON_RESULTS.clear()
+        client = TestClient(app)
+        payload = {"contract_text": "The Employer may vary the Works without compensation."}
+
+        save_response = client.post("/api/v1/fidic/compare/save", json=payload)
+        self.assertEqual(save_response.status_code, 200)
+        comparison_id = save_response.json()["comparison_id"]
+
+        detail_response = client.get(f"/api/v1/fidic/compare/history/{comparison_id}")
+        self.assertEqual(detail_response.status_code, 200)
+        self.assertIn("contract_text", detail_response.json())
+
+        delete_response = client.delete(f"/api/v1/fidic/compare/history/{comparison_id}")
+        self.assertEqual(delete_response.status_code, 200)
+        self.assertEqual(client.get(f"/api/v1/fidic/compare/history/{comparison_id}").status_code, 404)
 
 
 if __name__ == "__main__":
