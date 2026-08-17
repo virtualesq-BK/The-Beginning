@@ -13,6 +13,8 @@
 ### CONSTRUCTION
 - [Oman Standard Documents for Building and Civil Engineering Works](./oman-building-civil-standard-documents.md) — 오만 건축·토목 표준계약 문서 세트
 - [FIDIC Standard Form Overview](./fidic-standard-form-overview.md) — FIDIC 패밀리별 구조, 리스크 배분, 협상 포인트를 비교 분석한 저작권-safe 요약
+- [FIDIC vs User Construction Contract Comparison](./fidic-construction-comparison.md) — 계약서 비교용 표, 대시보드 메트릭, 위험 포인트 정리
+- [Overseas Construction Dashboard Blueprint](./fidic-dashboard-structure.md) — FIDIC와 사용자 입력 계약서의 한 번에 보기 대시보드 설계
 
 ### DISTRIBUTOR
 - [International Distributor Agreement — 미국식 특유 조항 가이드](./international-distributor-agreement-us-style.md) — 해외(미국) 대리점계약 준거법·관할·손해배상상한·인뎀니티 실무 가이드

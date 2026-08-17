@@ -3,9 +3,11 @@ from typing import Literal
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+
+COMPARISON_RESULTS: dict[str, dict] = {}
 
 from anthropic import PermissionDeniedError as AnthropicPermissionDeniedError
 
@@ -15,6 +17,7 @@ from agents.mailer import send_expert_request
 from agents.standard_contract_catalog import STANDARD_CONTRACT_RESOURCES
 from agents.contract_templates import list_templates
 from agents.contract_generator import generate_contract
+from agents.fidic_comparison import compare_contract_to_fidic, generate_fidic_pdf_bytes
 
 app = FastAPI(title="The Beginning - Legal Intelligence API")
 
@@ -38,6 +41,14 @@ class ExpertRequestBody(BaseModel):
 
 class ContractGenerateBody(BaseModel):
     answers: dict[str, str] = {}
+
+
+class FIDICComparisonBody(BaseModel):
+    contract_text: str
+
+
+class FIDICComparisonSaveBody(FIDICComparisonBody):
+    comparison_id: str | None = None
 
 
 @app.get("/health")
@@ -103,6 +114,53 @@ def create_contract_draft(template_id: str, body: ContractGenerateBody):
         ) from e
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"계약서 초안 생성 중 오류가 발생했습니다: {e}")
+
+
+@app.post("/api/v1/fidic/compare")
+def compare_contract_with_fidic(body: FIDICComparisonBody):
+    try:
+        result = compare_contract_to_fidic(body.contract_text)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"FIDIC 비교 분석 중 오류가 발생했습니다: {e}")
+
+
+@app.post("/api/v1/fidic/compare/save")
+def save_fidic_comparison(body: FIDICComparisonSaveBody):
+    try:
+        result = compare_contract_to_fidic(body.contract_text)
+        comparison_id = body.comparison_id or f"fidic-{len(COMPARISON_RESULTS) + 1}"
+        COMPARISON_RESULTS[comparison_id] = {"id": comparison_id, **result}
+        return {"comparison_id": comparison_id, "result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"FIDIC 비교 결과 저장 중 오류가 발생했습니다: {e}")
+
+
+@app.get("/api/v1/fidic/compare/history")
+def list_fidic_comparison_history():
+    return {"items": list(COMPARISON_RESULTS.values())}
+
+
+@app.get("/api/v1/fidic/compare/history/{comparison_id}")
+def get_fidic_comparison_history_item(comparison_id: str):
+    item = COMPARISON_RESULTS.get(comparison_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="저장된 비교 결과를 찾을 수 없습니다.")
+    return item
+
+
+@app.post("/api/v1/fidic/compare/export")
+def export_fidic_comparison(body: FIDICComparisonBody):
+    try:
+        comparison = compare_contract_to_fidic(body.contract_text)
+        pdf_bytes = generate_fidic_pdf_bytes(comparison)
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": "attachment; filename=fidic-comparison-report.pdf"},
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"FIDIC 비교표 내보내기 중 오류가 발생했습니다: {e}")
 
 
 def _register_frontend_routes() -> None:

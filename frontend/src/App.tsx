@@ -9,6 +9,13 @@ import type { ContractReport } from "./types";
 import founderPhoto from "./assets/-OzlO6oyRj3-T6ROIXgs_Dropshot.jpg";
 import heroVideo from "./assets/0812.mp4";
 import { useAuth } from "./contexts/AuthContext";
+import {
+  compareDraftToFIDICAPI,
+  exportFIDICComparisonReport,
+  listSavedFIDICComparisons,
+  saveFIDICComparisonResult,
+  type FIDICComparisonResponse,
+} from "./lib/fidicApi";
 
 type Status = "idle" | "loading" | "error";
 
@@ -37,6 +44,13 @@ const VALUE_PROPS = [
 const PROMO_DEADLINE = new Date("2026-09-01T00:00:00+09:00");
 const isPromoActive = () => Date.now() < PROMO_DEADLINE.getTime();
 
+const CONSTRUCTION_DASHBOARD = [
+  { label: "기본 기준", value: "FIDIC Red / Yellow / Silver", detail: "패밀리별 책임 분배와 계약 형태를 비교" },
+  { label: "입력 계약서", value: "사용자 초안/발주자 문안", detail: "성격·범위·법정 요건을 입력값으로 정리" },
+  { label: "핵심 점검", value: "EOT / LD / DLP / Variation", detail: "공기와 비용 조정의 체계성 확인" },
+  { label: "리스크 요약", value: "공사액·보증·책임한도·중재", detail: "불균형 조항을 한눈에 식별" },
+];
+
 export default function App() {
   const { user, authNotice, clearAuthNotice, openAuth, requireAuth, signOut } = useAuth();
   const [status, setStatus] = useState<Status>("idle");
@@ -45,6 +59,11 @@ export default function App() {
   const [standardContracts, setStandardContracts] = useState<StandardContractItem[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<string>("all");
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [contractTextInput, setContractTextInput] = useState<string>("");
+  const [comparisonResult, setComparisonResult] = useState<FIDICComparisonResponse | null>(null);
+  const [savedComparisons, setSavedComparisons] = useState<Array<{ id: string; overall_score: number; balance: string }>>([]);
+  const [comparisonError, setComparisonError] = useState<string | null>(null);
+  const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const uploadRef = useRef<HTMLElement>(null);
   const generatorRef = useRef<HTMLElement>(null);
@@ -87,11 +106,28 @@ export default function App() {
 
   const groupOptions = useMemo(() => {
     const groups = Array.from(new Set(standardContracts.map((item) => item.group)));
-    return ["all", ...groups];
+    return [
+      { key: "all", label: "전체" },
+      { key: "construction", label: "해외 건설 계약" },
+      ...groups.filter((group) => group !== "건설·플랜트").map((group) => ({ key: group, label: group })),
+      ...groups.filter((group) => group === "건설·플랜트").map((group) => ({ key: group, label: group })),
+    ];
   }, [standardContracts]);
 
   const visibleContracts = useMemo(() => {
     if (selectedGroup === "all") return standardContracts;
+    if (selectedGroup === "construction") {
+      return standardContracts.filter((item) => {
+        const tags = item.tags.map((tag) => tag.toLowerCase());
+        return (
+          item.group === "건설·플랜트" ||
+          tags.includes("fidic") ||
+          tags.includes("건설") ||
+          tags.includes("epc") ||
+          tags.includes("플랜트")
+        );
+      });
+    }
     return standardContracts.filter((item) => item.group === selectedGroup);
   }, [selectedGroup, standardContracts]);
 
@@ -129,6 +165,43 @@ export default function App() {
       return;
     }
     inputRef.current?.click();
+  }
+
+  async function handleCompareContractText() {
+    if (!contractTextInput.trim()) {
+      setComparisonError("비교할 계약서 내용을 먼저 입력해 주세요.");
+      return;
+    }
+    setComparisonLoading(true);
+    setComparisonError(null);
+    try {
+      const result = await compareDraftToFIDICAPI(contractTextInput);
+      setComparisonResult(result);
+      const saved = await saveFIDICComparisonResult(contractTextInput);
+      setSavedComparisons((prev) => [{ id: saved.comparison_id, overall_score: saved.result.overall_score, balance: saved.result.balance }, ...prev.filter((item) => item.id !== saved.comparison_id)]);
+    } catch (e) {
+      setComparisonError(e instanceof Error ? e.message : "비교 분석에 실패했습니다.");
+    } finally {
+      setComparisonLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    void listSavedFIDICComparisons()
+      .then((items) => setSavedComparisons(items.slice(0, 5)))
+      .catch(() => setSavedComparisons([]));
+  }, []);
+
+  async function handleExportComparisonReport() {
+    if (!contractTextInput.trim()) {
+      setComparisonError("내보낼 계약서 내용을 먼저 입력해 주세요.");
+      return;
+    }
+    try {
+      await exportFIDICComparisonReport(contractTextInput);
+    } catch (e) {
+      setComparisonError(e instanceof Error ? e.message : "내보내기에 실패했습니다.");
+    }
   }
 
   return (
@@ -399,26 +472,32 @@ export default function App() {
             </div>
           ) : (
             <>
-              <div className="mt-8 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedGroup("all")}
-                  className={`rounded-full border px-3 py-1.5 text-sm ${selectedGroup === "all" ? "border-[var(--tb-green)] bg-[var(--tb-green-soft)] text-[var(--tb-green-deep)]" : "border-[var(--tb-line)] text-[var(--tb-muted)]"}`}
-                >
-                  전체
-                </button>
-                {groupOptions
-                  .filter((group) => group !== "all")
-                  .map((group) => (
-                    <button
-                      key={group}
-                      type="button"
-                      onClick={() => setSelectedGroup(group)}
-                      className={`rounded-full border px-3 py-1.5 text-sm ${selectedGroup === group ? "border-[var(--tb-green)] bg-[var(--tb-green-soft)] text-[var(--tb-green-deep)]" : "border-[var(--tb-line)] text-[var(--tb-muted)]"}`}
-                    >
-                      {group}
-                    </button>
+              <div className="mt-8 mb-8 rounded-2xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-6">
+                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
+                  FIDIC vs 사용자 계약서 대시보드
+                </p>
+                <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                  {CONSTRUCTION_DASHBOARD.map((item) => (
+                    <div key={item.label} className="rounded-xl border border-[var(--tb-line)] bg-white p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--tb-muted)]">{item.label}</p>
+                      <p className="mt-2 font-display text-lg font-semibold text-[var(--tb-ink)]">{item.value}</p>
+                      <p className="mt-2 text-sm leading-relaxed text-[var(--tb-muted)]">{item.detail}</p>
+                    </div>
                   ))}
+                </div>
+              </div>
+
+              <div className="mt-8 flex flex-wrap gap-2">
+                {groupOptions.map((group) => (
+                  <button
+                    key={group.key}
+                    type="button"
+                    onClick={() => setSelectedGroup(group.key)}
+                    className={`rounded-full border px-3 py-1.5 text-sm ${selectedGroup === group.key ? "border-[var(--tb-green)] bg-[var(--tb-green-soft)] text-[var(--tb-green-deep)]" : "border-[var(--tb-line)] text-[var(--tb-muted)]"}`}
+                  >
+                    {group.label}
+                  </button>
+                ))}
               </div>
 
               <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -458,6 +537,191 @@ export default function App() {
                 ))}
               </div>
             </>
+          )}
+        </div>
+      </section>
+
+      <section className="border-t border-[var(--tb-line)] bg-[var(--tb-sand)] px-6 py-20">
+        <div className="mx-auto max-w-6xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
+            FIDIC Comparison Engine
+          </p>
+          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+            계약서 내용을 붙여 넣으면
+            <br />
+            FIDIC 기준과 자동 비교합니다
+          </h2>
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="rounded-2xl border border-[var(--tb-line)] bg-white p-6 shadow-sm">
+              <label className="block text-sm font-semibold text-[var(--tb-ink)]">
+                계약서 초안 또는 주요 조항 붙여넣기
+              </label>
+              <textarea
+                value={contractTextInput}
+                onChange={(e) => setContractTextInput(e.target.value)}
+                rows={12}
+                placeholder="예: The Contractor shall complete the Works within 18 months ... Variation may be ordered by the Employer ... Liquidated Damages shall be ..."
+                className="mt-3 w-full border border-[var(--tb-line)] bg-[var(--tb-sand)] px-4 py-3 text-sm leading-relaxed text-[var(--tb-ink)] focus:border-[var(--tb-green)] focus:outline-none"
+              />
+              <div className="mt-4 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={handleCompareContractText}
+                  disabled={comparisonLoading}
+                  className="bg-[var(--tb-green)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--tb-green-deep)] disabled:opacity-50"
+                >
+                  {comparisonLoading ? "비교 중..." : "FIDIC 비교표 생성"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setContractTextInput("")}
+                  className="border border-[var(--tb-line)] px-5 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)]"
+                >
+                  초기화
+                </button>
+                {comparisonResult && (
+                  <button
+                    type="button"
+                    onClick={handleExportComparisonReport}
+                    className="border border-[var(--tb-line)] px-5 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)]"
+                  >
+                    PDF로 내보내기
+                  </button>
+                )}
+              </div>
+              {comparisonError && (
+                <div className="mt-4 border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                  {comparisonError}
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-2xl border border-[var(--tb-line)] bg-white p-6 shadow-sm">
+              {comparisonResult ? (
+                <>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--tb-green)]">
+                    FIDIC 매칭 점수
+                  </p>
+                  <div className="mt-4 flex items-end gap-3">
+                    <span className="font-display text-5xl font-semibold text-[var(--tb-ink)]">
+                      {comparisonResult.overall_score}
+                    </span>
+                    <span className="pb-2 text-sm text-[var(--tb-muted)]">/ 100</span>
+                  </div>
+                  <div className="mt-4 rounded-full border border-[var(--tb-line)] bg-[var(--tb-sand)] px-3 py-2 text-sm font-semibold text-[var(--tb-ink)]">
+                    계약 편향: {comparisonResult.balance}
+                  </div>
+                  <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                    <div className="rounded-xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-3 text-sm">
+                      <div className="text-[var(--tb-muted)]">발주자 편향 점수</div>
+                      <div className="mt-1 text-lg font-semibold text-[var(--tb-ink)]">{comparisonResult.bias_scores.employer}</div>
+                    </div>
+                    <div className="rounded-xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-3 text-sm">
+                      <div className="text-[var(--tb-muted)]">시공사 편향 점수</div>
+                      <div className="mt-1 text-lg font-semibold text-[var(--tb-ink)]">{comparisonResult.bias_scores.contractor}</div>
+                    </div>
+                  </div>
+                  <p className="mt-4 text-sm leading-relaxed text-[var(--tb-muted)]">
+                    {comparisonResult.summary}
+                  </p>
+                  {comparisonResult.focus_areas.length > 0 && (
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      {comparisonResult.focus_areas.map((area) => (
+                        <span
+                          key={area}
+                          className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700"
+                        >
+                          {area}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="flex h-full items-center justify-center text-sm leading-relaxed text-[var(--tb-muted)]">
+                  계약서 내용을 입력하면 FIDIC 기준에 대한 종합 점수와 핵심 비교 항목이 표시됩니다.
+                </div>
+              )}
+            </div>
+          </div>
+
+          {comparisonResult && (
+            <div className="mt-8 space-y-4">
+              {comparisonResult.issues.map((issue) => (
+                <div key={issue.id} className="rounded-2xl border border-[var(--tb-line)] bg-white p-5 shadow-sm">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-[var(--tb-ink)]">{issue.label}</p>
+                      <p className="mt-1 text-xs text-[var(--tb-muted)]">{issue.fidic_benchmark}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                          issue.status === "good"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : issue.status === "watch"
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-rose-100 text-rose-700"
+                        }`}
+                      >
+                        {issue.status === "good" ? "양호" : issue.status === "watch" ? "주의" : "위험"}
+                      </span>
+                      <span className="text-lg font-semibold text-[var(--tb-ink)]">{issue.score}</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-[var(--tb-sand)]">
+                    <div
+                      className={`h-full ${
+                        issue.status === "good"
+                          ? "bg-emerald-500"
+                          : issue.status === "watch"
+                            ? "bg-amber-500"
+                            : "bg-rose-500"
+                      }`}
+                      style={{ width: `${issue.score}%` }}
+                    />
+                  </div>
+                  {issue.sentence_evidence && issue.sentence_evidence.length > 0 && (
+                    <div className="mt-4 space-y-2">
+                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--tb-green)]">근거 문장</p>
+                      <ul className="space-y-2">
+                        {issue.sentence_evidence.map((sentence) => (
+                          <li key={sentence} className="rounded-lg border border-[var(--tb-line)] bg-[var(--tb-sand)] px-3 py-2 text-sm leading-relaxed text-[var(--tb-ink)]">
+                            {sentence}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {issue.evidence.length > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {issue.evidence.map((evidence) => (
+                        <span key={evidence} className="rounded-full border border-[var(--tb-line)] px-2.5 py-1 text-xs text-[var(--tb-muted)]">
+                          {evidence}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <p className="mt-4 text-sm leading-relaxed text-[var(--tb-muted)]">{issue.recommendation}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {savedComparisons.length > 0 && (
+            <div className="mt-8 rounded-2xl border border-[var(--tb-line)] bg-white p-5 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--tb-green)]">저장된 비교 결과</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {savedComparisons.map((item) => (
+                  <div key={item.id} className="rounded-xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-3">
+                    <div className="text-xs text-[var(--tb-muted)]">{item.id}</div>
+                    <div className="mt-2 text-lg font-semibold text-[var(--tb-ink)]">{item.overall_score}</div>
+                    <div className="text-sm text-[var(--tb-muted)]">{item.balance}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </section>

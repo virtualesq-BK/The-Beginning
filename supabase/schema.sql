@@ -47,7 +47,30 @@ create index if not exists contract_analyses_user_id_idx
   on public.contract_analyses (user_id);
 
 -- ============================================================
--- STEP 3. expert_requests
+-- STEP 3. fidic_comparisons
+-- ============================================================
+create table if not exists public.fidic_comparisons (
+  comparison_id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users (id) on delete set null,
+  contract_text text,
+  overall_score integer not null default 0,
+  balance text not null default '균형형',
+  summary text,
+  focus_areas text[] not null default '{}',
+  bias_scores jsonb not null default '{}'::jsonb,
+  issues jsonb not null default '[]'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists fidic_comparisons_user_id_idx
+  on public.fidic_comparisons (user_id);
+
+create index if not exists fidic_comparisons_created_at_idx
+  on public.fidic_comparisons (created_at desc);
+
+-- ============================================================
+-- STEP 4. expert_requests
 -- ============================================================
 do $$
 begin
@@ -105,6 +128,11 @@ for each row execute function public.set_updated_at();
 drop trigger if exists contract_analyses_set_updated_at on public.contract_analyses;
 create trigger contract_analyses_set_updated_at
 before update on public.contract_analyses
+for each row execute function public.set_updated_at();
+
+drop trigger if exists fidic_comparisons_set_updated_at on public.fidic_comparisons;
+create trigger fidic_comparisons_set_updated_at
+before update on public.fidic_comparisons
 for each row execute function public.set_updated_at();
 
 drop trigger if exists expert_requests_set_updated_at on public.expert_requests;
@@ -190,6 +218,7 @@ on conflict (id) do update
 -- ============================================================
 alter table public.profiles enable row level security;
 alter table public.contract_analyses enable row level security;
+alter table public.fidic_comparisons enable row level security;
 alter table public.expert_requests enable row level security;
 
 drop policy if exists "profiles_select_own" on public.profiles;
@@ -223,6 +252,22 @@ drop policy if exists "contract_analyses_delete_own" on public.contract_analyses
 create policy "contract_analyses_delete_own" on public.contract_analyses
   for delete to authenticated using (auth.uid() = user_id);
 
+drop policy if exists "fidic_comparisons_select_own" on public.fidic_comparisons;
+create policy "fidic_comparisons_select_own" on public.fidic_comparisons
+  for select to authenticated using (auth.uid() = user_id or user_id is null);
+
+drop policy if exists "fidic_comparisons_insert_own" on public.fidic_comparisons;
+create policy "fidic_comparisons_insert_own" on public.fidic_comparisons
+  for insert to authenticated with check (auth.uid() = user_id or user_id is null);
+
+drop policy if exists "fidic_comparisons_update_own" on public.fidic_comparisons;
+create policy "fidic_comparisons_update_own" on public.fidic_comparisons
+  for update to authenticated using (auth.uid() = user_id or user_id is null) with check (auth.uid() = user_id or user_id is null);
+
+drop policy if exists "fidic_comparisons_delete_own" on public.fidic_comparisons;
+create policy "fidic_comparisons_delete_own" on public.fidic_comparisons
+  for delete to authenticated using (auth.uid() = user_id or user_id is null);
+
 drop policy if exists "expert_requests_select_own" on public.expert_requests;
 create policy "expert_requests_select_own" on public.expert_requests
   for select to authenticated using (auth.uid() = user_id);
@@ -242,5 +287,5 @@ create policy "expert_requests_update_own" on public.expert_requests
 select table_name
 from information_schema.tables
 where table_schema = 'public'
-  and table_name in ('profiles', 'contract_analyses', 'expert_requests')
+  and table_name in ('profiles', 'contract_analyses', 'fidic_comparisons', 'expert_requests')
 order by table_name;
