@@ -11,7 +11,9 @@ import heroVideo from "./assets/0812.mp4";
 import { useAuth } from "./contexts/AuthContext";
 import {
   compareDraftToFIDICAPI,
+  exportFIDICComparisonJSONReport,
   exportFIDICComparisonReport,
+  getFIDICComparisonById,
   listSavedFIDICComparisons,
   saveFIDICComparisonResult,
   type FIDICComparisonResponse,
@@ -179,6 +181,7 @@ export default function App() {
       setComparisonResult(result);
       const saved = await saveFIDICComparisonResult(contractTextInput);
       setSavedComparisons((prev) => [{ id: saved.comparison_id, overall_score: saved.result.overall_score, balance: saved.result.balance }, ...prev.filter((item) => item.id !== saved.comparison_id)]);
+      await refreshSavedComparisons();
     } catch (e) {
       setComparisonError(e instanceof Error ? e.message : "비교 분석에 실패했습니다.");
     } finally {
@@ -186,11 +189,18 @@ export default function App() {
     }
   }
 
+  const refreshSavedComparisons = async () => {
+    try {
+      const items = await listSavedFIDICComparisons();
+      setSavedComparisons(items.slice(0, 5));
+    } catch {
+      setSavedComparisons([]);
+    }
+  };
+
   useEffect(() => {
-    void listSavedFIDICComparisons()
-      .then((items) => setSavedComparisons(items.slice(0, 5)))
-      .catch(() => setSavedComparisons([]));
-  }, []);
+    void refreshSavedComparisons();
+  }, [user?.id]);
 
   async function handleExportComparisonReport() {
     if (!contractTextInput.trim()) {
@@ -201,6 +211,28 @@ export default function App() {
       await exportFIDICComparisonReport(contractTextInput);
     } catch (e) {
       setComparisonError(e instanceof Error ? e.message : "내보내기에 실패했습니다.");
+    }
+  }
+
+  async function handleExportComparisonJSONReport() {
+    if (!contractTextInput.trim()) {
+      setComparisonError("내보낼 계약서 내용을 먼저 입력해 주세요.");
+      return;
+    }
+    try {
+      await exportFIDICComparisonJSONReport(contractTextInput);
+    } catch (e) {
+      setComparisonError(e instanceof Error ? e.message : "JSON 내보내기에 실패했습니다.");
+    }
+  }
+
+  async function handleLoadSavedComparison(comparisonId: string) {
+    try {
+      const result = await getFIDICComparisonById(comparisonId);
+      setComparisonResult(result);
+      setContractTextInput(contractTextInput || "");
+    } catch (e) {
+      setComparisonError(e instanceof Error ? e.message : "저장된 비교 결과를 불러오지 못했습니다.");
     }
   }
 
@@ -581,13 +613,22 @@ export default function App() {
                   초기화
                 </button>
                 {comparisonResult && (
-                  <button
-                    type="button"
-                    onClick={handleExportComparisonReport}
-                    className="border border-[var(--tb-line)] px-5 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)]"
-                  >
-                    PDF로 내보내기
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      onClick={handleExportComparisonReport}
+                      className="border border-[var(--tb-line)] px-5 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)]"
+                    >
+                      PDF로 내보내기
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleExportComparisonJSONReport}
+                      className="border border-[var(--tb-line)] px-5 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)]"
+                    >
+                      JSON으로 내보내기
+                    </button>
+                  </>
                 )}
               </div>
               {comparisonError && (
@@ -711,16 +752,27 @@ export default function App() {
 
           {savedComparisons.length > 0 && (
             <div className="mt-8 rounded-2xl border border-[var(--tb-line)] bg-white p-5 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--tb-green)]">저장된 비교 결과</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--tb-green)]">내 저장 내역</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {savedComparisons.map((item) => (
-                  <div key={item.id} className="rounded-xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-3">
-                    <div className="text-xs text-[var(--tb-muted)]">{item.id}</div>
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => void handleLoadSavedComparison(item.id)}
+                    className="rounded-xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-3 text-left transition hover:border-[var(--tb-green)] hover:bg-[var(--tb-green-soft)]"
+                  >
+                    <div className="text-xs text-[var(--tb-muted)]">{item.id.slice(0, 8)}</div>
                     <div className="mt-2 text-lg font-semibold text-[var(--tb-ink)]">{item.overall_score}</div>
                     <div className="text-sm text-[var(--tb-muted)]">{item.balance}</div>
-                  </div>
+                  </button>
                 ))}
               </div>
+            </div>
+          )}
+
+          {!user && savedComparisons.length === 0 && (
+            <div className="mt-8 rounded-2xl border border-dashed border-[var(--tb-line)] bg-white p-5 text-sm text-[var(--tb-muted)]">
+              로그인하면 비교 결과를 개인별 저장 목록에서 다시 조회할 수 있습니다.
             </div>
           )}
         </div>

@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from typing import Literal
 
@@ -49,6 +50,7 @@ class FIDICComparisonBody(BaseModel):
 
 class FIDICComparisonSaveBody(FIDICComparisonBody):
     comparison_id: str | None = None
+    user_id: str | None = None
 
 
 @app.get("/health")
@@ -130,7 +132,7 @@ def save_fidic_comparison(body: FIDICComparisonSaveBody):
     try:
         result = compare_contract_to_fidic(body.contract_text)
         comparison_id = body.comparison_id or f"fidic-{len(COMPARISON_RESULTS) + 1}"
-        COMPARISON_RESULTS[comparison_id] = {"id": comparison_id, **result}
+        COMPARISON_RESULTS[comparison_id] = {"id": comparison_id, "user_id": body.user_id, **result}
         return {"comparison_id": comparison_id, "result": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"FIDIC 비교 결과 저장 중 오류가 발생했습니다: {e}")
@@ -161,6 +163,20 @@ def export_fidic_comparison(body: FIDICComparisonBody):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"FIDIC 비교표 내보내기 중 오류가 발생했습니다: {e}")
+
+
+@app.post("/api/v1/fidic/compare/export-json")
+def export_fidic_comparison_json(body: FIDICComparisonBody):
+    try:
+        comparison = compare_contract_to_fidic(body.contract_text)
+        payload = json.dumps(comparison, ensure_ascii=False, indent=2)
+        return Response(
+            content=payload.encode("utf-8"),
+            media_type="application/json; charset=utf-8",
+            headers={"Content-Disposition": "attachment; filename=fidic-comparison-report.json"},
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"FIDIC 비교 JSON 내보내기 중 오류가 발생했습니다: {e}")
 
 
 def _register_frontend_routes() -> None:

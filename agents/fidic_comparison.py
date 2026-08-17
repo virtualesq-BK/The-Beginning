@@ -324,13 +324,14 @@ def generate_fidic_pdf_bytes(report: dict[str, Any]) -> bytes:
         "-" * 20,
         report.get("summary", ""),
         "",
-        "핵심 항목 요약",
-        "-" * 20,
+        "표 1. 항목별 점수",
+        "항목 | 점수 | 상태",
+        "-" * 24,
     ]
 
     for issue in issues:
         summary_lines.append(
-            f"{issue.get('label', '')}: score={issue.get('score', 0)} / status={issue.get('status', 'risk')}"
+            f"{issue.get('label', '')} | {issue.get('score', 0)} | {issue.get('status', 'risk')}"
         )
 
     summary_lines.extend(["", "상세 항목 분석", "-" * 20])
