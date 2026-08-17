@@ -479,21 +479,6 @@ export default function App() {
             </div>
           ) : (
             <>
-              <div className="mt-8 mb-8 rounded-2xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-6">
-                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
-                  FIDIC vs 사용자 계약서 대시보드
-                </p>
-                <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  {CONSTRUCTION_DASHBOARD.map((item) => (
-                    <div key={item.label} className="rounded-xl border border-[var(--tb-line)] bg-white p-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--tb-muted)]">{item.label}</p>
-                      <p className="mt-2 font-display text-lg font-semibold text-[var(--tb-ink)]">{item.value}</p>
-                      <p className="mt-2 text-sm leading-relaxed text-[var(--tb-muted)]">{item.detail}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
               <div className="mt-8 flex flex-wrap gap-2">
                 {groupOptions.map((group) => (
                   <button
@@ -550,6 +535,21 @@ export default function App() {
 
       <section className="border-t border-[var(--tb-line)] bg-[var(--tb-sand)] px-6 py-20">
         <div className="mx-auto max-w-6xl">
+          <div className="mb-8 rounded-2xl border border-[var(--tb-line)] bg-white p-6">
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
+              FIDIC vs 사용자 계약서 대시보드
+            </p>
+            <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {CONSTRUCTION_DASHBOARD.map((item) => (
+                <div key={item.label} className="rounded-xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--tb-muted)]">{item.label}</p>
+                  <p className="mt-2 font-display text-lg font-semibold text-[var(--tb-ink)]">{item.value}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--tb-muted)]">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
             FIDIC Comparison Engine
           </p>
