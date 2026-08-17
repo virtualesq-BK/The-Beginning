@@ -535,7 +535,11 @@ export default function App() {
 
       <section className="border-t border-[var(--tb-line)] bg-[var(--tb-sand)] px-6 py-20">
         <div className="mx-auto max-w-6xl">
-          <div className="mb-8 rounded-2xl border border-[var(--tb-line)] bg-white p-6">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green-deep)]">
+            해외 건설 계약 Special
+          </p>
+
+          <div className="mt-3 mb-8 rounded-2xl border border-[var(--tb-line)] bg-white p-6">
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
               FIDIC vs 사용자 계약서 대시보드
             </p>
