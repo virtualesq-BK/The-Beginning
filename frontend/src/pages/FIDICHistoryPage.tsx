@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import {
   deleteFIDICComparisonById,
+  deleteFIDICComparisonsBatch,
+  exportFIDICComparisonCSV,
+  exportFIDICComparisonExcel,
   exportFIDICComparisonJSONReport,
   exportFIDICComparisonReport,
   getFIDICComparisonById,
@@ -10,7 +13,7 @@ import {
   type FIDICComparisonResponse,
 } from "../lib/fidicApi";
 
-type HistoryItem = { id: string; overall_score: number; balance: string };
+type HistoryItem = { id: string; overall_score: number; balance: string; created_at?: string };
 type SortBy = "recent" | "score-high" | "score-low";
 type DateFilter = "7days" | "all";
 
@@ -25,6 +28,7 @@ export function FIDICHistoryPage() {
   const [sortBy, setSortBy] = useState<SortBy>("recent");
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [operationInProgress, setOperationInProgress] = useState(false);
+  const [selectedForDelete, setSelectedForDelete] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!user) {
@@ -132,6 +136,68 @@ export function FIDICHistoryPage() {
     }
   }
 
+  async function handleExportCSV() {
+    if (!selectedItem?.contract_text) {
+      setError("계약 내용을 찾을 수 없습니다.");
+      return;
+    }
+
+    try {
+      setOperationInProgress(true);
+      await exportFIDICComparisonCSV(selectedItem.contract_text);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "CSV 다운로드에 실패했습니다.");
+    } finally {
+      setOperationInProgress(false);
+    }
+  }
+
+  async function handleExportExcel() {
+    if (!selectedItem?.contract_text) {
+      setError("계약 내용을 찾을 수 없습니다.");
+      return;
+    }
+
+    try {
+      setOperationInProgress(true);
+      await exportFIDICComparisonExcel(selectedItem.contract_text);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Excel 다운로드에 실패했습니다.");
+    } finally {
+      setOperationInProgress(false);
+    }
+  }
+
+  async function handleBatchDelete() {
+    if (selectedForDelete.size === 0 || !window.confirm(`${selectedForDelete.size}개의 항목을 삭제하시겠습니까?`)) return;
+
+    try {
+      setOperationInProgress(true);
+      await deleteFIDICComparisonsBatch(Array.from(selectedForDelete));
+      setSelectedForDelete(new Set());
+      await loadHistory();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "배치 삭제에 실패했습니다.");
+    } finally {
+      setOperationInProgress(false);
+    }
+  }
+
+  function formatDate(dateString?: string): string {
+    if (!dateString) return "";
+    try {
+      return new Date(dateString).toLocaleDateString("ko-KR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return "";
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[var(--tb-sand)] text-[var(--tb-ink)]">
       <div className="sticky top-0 z-20 border-b border-[var(--tb-line)] bg-[var(--tb-sand)]/90 backdrop-blur-md">
@@ -192,7 +258,23 @@ export function FIDICHistoryPage() {
 
           <div className="text-sm text-[var(--tb-muted)]">
             {sortedItems.length === 0 ? "저장 내역이 없습니다" : `${sortedItems.length}개 항목`}
+            {selectedForDelete.size > 0 && (
+              <span className="ml-4 font-semibold text-[var(--tb-green)]">
+                {selectedForDelete.size}개 선택됨
+              </span>
+            )}
           </div>
+
+          {selectedForDelete.size > 0 && (
+            <button
+              type="button"
+              onClick={handleBatchDelete}
+              disabled={operationInProgress}
+              className="ml-auto mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-50"
+            >
+              {selectedForDelete.size}개 항목 삭제
+            </button>
+          )}
         </div>
 
         {error && (
@@ -224,21 +306,45 @@ export function FIDICHistoryPage() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {sortedItems.map((item) => (
-              <button
+              <div
                 key={item.id}
-                type="button"
-                onClick={() => void handleSelectItem(item.id)}
-                disabled={operationInProgress}
-                className="rounded-xl border border-[var(--tb-line)] bg-white p-4 text-left transition hover:border-[var(--tb-green)] hover:bg-[var(--tb-green-soft)] disabled:opacity-50"
+                className="relative rounded-xl border border-[var(--tb-line)] bg-white p-4 transition hover:border-[var(--tb-green)] hover:bg-[var(--tb-green-soft)]"
               >
-                <div className="text-xs font-semibold text-[var(--tb-green)] uppercase tracking-[0.1em]">
-                  {item.id.slice(0, 8)}
+                <div className="absolute left-3 top-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedForDelete.has(item.id)}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      const newSelected = new Set(selectedForDelete);
+                      if (newSelected.has(item.id)) {
+                        newSelected.delete(item.id);
+                      } else {
+                        newSelected.add(item.id);
+                      }
+                      setSelectedForDelete(newSelected);
+                    }}
+                    className="h-4 w-4 cursor-pointer rounded border-[var(--tb-line)]"
+                  />
                 </div>
-                <div className="mt-3 text-3xl font-semibold text-[var(--tb-ink)]">
-                  {item.overall_score}
-                </div>
-                <div className="mt-2 text-sm text-[var(--tb-muted)]">{item.balance}</div>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => void handleSelectItem(item.id)}
+                  disabled={operationInProgress}
+                  className="block w-full text-left disabled:opacity-50"
+                >
+                  <div className="text-xs font-semibold text-[var(--tb-green)] uppercase tracking-[0.1em]">
+                    {item.id.slice(0, 8)}
+                  </div>
+                  <div className="mt-3 text-3xl font-semibold text-[var(--tb-ink)]">
+                    {item.overall_score}
+                  </div>
+                  <div className="mt-2 text-sm text-[var(--tb-muted)]">{item.balance}</div>
+                  <div className="mt-3 text-xs text-[var(--tb-muted)]">
+                    {formatDate(item.created_at)}
+                  </div>
+                </button>
+              </div>
             ))}
           </div>
         )}
@@ -305,6 +411,24 @@ export function FIDICHistoryPage() {
                 className="rounded-lg border border-[var(--tb-line)] bg-white px-4 py-2 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-sand)] disabled:opacity-50"
               >
                 JSON
+              </button>
+
+              <button
+                type="button"
+                onClick={handleExportCSV}
+                disabled={operationInProgress}
+                className="rounded-lg border border-[var(--tb-line)] bg-white px-4 py-2 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-sand)] disabled:opacity-50"
+              >
+                CSV
+              </button>
+
+              <button
+                type="button"
+                onClick={handleExportExcel}
+                disabled={operationInProgress}
+                className="rounded-lg border border-[var(--tb-line)] bg-white px-4 py-2 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-sand)] disabled:opacity-50"
+              >
+                Excel
               </button>
 
               <button

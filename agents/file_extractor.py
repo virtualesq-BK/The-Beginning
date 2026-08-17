@@ -9,7 +9,7 @@ from pypdf import PdfReader
 from docx import Document
 
 SUPPORTED_EXTENSIONS = {".txt", ".pdf", ".docx", ".doc"}
-MAX_PAGES = 5
+MAX_PAGES = 10
 # PDF가 아닌 형식은 페이지 메타데이터가 없어 글자 수로 추정 (약 A4 1페이지)
 CHARS_PER_PAGE = 3000
 

@@ -360,7 +360,7 @@ export default function App() {
               {status === "loading" ? "분석 중... (최대 1분)" : "계약서 업로드하고 분석하기"}
             </button>
             <p className="text-sm text-white/70">
-              .txt · .pdf · .docx · .doc · 최대 5페이지
+              .txt · .pdf · .docx · .doc · 최대 10페이지
             </p>
           </div>
           {error && (
@@ -780,7 +780,7 @@ export default function App() {
                 지원 형식: .txt · .pdf · .docx · .doc (스캔 이미지 PDF는 미지원)
                 <br />
                 <span className="font-semibold text-[var(--tb-ink)]">
-                  최대 5페이지까지 업로드할 수 있습니다.
+                  최대 10페이지까지 업로드할 수 있습니다.
                 </span>
               </p>
             </div>

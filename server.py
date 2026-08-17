@@ -166,6 +166,20 @@ def delete_fidic_comparison_history_item(comparison_id: str):
     return {"deleted": True, "comparison_id": comparison_id}
 
 
+class BatchDeleteBody(BaseModel):
+    comparison_ids: list[str]
+
+
+@app.delete("/api/v1/fidic/compare/history/batch-delete")
+def batch_delete_fidic_comparison(body: BatchDeleteBody):
+    deleted_count = 0
+    for cid in body.comparison_ids:
+        if cid in COMPARISON_RESULTS:
+            del COMPARISON_RESULTS[cid]
+            deleted_count += 1
+    return {"deleted": True, "deleted_count": deleted_count, "total_requested": len(body.comparison_ids)}
+
+
 @app.post("/api/v1/fidic/compare/export")
 def export_fidic_comparison(body: FIDICComparisonBody):
     try:
@@ -193,6 +207,101 @@ def export_fidic_comparison_json(body: FIDICComparisonBody):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"FIDIC 비교 JSON 내보내기 중 오류가 발생했습니다: {e}")
 
+@app.post("/api/v1/fidic/compare/export-csv")
+def export_fidic_comparison_csv(body: FIDICComparisonBody):
+    try:
+        comparison = compare_contract_to_fidic(body.contract_text)
+        
+        # Build CSV content
+        lines = [
+            "항목,점수,상태,FIDIC 기준,권장사항",
+        ]
+        
+        for issue in comparison.get("issues", []):
+            lines.append(
+                f"\"{issue.get('label', '')}\","
+                f"\"{issue.get('score', '')}\","
+                f"\"{issue.get('status', '')}\","
+                f"\"{issue.get('fidic_benchmark', '').replace(chr(34), chr(34) + chr(34))}\","
+                f"\"{issue.get('recommendation', '').replace(chr(34), chr(34) + chr(34))}\""
+            )
+        
+        csv_content = "\n".join(lines)
+        return Response(
+            content=csv_content.encode("utf-8-sig"),
+            media_type="text/csv; charset=utf-8",
+            headers={"Content-Disposition": "attachment; filename=fidic-comparison-report.csv"},
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"FIDIC CSV 내보내기 중 오류가 발생했습니다: {e}")
+
+
+@app.post("/api/v1/fidic/compare/export-excel")
+def export_fidic_comparison_excel(body: FIDICComparisonBody):
+    try:
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, PatternFill, Alignment
+        
+        comparison = compare_contract_to_fidic(body.contract_text)
+        
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "비교 결과"
+        
+        # Set column widths
+        ws.column_dimensions["A"].width = 20
+        ws.column_dimensions["B"].width = 10
+        ws.column_dimensions["C"].width = 10
+        ws.column_dimensions["D"].width = 40
+        ws.column_dimensions["E"].width = 30
+        
+        # Header row
+        headers = ["항목", "점수", "상태", "FIDIC 기준", "권장사항"]
+        ws.append(headers)
+        
+        header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF")
+        
+        for cell in ws[1]:
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = Alignment(wrap_text=True, vertical="center")
+        
+        # Data rows
+        for issue in comparison.get("issues", []):
+            ws.append([
+                issue.get("label", ""),
+                issue.get("score", ""),
+                issue.get("status", ""),
+                issue.get("fidic_benchmark", ""),
+                issue.get("recommendation", ""),
+            ])
+        
+        # Summary sheet
+        ws_summary = wb.create_sheet("요약")
+        ws_summary.append(["항목", "값"])
+        ws_summary.append(["전체 점수", comparison.get("overall_score", "")])
+        ws_summary.append(["계약 편향", comparison.get("balance", "")])
+        ws_summary.append(["발주자 편향 점수", comparison.get("bias_scores", {}).get("employer", "")])
+        ws_summary.append(["시공사 편향 점수", comparison.get("bias_scores", {}).get("contractor", "")])
+        ws_summary.append(["요약", comparison.get("summary", "")])
+        
+        ws_summary.column_dimensions["A"].width = 25
+        ws_summary.column_dimensions["B"].width = 50
+        
+        # Write to bytes
+        from io import BytesIO
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+        
+        return Response(
+            content=output.getvalue(),
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": "attachment; filename=fidic-comparison-report.xlsx"},
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"FIDIC Excel 내보내기 중 오류가 발생했습니다: {e}")
 
 def _register_frontend_routes() -> None:
     if not STATIC_DIR.is_dir():

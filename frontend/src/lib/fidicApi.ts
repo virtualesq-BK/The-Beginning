@@ -127,7 +127,7 @@ export async function saveFIDICComparisonResult(contractText: string, comparison
   return fallbackRes.json();
 }
 
-export async function listSavedFIDICComparisons(): Promise<{ id: string; overall_score: number; balance: string }[]> {
+export async function listSavedFIDICComparisons(): Promise<{ id: string; overall_score: number; balance: string; created_at?: string }[]> {
   if (supabase) {
     const userResult = await supabase.auth.getUser();
     const user = userResult.data?.user ?? null;
@@ -135,7 +135,7 @@ export async function listSavedFIDICComparisons(): Promise<{ id: string; overall
     if (user) {
       const { data, error } = await supabase
         .from("fidic_comparisons")
-        .select("comparison_id, overall_score, balance")
+        .select("comparison_id, overall_score, balance, created_at")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(10);
@@ -145,6 +145,7 @@ export async function listSavedFIDICComparisons(): Promise<{ id: string; overall
           id: item.comparison_id,
           overall_score: item.overall_score,
           balance: item.balance,
+          created_at: item.created_at,
         }));
       }
     }
@@ -153,10 +154,11 @@ export async function listSavedFIDICComparisons(): Promise<{ id: string; overall
   const res = await fetch(`${API_BASE}/api/v1/fidic/compare/history`);
   if (!res.ok) throw new Error("저장된 비교 결과 조회에 실패했습니다.");
   const body = await res.json();
-  return (body.items ?? []).map((item: { id: string; overall_score: number; balance: string }) => ({
+  return (body.items ?? []).map((item: { id: string; overall_score: number; balance: string; created_at?: string }) => ({
     id: item.id,
     overall_score: item.overall_score,
     balance: item.balance,
+    created_at: item.created_at,
   }));
 }
 
@@ -226,6 +228,80 @@ export async function exportFIDICComparisonJSONReport(contractText: string): Pro
   const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = "fidic-comparison-report.json";
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
+export async function deleteFIDICComparisonsBatch(comparisonIds: string[]): Promise<void> {
+  if (comparisonIds.length === 0) return;
+
+  if (supabase) {
+    const userResult = await supabase.auth.getUser();
+    const user = userResult.data?.user ?? null;
+
+    if (user) {
+      const { error } = await supabase
+        .from("fidic_comparisons")
+        .delete()
+        .in("comparison_id", comparisonIds)
+        .eq("user_id", user.id);
+
+      if (!error) {
+        return;
+      }
+    }
+  }
+
+  const res = await fetch(`${API_BASE}/api/v1/fidic/compare/history/batch-delete`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ comparison_ids: comparisonIds }),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body?.detail ?? "배치 삭제에 실패했습니다.");
+  }
+}
+
+export async function exportFIDICComparisonCSV(contractText: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/v1/fidic/compare/export-csv`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ contract_text: contractText }),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body?.detail ?? "CSV 다운로드에 실패했습니다.");
+  }
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "fidic-comparison-report.csv";
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
+export async function exportFIDICComparisonExcel(contractText: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/v1/fidic/compare/export-excel`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ contract_text: contractText }),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body?.detail ?? "Excel 다운로드에 실패했습니다.");
+  }
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "fidic-comparison-report.xlsx";
   anchor.click();
   URL.revokeObjectURL(url);
 }
