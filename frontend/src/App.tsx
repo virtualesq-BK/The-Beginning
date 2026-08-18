@@ -48,22 +48,19 @@ const isPromoActive = () => Date.now() < PROMO_DEADLINE.getTime();
 
 const TESTIMONIALS = [
   {
-    role: "실무자 관점 (속도 및 정확도)",
-    quote: "14년간 공기업/대기업 해외법무팀장의 노하우가 앱 하나에 그대로 들어있네요.",
-    body: "번역부터 위험조항 분석까지 순식간에 끝납니다. 8월 무료 기간에 써봤는데 검토 시간이 80% 이상 단축됐어요.",
-    author: "글로벌 마케팅 매니저, 김님",
+    quote: "14년간 공기업과 대기업 해외법무팀장의 노하우가 앱 하나에 그대로 들어있네요.",
+    body: "번역부터 위험조항 분석까지 순식간에 끝납니다. 8월 무료 기간에 써봤는데 검토 시간이 90% 이상 단축됐어요.",
+    author: "글로벌 마케팅 매니저, 김**님",
   },
   {
-    role: "스타트업 대표 관점 (전문성 및 협상력)",
     quote: "뉴욕 변호사가 만든 서비스라 확실히 리스크를 잡아내는 깊이가 다릅니다.",
     body: "AI가 독소 조항을 즉시 찾고 실무적인 협상 포인트까지 짚어줘서 해외 바이어와의 협상력이 대폭 높아졌습니다.",
-    author: "스타트업 대표, 이님",
+    author: "스타트업 대표, 이**님",
   },
   {
-    role: "수출입 담당자 관점 (비용 절감 및 네트워크)",
     quote: "대기업 법무팀 수준의 검토를 8월 무료 혜택으로 경험했습니다.",
     body: "1차 AI 검토 후 검증된 현지 변호사 연결까지 한 번에 해결되어 자문 비용과 시간을 대폭 절약했습니다.",
-    author: "수출입 담당자, 박님",
+    author: "수출입 담당자, 박**님",
   },
 ];
 
@@ -483,21 +480,18 @@ export default function App() {
           <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
             사용자 후기
           </h2>
-          <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:items-start">
+          <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:items-stretch">
             <div className="overflow-hidden rounded-2xl border border-[var(--tb-line)]">
               <img
                 src={testimonialsImage}
                 alt="사용자 후기: 글로벌 마케팅 매니저, 스타트업 대표, 수출입 담당자의 실제 이용 후기"
-                className="mx-auto w-full max-w-xl"
+                className="mx-auto h-full w-full max-w-xl object-cover"
               />
             </div>
-            <div className="flex flex-col gap-6">
+            <div className="grid grid-rows-3 gap-6">
               {TESTIMONIALS.map((item) => (
-                <div key={item.author} className="rounded-2xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-6">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--tb-green)]">
-                    {item.role}
-                  </p>
-                  <p className="mt-3 font-display text-lg font-semibold leading-snug text-[var(--tb-ink)]">
+                <div key={item.author} className="flex flex-col justify-center rounded-2xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-6">
+                  <p className="font-display text-lg font-semibold leading-snug text-[var(--tb-ink)]">
                     “{item.quote}”
                   </p>
                   <p className="mt-3 text-sm leading-relaxed text-[var(--tb-muted)]">{item.body}</p>
