@@ -310,5 +310,106 @@
   },
   "riskBadge": {
     "label": "Risk {{score}}/5"
+  },
+  "immigration": {
+    "navLabel": "Immigration Law",
+    "eyebrow": "US Immigration Law",
+    "titleLine1": "Your gateway to the US:",
+    "titleLine2": "E-2 Investor Visa Strategy",
+    "subtitle": "Working with a network of New York immigration attorneys, we build approval strategies even for low investment amounts or challenging business types.",
+    "stats": {
+      "item1": { "label": "Govt. Reported Approval Rate", "value": "80-90%" },
+      "item2": { "label": "Partner Firm Approval Rate", "value": "98%" },
+      "item3": { "label": "Treaty Countries", "value": "80+" },
+      "item4": { "label": "Minimum Investment", "value": "No statutory minimum" }
+    },
+    "requirements": {
+      "heading": "Core E-2 Visa Requirements",
+      "item1": "Must be a national of a treaty country (80+ countries across Europe, Africa, Asia, South America, the Middle East, North America)",
+      "item2": "Must own at least 50% of the E-2 company",
+      "item3": "Must make a \"Substantial\" investment — funds must be actually spent and \"at risk\", not sitting in a bank account",
+      "item4": "Source of funds can be any legitimate source (personal savings, gift, sale of a house, loan)",
+      "item5": "Business cannot be marginal — it must support hiring U.S. employees",
+      "item6": "Business must be real and operating (or ready to operate once the visa is granted): signed lease, entity formed, website live, customer contracts, licenses acquired",
+      "item7": "You must solely develop and direct the enterprise as an active investor (ownership greater than 50%)",
+      "item8": "You must intend to return to your home country when the E-2 visa expires",
+      "item9": "You can start a new business or buy an existing one (escrow considerations apply when buying)"
+    },
+    "validity": {
+      "heading": "Visa Validity",
+      "item1": "Valid from 3 months up to 5 years, depending on the strength of the case as assessed by the officer",
+      "item2": "I-94 allows entry and work in increments of up to 2 years"
+    },
+    "investment": {
+      "heading": "How much investment is enough?",
+      "item1": "The investment must be \"substantial\" — there is no fixed statutory minimum",
+      "item2": "In practice, the investment would normally be greater than $50,000",
+      "item3": "The money must actually be spent, and the amount needed depends on the type of business",
+      "item4": "Proportionality test (start-up): the amount invested versus the usual cost of establishing that type of business",
+      "item5": "Proportionality test (buying a business): purchase price versus the fair market value of the business",
+      "item6": "Evidence that you invested close to 100% — CPA letters and industry cost articles help substantiate this"
+    },
+    "lowInvestment": {
+      "heading": "Strategies for a Low Investment Amount",
+      "item1": "Stress other positive factors: experience, employee hires, type of business",
+      "item2": "Obtain contracts or letters of intent from clients",
+      "item3": "Obtain a Chamber of Commerce letter",
+      "item4": "Highlight any ongoing company activity or sales",
+      "item5": "Draft a strong, detailed business plan",
+      "item6": "Hire U.S. employees prior to applying",
+      "item7": "Consider a CPA letter verifying the investment"
+    },
+    "expendituresGood": {
+      "heading": "Strong, Qualifying Expenditures",
+      "item1": "Website set-up and hosting",
+      "item2": "Computers, printers, scanners, tablets",
+      "item3": "Inventory (can be shipped from another country; doesn't need to be purchased in the U.S.)",
+      "item4": "Furniture used for business purposes",
+      "item5": "Trademark / IP purchase or development",
+      "item6": "Employee payroll or independent contractor payments",
+      "item7": "Legal fees",
+      "item8": "Lease payments (only amounts actually paid, e.g. prepaid months)",
+      "item9": "Software, advertising, and office supplies"
+    },
+    "expendituresWeak": {
+      "heading": "Weak, Non-Qualifying Expenditures",
+      "item1": "Flights (unless tied to a specific conference or business activity)",
+      "item2": "Car / vehicle purchases",
+      "item3": "Travel accommodations (hotels)",
+      "item4": "Meals",
+      "item5": "Local transportation (taxis, etc.) and entertainment",
+      "item6": "Expenses paid to related parties"
+    },
+    "denials": {
+      "heading": "Common Reasons for Denial",
+      "item1": "Low investment amount",
+      "item2": "Nature of the business (viewed as passive or speculative)",
+      "item3": "Filing location / venue issues",
+      "item4": "A similar business operating in the home country without employees",
+      "item5": "Concern over whether the business will create jobs for U.S. workers",
+      "item6": "Variation between adjudicating officers",
+      "item7": "Requirements were not met at the time of filing"
+    },
+    "specialCases": {
+      "heading": "Notes on Challenging Business Types",
+      "consulting": {
+        "title": "Consulting Businesses",
+        "desc": "Theoretically a very low investment can start a consulting business, but you must show you are \"committed to successfully operating the enterprise.\" Use industry cost articles to show you've spent well above typical start-up costs, and spread spending across a wide range of categories — office space, equipment, marketing, and hiring."
+      },
+      "realEstate": {
+        "title": "Real Estate Investments",
+        "desc": "Simply purchasing a property under an LLC does not qualify. You must show the company is a real, operating enterprise — not an idle, speculative investment held for appreciation. Viable formats include a brokerage firm, a property management company, renovation/construction, or large-scale house flipping."
+      },
+      "trading": {
+        "title": "Equity Trading Companies",
+        "desc": "Placing a personal stock portfolio under an LLC (day trading, personal investing) will not qualify. Clients must go beyond friends and family, and the business must show hiring plans and proper licensing as a genuinely active enterprise."
+      }
+    },
+    "cta": {
+      "heading": "See if your case fits the E-2 visa",
+      "desc": "Even with a low investment amount or a challenging business type, the right strategy can improve approval odds. Book an initial consultation to review your investment amount, source of funds, and business plan.",
+      "button": "Request an Immigration Consultation",
+      "disclaimer": "This content is for general information only and does not substitute for individualized legal advice. (Attorney Advertising)"
+    }
   }
 }
