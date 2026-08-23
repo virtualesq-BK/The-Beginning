@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { analyzeContract, getStandardContracts, type StandardContractItem } from "./lib/api";
 import { useEffect, useMemo } from "react";
 import { StandardContractDetail } from "./components/StandardContractDetail";
@@ -21,58 +22,55 @@ import {
 
 type Status = "idle" | "loading" | "error";
 
-const LIFECYCLE = [
-  { step: "01", title: "번역 요약", desc: "해외 계약 조항을 한국어로 정리합니다." },
-  { step: "02", title: "리스크 검토", desc: "고위험 조항과 근거를 먼저 보여줍니다." },
-  { step: "03", title: "협상 체크", desc: "수정·협상 포인트를 체크리스트로 만듭니다." },
-  { step: "04", title: "전 세계 전문가 연결", desc: "필요하면 검수·법률 전문가로 이어집니다." },
-];
-
-const VALUE_PROPS = [
-  {
-    title: "해외 계약에 특화",
-    desc: "FIDIC·EPC·지체상금·하자담보 등 다양한 해외 계약 실무 리스크를 중심으로 1차 검토합니다.",
-  },
-  {
-    title: "근거가 남는 AI 검토",
-    desc: "SAC-RAG로 국제 실무 기준을 검색해, 위험 판정마다 출처를 함께 제시합니다.",
-  },
-  {
-    title: "한국어로 바로 의사결정",
-    desc: "번역·리스크·협상 포인트를 한 흐름으로 제공해 검토 시간을 줄입니다.",
-  },
-];
-
 const PROMO_DEADLINE = new Date("2026-09-01T00:00:00+09:00");
 const isPromoActive = () => Date.now() < PROMO_DEADLINE.getTime();
 
-const TESTIMONIALS = [
-  {
-    quote: "14년간 공기업과 대기업 해외법무팀장의 노하우가 앱 하나에 그대로 들어있네요.",
-    body: "번역부터 위험조항 분석까지 순식간에 끝납니다. 8월 무료 기간에 써봤는데 검토 시간이 90% 이상 단축됐어요.",
-    author: "글로벌 마케팅 매니저, 김**님",
-  },
-  {
-    quote: "뉴욕 변호사가 만든 서비스라 확실히 리스크를 잡아내는 깊이가 다릅니다.",
-    body: "AI가 독소 조항을 즉시 찾고 실무적인 협상 포인트까지 짚어줘서 해외 바이어와의 협상력이 대폭 높아졌습니다.",
-    author: "스타트업 대표, 이**님",
-  },
-  {
-    quote: "대기업 법무팀 수준의 검토를 8월 무료 혜택으로 경험했습니다.",
-    body: "1차 AI 검토 후 검증된 현지 변호사 연결까지 한 번에 해결되어 자문 비용과 시간을 대폭 절약했습니다.",
-    author: "수출입 담당자, 박**님",
-  },
-];
-
-const CONSTRUCTION_DASHBOARD = [
-  { label: "기본 기준", value: "FIDIC Red / Yellow / Silver", detail: "패밀리별 책임 분배와 계약 형태를 비교" },
-  { label: "입력 계약서", value: "사용자 초안/발주자 문안", detail: "성격·범위·법정 요건을 입력값으로 정리" },
-  { label: "핵심 점검", value: "EOT / LD / DLP / Variation", detail: "공기와 비용 조정의 체계성 확인" },
-  { label: "리스크 요약", value: "공사액·보증·책임한도·중재", detail: "불균형 조항을 한눈에 식별" },
-];
-
 export default function App() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+
+  const LIFECYCLE = [
+    { step: "01", title: t("lifecycle.step1.title"), desc: t("lifecycle.step1.desc") },
+    { step: "02", title: t("lifecycle.step2.title"), desc: t("lifecycle.step2.desc") },
+    { step: "03", title: t("lifecycle.step3.title"), desc: t("lifecycle.step3.desc") },
+    { step: "04", title: t("lifecycle.step4.title"), desc: t("lifecycle.step4.desc") },
+  ];
+
+  const VALUE_PROPS = [
+    { title: t("valueProps.item1.title"), desc: t("valueProps.item1.desc") },
+    { title: t("valueProps.item2.title"), desc: t("valueProps.item2.desc") },
+    { title: t("valueProps.item3.title"), desc: t("valueProps.item3.desc") },
+  ];
+
+  const TESTIMONIALS = [
+    {
+      quote: t("testimonials.item1.quote"),
+      body: t("testimonials.item1.body"),
+      author: t("testimonials.item1.author"),
+    },
+    {
+      quote: t("testimonials.item2.quote"),
+      body: t("testimonials.item2.body"),
+      author: t("testimonials.item2.author"),
+    },
+    {
+      quote: t("testimonials.item3.quote"),
+      body: t("testimonials.item3.body"),
+      author: t("testimonials.item3.author"),
+    },
+  ];
+
+  const CONSTRUCTION_DASHBOARD = [
+    { label: t("constructionDashboard.item1.label"), value: t("constructionDashboard.item1.value"), detail: t("constructionDashboard.item1.detail") },
+    { label: t("constructionDashboard.item2.label"), value: t("constructionDashboard.item2.value"), detail: t("constructionDashboard.item2.detail") },
+    { label: t("constructionDashboard.item3.label"), value: t("constructionDashboard.item3.value"), detail: t("constructionDashboard.item3.detail") },
+    { label: t("constructionDashboard.item4.label"), value: t("constructionDashboard.item4.value"), detail: t("constructionDashboard.item4.detail") },
+  ];
+
+  function toggleLanguage() {
+    void i18n.changeLanguage(i18n.language === "en" ? "ko" : "en");
+  }
+
   const { user, authNotice, clearAuthNotice, openAuth, requireAuth, signOut } = useAuth();
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
@@ -127,12 +125,12 @@ export default function App() {
   const groupOptions = useMemo(() => {
     const groups = Array.from(new Set(standardContracts.map((item) => item.group)));
     return [
-      { key: "all", label: "전체" },
-      { key: "construction", label: "해외 건설 계약" },
+      { key: "all", label: t("standardContracts.groupAll") },
+      { key: "construction", label: t("standardContracts.groupConstruction") },
       ...groups.filter((group) => group !== "건설·플랜트").map((group) => ({ key: group, label: group })),
       ...groups.filter((group) => group === "건설·플랜트").map((group) => ({ key: group, label: group })),
     ];
-  }, [standardContracts]);
+  }, [standardContracts, t]);
 
   const visibleContracts = useMemo(() => {
     if (selectedGroup === "all") return standardContracts;
@@ -152,11 +150,7 @@ export default function App() {
   }, [selectedGroup, standardContracts]);
 
   async function handleFile(file: File) {
-    if (
-      !requireAuth(
-        "문서를 Supabase에 저장하고 분석하려면 로그인과 회원 정보 입력이 필요합니다.",
-      )
-    ) {
+    if (!requireAuth(t("errors.authRequiredUpload"))) {
       return;
     }
     if (!user) return;
@@ -171,17 +165,13 @@ export default function App() {
       setStatus("idle");
       uploadRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (e) {
-      setError(e instanceof Error ? e.message : "알 수 없는 오류가 발생했습니다.");
+      setError(e instanceof Error ? e.message : t("errors.unknown"));
       setStatus("error");
     }
   }
 
   function triggerUpload() {
-    if (
-      !requireAuth(
-        "문서를 Supabase에 저장하고 분석하려면 로그인과 회원 정보 입력이 필요합니다.",
-      )
-    ) {
+    if (!requireAuth(t("errors.authRequiredUpload"))) {
       return;
     }
     inputRef.current?.click();
@@ -189,7 +179,7 @@ export default function App() {
 
   async function handleCompareContractText() {
     if (!contractTextInput.trim()) {
-      setComparisonError("비교할 계약서 내용을 먼저 입력해 주세요.");
+      setComparisonError(t("constructionSpecial.errors.emptyCompare"));
       return;
     }
     setComparisonLoading(true);
@@ -199,7 +189,7 @@ export default function App() {
       setComparisonResult(result);
       await saveFIDICComparisonResult(contractTextInput);
     } catch (e) {
-      setComparisonError(e instanceof Error ? e.message : "비교 분석에 실패했습니다.");
+      setComparisonError(e instanceof Error ? e.message : t("constructionSpecial.errors.compareFailed"));
     } finally {
       setComparisonLoading(false);
     }
@@ -208,25 +198,25 @@ export default function App() {
 
   async function handleExportComparisonReport() {
     if (!contractTextInput.trim()) {
-      setComparisonError("내보낼 계약서 내용을 먼저 입력해 주세요.");
+      setComparisonError(t("constructionSpecial.errors.emptyExport"));
       return;
     }
     try {
       await exportFIDICComparisonReport(contractTextInput);
     } catch (e) {
-      setComparisonError(e instanceof Error ? e.message : "내보내기에 실패했습니다.");
+      setComparisonError(e instanceof Error ? e.message : t("constructionSpecial.errors.exportFailed"));
     }
   }
 
   async function handleExportComparisonJSONReport() {
     if (!contractTextInput.trim()) {
-      setComparisonError("내보낼 계약서 내용을 먼저 입력해 주세요.");
+      setComparisonError(t("constructionSpecial.errors.emptyExport"));
       return;
     }
     try {
       await exportFIDICComparisonJSONReport(contractTextInput);
     } catch (e) {
-      setComparisonError(e instanceof Error ? e.message : "JSON 내보내기에 실패했습니다.");
+      setComparisonError(e instanceof Error ? e.message : t("constructionSpecial.errors.exportJsonFailed"));
     }
   }
 
@@ -240,7 +230,7 @@ export default function App() {
               onClick={closeIntro}
               className="absolute -top-10 right-0 text-sm font-semibold text-white/80 hover:text-white"
             >
-              닫기 ✕
+              {t("intro.close")}
             </button>
             <video
               ref={introVideoRef}
@@ -255,7 +245,7 @@ export default function App() {
                 onClick={unmuteIntro}
                 className="absolute inset-0 flex items-center justify-center bg-black/40 text-base font-semibold text-white"
               >
-                🔊 소리와 함께 재생하기
+                {t("intro.unmute")}
               </button>
             )}
           </div>
@@ -265,9 +255,9 @@ export default function App() {
         {isPromoActive() && (
           <div className="bg-[var(--tb-green-deep)] px-6 py-2.5 text-center text-sm font-semibold text-white">
             <span className="mr-2 rounded-full bg-white/15 px-2 py-0.5 text-xs font-bold uppercase tracking-[0.1em]">
-              MVP 베타 출시
+              {t("promo.badge")}
             </span>
-            회원가입 시 8월 말까지 무료로 무제한 사용 · 지금 가입하고 바로 시작하세요
+            {t("promo.text")}
           </div>
         )}
         <header className="border-b border-[var(--tb-line)]/80 bg-[var(--tb-sand)]/90 backdrop-blur-md">
@@ -286,7 +276,7 @@ export default function App() {
                   onClick={() => void signOut()}
                   className="border border-[var(--tb-line)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)]"
                 >
-                  로그아웃
+                  {t("nav.logout")}
                 </button>
               </>
             ) : (
@@ -295,7 +285,7 @@ export default function App() {
                 onClick={() => openAuth("signup")}
                 className="border border-[var(--tb-line)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)]"
               >
-                회원 가입
+                {t("nav.signup")}
               </button>
             )}
             <button
@@ -303,7 +293,7 @@ export default function App() {
               onClick={() => generatorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
               className="border border-[var(--tb-line)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)]"
             >
-              계약서 자동 생성
+              {t("nav.contractGenerator")}
             </button>
             <button
               type="button"
@@ -311,7 +301,14 @@ export default function App() {
               disabled={status === "loading"}
               className="bg-[var(--tb-green)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--tb-green-deep)] disabled:opacity-50"
             >
-              {status === "loading" ? "분석 중..." : "계약서 검토 시작"}
+              {status === "loading" ? t("nav.analyzing") : t("nav.reviewStart")}
+            </button>
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              className="border border-[var(--tb-line)] bg-white px-3 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)]"
+            >
+              {t("nav.langToggle")}
             </button>
           </div>
         </div>
@@ -327,7 +324,7 @@ export default function App() {
               onClick={clearAuthNotice}
               className="shrink-0 text-sm font-semibold text-[var(--tb-green-deep)]"
             >
-              닫기
+              {t("authNotice.close")}
             </button>
           </div>
         </div>
@@ -350,13 +347,12 @@ export default function App() {
             The Beginning
           </p>
           <h1 className="tb-fade-up tb-fade-up-delay-1 mt-5 max-w-3xl font-display text-3xl font-medium leading-[1.15] tracking-tight text-white sm:text-4xl md:text-5xl">
-            해외 계약 서명 전,
+            {t("hero.titleLine1")}
             <br />
-            <em className="not-italic text-[var(--tb-green-soft)]">5분이면 충분합니다</em>
+            <em className="not-italic text-[var(--tb-green-soft)]">{t("hero.titleEm")}</em>
           </h1>
           <p className="tb-fade-up tb-fade-up-delay-2 mt-5 max-w-xl text-base leading-relaxed text-white/80 sm:text-lg">
-            각종 해외 계약서(복잡한 대규모 해외 인프라 투자/건설 PF 사업 관련 FIDIC·EPC 실무 포함)를 해외 법률 전문가들이 직접 훈련시킨 AI가 번역 요약부터 주요 리스크, 협상 체크리스트까지 한 번에
-            정리합니다.
+            {t("hero.subtitle")}
           </p>
           <div className="tb-fade-up tb-fade-up-delay-3 mt-8 flex flex-wrap items-center gap-4">
             <input
@@ -376,10 +372,10 @@ export default function App() {
               disabled={status === "loading"}
               className="bg-[var(--tb-green)] px-7 py-3.5 text-base font-semibold text-white transition hover:bg-[var(--tb-green-deep)] disabled:opacity-50"
             >
-              {status === "loading" ? "분석 중... (최대 1분)" : "계약서 업로드하고 분석하기"}
+              {status === "loading" ? t("hero.uploadCtaLoading") : t("hero.uploadCta")}
             </button>
             <p className="text-sm text-white/70">
-              .txt · .pdf · .docx · .doc · 최대 10페이지
+              {t("hero.formats")}
             </p>
           </div>
           {error && (
@@ -394,9 +390,9 @@ export default function App() {
       <section className="border-y border-[var(--tb-line)] bg-white">
         <div className="mx-auto grid max-w-6xl gap-8 px-6 py-12 sm:grid-cols-3">
           {[
-            { label: "1차 검토 속도", value: "수 분 내", note: "업로드 후 AI 분석" },
-            { label: "검토 범위", value: "번역·리스크·협상", note: "의사결정에 필요한 핵심만" },
-            { label: "다음 단계", value: "전 세계 전문가 연결", note: "검수·해외 법률 자문" },
+            { label: t("metrics.item1.label"), value: t("metrics.item1.value"), note: t("metrics.item1.note") },
+            { label: t("metrics.item2.label"), value: t("metrics.item2.value"), note: t("metrics.item2.note") },
+            { label: t("metrics.item3.label"), value: t("metrics.item3.value"), note: t("metrics.item3.note") },
           ].map((item) => (
             <div key={item.label}>
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--tb-green)]">
@@ -415,15 +411,15 @@ export default function App() {
       <section className="px-6 py-20">
         <div className="mx-auto max-w-6xl">
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
-            Review Loop
+            {t("reviewLoop.eyebrow")}
           </p>
           <h2 className="mt-3 max-w-2xl font-display text-3xl font-semibold tracking-tight text-[var(--tb-ink)] sm:text-4xl">
-            계약 검토의 전 과정을
+            {t("reviewLoop.titleLine1")}
             <br />
-            하나의 루프로
+            {t("reviewLoop.titleLine2")}
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-[var(--tb-muted)]">
-            업로드부터 번역·리스크·협상·전문가 연결까지, 계약 검토 흐름을 끊김 없이 이어줍니다.
+            {t("reviewLoop.subtitle")}
           </p>
 
           <ol className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -451,12 +447,12 @@ export default function App() {
       <section className="border-t border-[var(--tb-line)] bg-white px-6 py-20">
         <div className="mx-auto max-w-6xl">
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
-            Why The Beginning
+            {t("whyUs.eyebrow")}
           </p>
           <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            팀이 실제로 쓰는
+            {t("whyUs.titleLine1")}
             <br />
-            계약 인텔리전스
+            {t("whyUs.titleLine2")}
           </h2>
           <div className="mt-12 grid gap-10 md:grid-cols-3">
             {VALUE_PROPS.map((item) => (
@@ -478,13 +474,13 @@ export default function App() {
             Testimonials
           </p>
           <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            사용자 후기
+            {t("testimonials.heading")}
           </h2>
           <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:items-stretch">
             <div className="overflow-hidden rounded-2xl border border-[var(--tb-line)]">
               <img
                 src={testimonialsImage}
-                alt="사용자 후기: 글로벌 마케팅 매니저, 스타트업 대표, 수출입 담당자의 실제 이용 후기"
+                alt={t("testimonials.imageAlt")}
                 className="mx-auto h-full w-full max-w-xl object-cover"
               />
             </div>
@@ -510,12 +506,12 @@ export default function App() {
             Standard Contracts
           </p>
           <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            해외 사업에 바로 쓰는
+            {t("standardContracts.titleLine1")}
             <br />
-            표준계약서 자료를 열람하세요
+            {t("standardContracts.titleLine2")}
           </h2>
           <p className="mt-4 max-w-2xl text-base text-[var(--tb-muted)]">
-            ITC·ICC·국내 기관 자료를 기준으로, 준거법·중재·CISG·현지 강행규정 체크 포인트까지 함께 안내합니다.
+            {t("standardContracts.subtitle")}
           </p>
 
           {detailId ? (
@@ -587,12 +583,12 @@ export default function App() {
       <section className="border-t border-[var(--tb-line)] bg-[var(--tb-sand)] px-6 py-20">
         <div className="mx-auto max-w-6xl">
           <p className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            해외 건설 계약 Special
+            {t("constructionSpecial.label")}
           </p>
 
           <div className="mt-3 mb-8 rounded-2xl border border-[var(--tb-line)] bg-white p-6">
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
-              FIDIC vs 사용자 계약서 대시보드
+              {t("constructionSpecial.dashboardEyebrow")}
             </p>
             <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {CONSTRUCTION_DASHBOARD.map((item) => (
@@ -606,24 +602,24 @@ export default function App() {
           </div>
 
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
-            FIDIC Comparison Engine
+            {t("constructionSpecial.engineEyebrow")}
           </p>
           <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            계약서 내용을 붙여 넣으면
+            {t("constructionSpecial.titleLine1")}
             <br />
-            FIDIC 기준과 자동 비교합니다
+            {t("constructionSpecial.titleLine2")}
           </h2>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
             <div className="rounded-2xl border border-[var(--tb-line)] bg-white p-6 shadow-sm">
               <label className="block text-sm font-semibold text-[var(--tb-ink)]">
-                계약서 초안 또는 주요 조항 붙여넣기
+                {t("constructionSpecial.pasteLabel")}
               </label>
               <textarea
                 value={contractTextInput}
                 onChange={(e) => setContractTextInput(e.target.value)}
                 rows={12}
-                placeholder="예: The Contractor shall complete the Works within 18 months ... Variation may be ordered by the Employer ... Liquidated Damages shall be ..."
+                placeholder={t("constructionSpecial.pastePlaceholder")}
                 className="mt-3 w-full border border-[var(--tb-line)] bg-[var(--tb-sand)] px-4 py-3 text-sm leading-relaxed text-[var(--tb-ink)] focus:border-[var(--tb-green)] focus:outline-none"
               />
               <div className="mt-4 flex flex-wrap gap-3">
@@ -633,14 +629,14 @@ export default function App() {
                   disabled={comparisonLoading}
                   className="bg-[var(--tb-green)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--tb-green-deep)] disabled:opacity-50"
                 >
-                  {comparisonLoading ? "비교 중..." : "FIDIC 비교표 생성"}
+                  {comparisonLoading ? t("constructionSpecial.comparing") : t("constructionSpecial.compareCta")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setContractTextInput("")}
                   className="border border-[var(--tb-line)] px-5 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)]"
                 >
-                  초기화
+                  {t("constructionSpecial.reset")}
                 </button>
                 {comparisonResult && (
                   <>
@@ -649,14 +645,14 @@ export default function App() {
                       onClick={handleExportComparisonReport}
                       className="border border-[var(--tb-line)] px-5 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)]"
                     >
-                      PDF로 내보내기
+                      {t("constructionSpecial.exportPdf")}
                     </button>
                     <button
                       type="button"
                       onClick={handleExportComparisonJSONReport}
                       className="border border-[var(--tb-line)] px-5 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)]"
                     >
-                      JSON으로 내보내기
+                      {t("constructionSpecial.exportJson")}
                     </button>
                   </>
                 )}
@@ -672,24 +668,24 @@ export default function App() {
               {comparisonResult ? (
                 <>
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--tb-green)]">
-                    FIDIC 매칭 점수
+                    {t("constructionSpecial.matchScoreLabel")}
                   </p>
                   <div className="mt-4 flex items-end gap-3">
                     <span className="font-display text-5xl font-semibold text-[var(--tb-ink)]">
                       {comparisonResult.overall_score}
                     </span>
-                    <span className="pb-2 text-sm text-[var(--tb-muted)]">/ 100</span>
+                    <span className="pb-2 text-sm text-[var(--tb-muted)]">{t("constructionSpecial.scoreOutOf")}</span>
                   </div>
                   <div className="mt-4 rounded-full border border-[var(--tb-line)] bg-[var(--tb-sand)] px-3 py-2 text-sm font-semibold text-[var(--tb-ink)]">
-                    계약 편향: {comparisonResult.balance}
+                    {t("constructionSpecial.biasLabel", { balance: comparisonResult.balance })}
                   </div>
                   <div className="mt-4 grid gap-2 sm:grid-cols-2">
                     <div className="rounded-xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-3 text-sm">
-                      <div className="text-[var(--tb-muted)]">발주자 편향 점수</div>
+                      <div className="text-[var(--tb-muted)]">{t("constructionSpecial.employerBias")}</div>
                       <div className="mt-1 text-lg font-semibold text-[var(--tb-ink)]">{comparisonResult.bias_scores.employer}</div>
                     </div>
                     <div className="rounded-xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-3 text-sm">
-                      <div className="text-[var(--tb-muted)]">시공사 편향 점수</div>
+                      <div className="text-[var(--tb-muted)]">{t("constructionSpecial.contractorBias")}</div>
                       <div className="mt-1 text-lg font-semibold text-[var(--tb-ink)]">{comparisonResult.bias_scores.contractor}</div>
                     </div>
                   </div>
@@ -711,7 +707,7 @@ export default function App() {
                 </>
               ) : (
                 <div className="flex h-full items-center justify-center text-sm leading-relaxed text-[var(--tb-muted)]">
-                  계약서 내용을 입력하면 FIDIC 기준에 대한 종합 점수와 핵심 비교 항목이 표시됩니다.
+                  {t("constructionSpecial.emptyResult")}
                 </div>
               )}
             </div>
@@ -736,7 +732,7 @@ export default function App() {
                               : "bg-rose-100 text-rose-700"
                         }`}
                       >
-                        {issue.status === "good" ? "양호" : issue.status === "watch" ? "주의" : "위험"}
+                        {issue.status === "good" ? t("constructionSpecial.status.good") : issue.status === "watch" ? t("constructionSpecial.status.watch") : t("constructionSpecial.status.risk")}
                       </span>
                       <span className="text-lg font-semibold text-[var(--tb-ink)]">{issue.score}</span>
                     </div>
@@ -755,7 +751,7 @@ export default function App() {
                   </div>
                   {issue.sentence_evidence && issue.sentence_evidence.length > 0 && (
                     <div className="mt-4 space-y-2">
-                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--tb-green)]">근거 문장</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--tb-green)]">{t("constructionSpecial.evidenceLabel")}</p>
                       <ul className="space-y-2">
                         {issue.sentence_evidence.map((sentence) => (
                           <li key={sentence} className="rounded-lg border border-[var(--tb-line)] bg-[var(--tb-sand)] px-3 py-2 text-sm leading-relaxed text-[var(--tb-ink)]">
@@ -783,16 +779,16 @@ export default function App() {
           {user && (
             <div className="mt-8 rounded-2xl border border-[var(--tb-line)] bg-white p-5 shadow-sm">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--tb-green)]">내 저장 내역</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--tb-green)]">{t("constructionSpecial.mySavedHistory")}</p>
                 <button
                   type="button"
                   onClick={() => navigate("/fidic-history")}
                   className="text-xs font-semibold text-[var(--tb-green)] underline-offset-2 hover:underline"
                 >
-                  전체 보기 →
+                  {t("constructionSpecial.viewAll")}
                 </button>
               </div>
-              <p className="mt-2 text-sm text-[var(--tb-muted)]">로그인한 다음 내 저장 내역 페이지로 이동하여 목록을 조회하고 관리할 수 있습니다.</p>
+              <p className="mt-2 text-sm text-[var(--tb-muted)]">{t("constructionSpecial.savedHistoryDesc")}</p>
             </div>
           )}
         </div>
@@ -805,13 +801,12 @@ export default function App() {
             Contract Generator
           </p>
           <h2 className="mt-3 max-w-2xl font-display text-3xl font-semibold tracking-tight text-[var(--tb-ink)] sm:text-4xl">
-            인하우스 변호사 없이도,
+            {t("contractGeneratorSection.titleLine1")}
             <br />
-            몇 가지 질문으로 영문 계약서 초안을
+            {t("contractGeneratorSection.titleLine2")}
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-[var(--tb-muted)]">
-            해외 진출을 준비하는 중소기업·스타트업을 위한 서비스입니다. 계약 유형을 고르고 거래 조건을
-            입력하면, 표준계약서 자료를 근거로 영문 초안과 조항별 한국어 해설을 함께 만들어 드립니다.
+            {t("contractGeneratorSection.subtitle")}
           </p>
 
           <ContractGenerator requireAuth={requireAuth} />
@@ -827,15 +822,15 @@ export default function App() {
                 Start Review
               </p>
               <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                지금 바로 1차 검토를
+                {t("startReview.titleLine1")}
                 <br />
-                시작하세요
+                {t("startReview.titleLine2")}
               </h2>
               <p className="mt-4 max-w-xl text-base text-[var(--tb-muted)]">
-                지원 형식: .txt · .pdf · .docx · .doc (스캔 이미지 PDF는 미지원)
+                {t("startReview.formats")}
                 <br />
                 <span className="font-semibold text-[var(--tb-ink)]">
-                  최대 10페이지까지 업로드할 수 있습니다.
+                  {t("startReview.maxPages")}
                 </span>
               </p>
             </div>
@@ -845,7 +840,7 @@ export default function App() {
               disabled={status === "loading"}
               className="shrink-0 bg-[var(--tb-green)] px-7 py-3.5 text-base font-semibold text-white transition hover:bg-[var(--tb-green-deep)] disabled:opacity-50"
             >
-              {status === "loading" ? "분석 중... (최대 1분)" : "계약서 업로드하고 분석하기"}
+              {status === "loading" ? t("hero.uploadCtaLoading") : t("hero.uploadCta")}
             </button>
           </div>
 
@@ -868,10 +863,10 @@ export default function App() {
           <div>
             <p className="font-display text-2xl font-semibold text-white">The Beginning</p>
             <p className="mt-2 max-w-lg text-sm leading-relaxed">
-              본 서비스는 참고용 정보를 제공하며 법적 효력이 없습니다.
+              {t("footer.disclaimer")}
             </p>
           </div>
-          <p className="text-xs">© 2026 The Beginning · NoFear</p>
+          <p className="text-xs">{t("footer.copyright")}</p>
         </div>
       </footer>
     </div>

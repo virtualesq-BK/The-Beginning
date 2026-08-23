@@ -1,0 +1,314 @@
+{
+  "common": {
+    "close": "Close",
+    "back": "Back",
+    "loading": "Loading..."
+  },
+  "lifecycle": {
+    "step1": { "title": "Translation Summary", "desc": "Organizes overseas contract clauses into clear Korean." },
+    "step2": { "title": "Risk Review", "desc": "Surfaces high-risk clauses and supporting evidence first." },
+    "step3": { "title": "Negotiation Check", "desc": "Turns revision and negotiation points into a checklist." },
+    "step4": { "title": "Global Expert Connection", "desc": "Connects you to reviewers and legal experts when needed." }
+  },
+  "valueProps": {
+    "item1": { "title": "Built for Overseas Contracts", "desc": "First-pass review centered on real-world overseas contract risks — FIDIC, EPC, liquidated damages, defects liability, and more." },
+    "item2": { "title": "AI Review Backed by Evidence", "desc": "SAC-RAG retrieves international practice standards and cites the source behind every risk assessment." },
+    "item3": { "title": "Decisions in Korean, Instantly", "desc": "Translation, risk, and negotiation points delivered in one flow to cut down review time." }
+  },
+  "testimonials": {
+    "heading": "Customer Reviews",
+    "imageAlt": "Customer reviews from a global marketing manager, a startup founder, and an import/export manager",
+    "item1": {
+      "quote": "14 years of expertise from in-house counsel at public and large corporations, packed into a single app.",
+      "body": "From translation to risk-clause analysis, it's done in an instant. I used it during the August free period and cut my review time by over 90%.",
+      "author": "Global Marketing Manager, Mr. Kim"
+    },
+    "item2": {
+      "quote": "Built by a New York-qualified attorney, and it shows in the depth of risk detection.",
+      "body": "The AI instantly flags poison-pill clauses and even points out practical negotiation levers, which significantly strengthened our position with overseas buyers.",
+      "author": "Startup CEO, Mr. Lee"
+    },
+    "item3": {
+      "quote": "I experienced big-firm-level legal review through the August free promotion.",
+      "body": "After the AI's first-pass review, I could connect with a vetted local attorney in one step, saving significant time and advisory cost.",
+      "author": "Import/Export Manager, Ms. Park"
+    }
+  },
+  "constructionDashboard": {
+    "item1": { "label": "Baseline Standard", "value": "FIDIC Red / Yellow / Silver", "detail": "Compares liability allocation and contract structure by family" },
+    "item2": { "label": "Input Contract", "value": "User Draft / Employer Wording", "detail": "Organizes nature, scope, and statutory requirements as inputs" },
+    "item3": { "label": "Key Checks", "value": "EOT / LD / DLP / Variation", "detail": "Verifies the coherence of time and cost adjustments" },
+    "item4": { "label": "Risk Summary", "value": "Contract Value · Bonds · Liability Cap · Arbitration", "detail": "Identifies unbalanced clauses at a glance" }
+  },
+  "nav": {
+    "logout": "Log Out",
+    "signup": "Sign Up",
+    "contractGenerator": "Generate Contract",
+    "reviewStart": "Start Contract Review",
+    "analyzing": "Analyzing...",
+    "langToggle": "KO"
+  },
+  "intro": {
+    "close": "Close ✕",
+    "unmute": "🔊 Tap to Play with Sound"
+  },
+  "promo": {
+    "badge": "MVP Beta Launch",
+    "text": "Sign up now for free, unlimited use through the end of August · Get started today"
+  },
+  "authNotice": {
+    "close": "Close"
+  },
+  "hero": {
+    "titleLine1": "Before you sign an overseas contract,",
+    "titleEm": "5 minutes is all it takes",
+    "subtitle": "For every kind of overseas contract — including complex, large-scale FIDIC and EPC work tied to overseas infrastructure investment and construction project financing — an AI trained directly by overseas legal experts delivers a translation summary, key risks, and a negotiation checklist all at once.",
+    "uploadCta": "Upload and Analyze Contract",
+    "uploadCtaLoading": "Analyzing... (up to 1 min)",
+    "formats": ".txt · .pdf · .docx · .doc · up to 10 pages"
+  },
+  "metrics": {
+    "item1": { "label": "First-Pass Review Speed", "value": "Within Minutes", "note": "AI analysis after upload" },
+    "item2": { "label": "Review Scope", "value": "Translation · Risk · Negotiation", "note": "Only what you need to decide" },
+    "item3": { "label": "Next Step", "value": "Global Expert Connection", "note": "Review and overseas legal counsel" }
+  },
+  "reviewLoop": {
+    "eyebrow": "Review Loop",
+    "titleLine1": "The entire contract review process,",
+    "titleLine2": "in one continuous loop",
+    "subtitle": "From upload through translation, risk, negotiation, and expert connection, we keep your contract review flow uninterrupted."
+  },
+  "whyUs": {
+    "eyebrow": "Why The Beginning",
+    "titleLine1": "Contract intelligence",
+    "titleLine2": "teams actually use"
+  },
+  "standardContracts": {
+    "eyebrow": "Standard Contracts",
+    "titleLine1": "Ready-to-use resources",
+    "titleLine2": "for your overseas business",
+    "subtitle": "Based on ITC, ICC, and domestic institutional resources, with guidance on governing law, arbitration, CISG, and local mandatory-rule checkpoints.",
+    "groupAll": "All",
+    "groupConstruction": "Overseas Construction Contracts"
+  },
+  "constructionSpecial": {
+    "label": "Overseas Construction Contract Special",
+    "dashboardEyebrow": "FIDIC vs. Your Contract Dashboard",
+    "engineEyebrow": "FIDIC Comparison Engine",
+    "titleLine1": "Paste your contract text",
+    "titleLine2": "and compare it automatically against FIDIC",
+    "pasteLabel": "Paste a contract draft or key clauses",
+    "pastePlaceholder": "e.g. The Contractor shall complete the Works within 18 months ... Variation may be ordered by the Employer ... Liquidated Damages shall be ...",
+    "compareCta": "Generate FIDIC Comparison",
+    "comparing": "Comparing...",
+    "reset": "Reset",
+    "exportPdf": "Export as PDF",
+    "exportJson": "Export as JSON",
+    "matchScoreLabel": "FIDIC Match Score",
+    "scoreOutOf": "/ 100",
+    "biasLabel": "Contract Bias: {{balance}}",
+    "employerBias": "Employer Bias Score",
+    "contractorBias": "Contractor Bias Score",
+    "emptyResult": "Enter contract text to see an overall FIDIC score and key comparison items.",
+    "evidenceLabel": "Supporting Sentences",
+    "status": { "good": "Good", "watch": "Watch", "risk": "Risk" },
+    "mySavedHistory": "My Saved History",
+    "viewAll": "View All →",
+    "savedHistoryDesc": "After logging in, go to your saved history page to view and manage your saved list.",
+    "errors": {
+      "emptyCompare": "Please enter the contract text you want to compare first.",
+      "compareFailed": "Comparison analysis failed.",
+      "emptyExport": "Please enter the contract text you want to export first.",
+      "exportFailed": "Export failed.",
+      "exportJsonFailed": "JSON export failed."
+    }
+  },
+  "contractGeneratorSection": {
+    "eyebrow": "Contract Generator",
+    "titleLine1": "No in-house counsel needed —",
+    "titleLine2": "draft an English contract by answering a few questions",
+    "subtitle": "Built for SMEs and startups preparing to expand overseas. Choose a contract type and enter your deal terms, and we'll generate an English draft alongside clause-by-clause Korean commentary, grounded in our standard contract library."
+  },
+  "startReview": {
+    "eyebrow": "Start Review",
+    "titleLine1": "Start your first-pass review",
+    "titleLine2": "right now",
+    "formats": "Supported formats: .txt · .pdf · .docx · .doc (scanned image PDFs not supported)",
+    "maxPages": "You can upload up to 10 pages."
+  },
+  "footer": {
+    "disclaimer": "This service provides reference information only and has no legal effect.",
+    "copyright": "© 2026 The Beginning · NoFear"
+  },
+  "errors": {
+    "authRequiredUpload": "To save and analyze your document in Supabase, you need to log in and complete your member profile.",
+    "unknown": "An unknown error occurred."
+  },
+  "fidicHistory": {
+    "heading": "My Saved History",
+    "countSuffix": " comparison results",
+    "back": "← Back",
+    "sort": {
+      "label": "Sort",
+      "recent": "Most Recent",
+      "scoreHigh": "Highest Score",
+      "scoreLow": "Lowest Score"
+    },
+    "period": {
+      "label": "Period",
+      "last7days": "Last 7 Days",
+      "all": "All"
+    },
+    "noHistory": "No saved history",
+    "itemsCount": "{{count}} items",
+    "selectedCount": "{{count}} selected",
+    "deleteSelected": "Delete {{count}} items",
+    "close": "Close",
+    "loading": "Loading...",
+    "empty": {
+      "message": "No saved comparison results.",
+      "cta": "Go Compare a Contract"
+    },
+    "modal": {
+      "eyebrow": "Saved Comparison Result",
+      "score": "Score {{score}} / 100",
+      "summary": "Summary",
+      "focusAreas": "Key Items",
+      "close": "Close",
+      "json": "JSON",
+      "csv": "CSV",
+      "excel": "Excel",
+      "pdf": "PDF",
+      "delete": "Delete"
+    },
+    "confirm": {
+      "deleteOne": "Are you sure you want to delete this saved item?",
+      "deleteBatch": "Are you sure you want to delete {{count}} items?"
+    },
+    "errors": {
+      "loadHistory": "Failed to load history.",
+      "loadItem": "Failed to load item.",
+      "itemNotFound": "Item not found.",
+      "delete": "Failed to delete.",
+      "batchDelete": "Batch delete failed.",
+      "contractNotFound": "Contract content not found.",
+      "pdfDownload": "PDF download failed.",
+      "jsonDownload": "JSON download failed.",
+      "csvDownload": "CSV download failed.",
+      "excelDownload": "Excel download failed."
+    }
+  },
+  "auth": {
+    "title": {
+      "signup": "Sign Up",
+      "complete": "Complete Your Profile",
+      "login": "Log In"
+    },
+    "description": {
+      "signup": "Please provide your basic information and intended use to access the service.",
+      "complete": "Your email has been verified. Please provide additional information to use the service.",
+      "login": "Please log in with your registered email."
+    },
+    "close": "Close",
+    "supabaseWarning": "Supabase connection requires the `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` environment variables.",
+    "fields": {
+      "email": "Email",
+      "password": "Password",
+      "fullName": "Full Name",
+      "phone": "Phone Number",
+      "companyName": "Company Name",
+      "jobTitle": "Job Title",
+      "address": "Address",
+      "usagePurpose": "Intended Use",
+      "multiSelect": "(multiple selections allowed)",
+      "otherRequests": "Additional Requests",
+      "otherRequestsPlaceholder": "Let us know if there's anything else you'd like to share."
+    },
+    "submit": {
+      "submitting": "Processing...",
+      "signup": "Sign Up",
+      "complete": "Save and Get Started",
+      "login": "Log In"
+    },
+    "switchToLogin": { "prompt": "Already have an account?", "cta": "Log In" },
+    "switchToSignup": { "prompt": "Don't have an account?", "cta": "Sign Up" },
+    "errors": {
+      "usagePurposeRequired": "Please select at least one intended use."
+    },
+    "notice": {
+      "confirmEmail": "Please verify your email, then log in."
+    },
+    "usagePurpose": {
+      "draftWriting": "Drafting",
+      "negotiationPrep": "Negotiation prep",
+      "postContractReview": "Post-signing review",
+      "disputePrep": "Dispute preparation",
+      "disputeResponse": "Dispute response"
+    }
+  },
+  "contractGenerator": {
+    "loadingTemplates": "Loading template list...",
+    "answerCta": "Answer questions to build a draft →",
+    "backToTemplates": "← Choose a Different Template",
+    "selectPlaceholder": "Select",
+    "generateCta": "Generate English Contract Draft",
+    "generating": "Generating draft... (up to 1 min)",
+    "downloadTxt": "Download as .txt",
+    "reenterConditions": "Re-enter Conditions",
+    "commentaryLabel": "Clause Commentary",
+    "errors": {
+      "authRequired": "To generate a contract draft, you need to log in and complete your member profile.",
+      "missingRequired": "Please fill in the following fields: {{fields}}",
+      "unknown": "An unknown error occurred."
+    }
+  },
+  "report": {
+    "disclaimerPrefix": "⚠",
+    "translationSummary": {
+      "heading": "Translation Summary",
+      "totalClauses": "Total Clauses",
+      "clauseUnit": "",
+      "highRisk": "High Risk (4+)",
+      "highRiskUnit": ""
+    },
+    "majorRisks": {
+      "heading": "Major Risks",
+      "empty": "No medium-or-higher risks were detected.",
+      "showMore": "Show More Major Risks",
+      "showLess": "Collapse Major Risks"
+    },
+    "clauseDetail": {
+      "riskReason": "Risk Rationale",
+      "recommendation": "Recommendation",
+      "references": "Sources",
+      "lawyerReviewWarning": "This clause has a risk score of 4 or higher; legal review is recommended."
+    },
+    "checklist": {
+      "heading": "Negotiation Checklist",
+      "empty": "No items require separate confirmation during negotiation.",
+      "riskLevel": "Risk {{score}}/5"
+    },
+    "expert": {
+      "heading": "Expert Connection",
+      "desc": "Based on the AI's first-pass review, you can request expert review or overseas legal counsel.",
+      "cta": "Connect with an Expert",
+      "translationReview": "Expert Translation Review",
+      "legalExpert": "Connect with Overseas Legal Expert",
+      "notifyLabel": "Request notifications sent to",
+      "sending": "Sending request email...",
+      "successMessage": "A request email has been sent to {{email}}. Please check your inbox (including spam).",
+      "errorFallback": "{{msg}} If a mail app opens, please send it to {{email}}.",
+      "authRequired": "To proceed with a {{label}} request, you need to sign up or log in.",
+      "genericError": "The expert connection request failed."
+    },
+    "riskDetailsAuthRequired": "You need to sign up or log in to view major risk details."
+  },
+  "standardContractDetail": {
+    "loading": "Loading resource...",
+    "openOriginal": "Open Original Resource",
+    "backToList": "Back to List"
+  },
+  "riskBadge": {
+    "label": "Risk {{score}}/5"
+  }
+}

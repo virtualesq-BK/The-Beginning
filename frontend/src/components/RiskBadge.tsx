@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 const STYLES: Record<number, string> = {
   1: "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-800",
   2: "bg-lime-50 text-lime-700 ring-1 ring-inset ring-lime-200 dark:bg-lime-950/40 dark:text-lime-300 dark:ring-lime-800",
@@ -7,11 +9,12 @@ const STYLES: Record<number, string> = {
 };
 
 export function RiskBadge({ score }: { score: number }) {
+  const { t } = useTranslation();
   return (
     <span
       className={`inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold tracking-wide ${STYLES[score] ?? STYLES[3]}`}
     >
-      위험도 {score}/5
+      {t("riskBadge.label", { score })}
     </span>
   );
 }

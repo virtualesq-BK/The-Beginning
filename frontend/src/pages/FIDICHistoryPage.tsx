@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -18,6 +19,7 @@ type SortBy = "recent" | "score-high" | "score-low";
 type DateFilter = "7days" | "all";
 
 export function FIDICHistoryPage() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [items, setItems] = useState<HistoryItem[]>([]);
@@ -45,7 +47,7 @@ export function FIDICHistoryPage() {
       const historyItems = await listSavedFIDICComparisons();
       setItems(historyItems);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "히스토리 로드에 실패했습니다.");
+      setError(e instanceof Error ? e.message : t("fidicHistory.errors.loadHistory"));
       setItems([]);
     } finally {
       setLoading(false);
@@ -74,14 +76,14 @@ export function FIDICHistoryPage() {
       setSelectedItem(result);
       setShowModal(true);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "항목 로드에 실패했습니다.");
+      setError(e instanceof Error ? e.message : t("fidicHistory.errors.loadItem"));
     } finally {
       setOperationInProgress(false);
     }
   }
 
   async function handleDelete() {
-    if (!selectedItem || !window.confirm("이 저장 내역을 삭제하시겠습니까?")) return;
+    if (!selectedItem || !window.confirm(t("fidicHistory.confirm.deleteOne"))) return;
 
     try {
       setOperationInProgress(true);
@@ -91,14 +93,14 @@ export function FIDICHistoryPage() {
           item.overall_score === selectedItem.overall_score &&
           item.balance === selectedItem.balance
       );
-      if (!itemToDelete) throw new Error("항목을 찾을 수 없습니다.");
+      if (!itemToDelete) throw new Error(t("fidicHistory.errors.itemNotFound"));
 
       await deleteFIDICComparisonById(itemToDelete.id);
       setShowModal(false);
       setSelectedItem(null);
       await loadHistory();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "삭제에 실패했습니다.");
+      setError(e instanceof Error ? e.message : t("fidicHistory.errors.delete"));
     } finally {
       setOperationInProgress(false);
     }
@@ -106,7 +108,7 @@ export function FIDICHistoryPage() {
 
   async function handleExportPDF() {
     if (!selectedItem?.contract_text) {
-      setError("계약 내용을 찾을 수 없습니다.");
+      setError(t("fidicHistory.errors.contractNotFound"));
       return;
     }
 
@@ -114,7 +116,7 @@ export function FIDICHistoryPage() {
       setOperationInProgress(true);
       await exportFIDICComparisonReport(selectedItem.contract_text);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "PDF 다운로드에 실패했습니다.");
+      setError(e instanceof Error ? e.message : t("fidicHistory.errors.pdfDownload"));
     } finally {
       setOperationInProgress(false);
     }
@@ -122,7 +124,7 @@ export function FIDICHistoryPage() {
 
   async function handleExportJSON() {
     if (!selectedItem?.contract_text) {
-      setError("계약 내용을 찾을 수 없습니다.");
+      setError(t("fidicHistory.errors.contractNotFound"));
       return;
     }
 
@@ -130,7 +132,7 @@ export function FIDICHistoryPage() {
       setOperationInProgress(true);
       await exportFIDICComparisonJSONReport(selectedItem.contract_text);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "JSON 다운로드에 실패했습니다.");
+      setError(e instanceof Error ? e.message : t("fidicHistory.errors.jsonDownload"));
     } finally {
       setOperationInProgress(false);
     }
@@ -138,7 +140,7 @@ export function FIDICHistoryPage() {
 
   async function handleExportCSV() {
     if (!selectedItem?.contract_text) {
-      setError("계약 내용을 찾을 수 없습니다.");
+      setError(t("fidicHistory.errors.contractNotFound"));
       return;
     }
 
@@ -146,7 +148,7 @@ export function FIDICHistoryPage() {
       setOperationInProgress(true);
       await exportFIDICComparisonCSV(selectedItem.contract_text);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "CSV 다운로드에 실패했습니다.");
+      setError(e instanceof Error ? e.message : t("fidicHistory.errors.csvDownload"));
     } finally {
       setOperationInProgress(false);
     }
@@ -154,7 +156,7 @@ export function FIDICHistoryPage() {
 
   async function handleExportExcel() {
     if (!selectedItem?.contract_text) {
-      setError("계약 내용을 찾을 수 없습니다.");
+      setError(t("fidicHistory.errors.contractNotFound"));
       return;
     }
 
@@ -162,14 +164,14 @@ export function FIDICHistoryPage() {
       setOperationInProgress(true);
       await exportFIDICComparisonExcel(selectedItem.contract_text);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Excel 다운로드에 실패했습니다.");
+      setError(e instanceof Error ? e.message : t("fidicHistory.errors.excelDownload"));
     } finally {
       setOperationInProgress(false);
     }
   }
 
   async function handleBatchDelete() {
-    if (selectedForDelete.size === 0 || !window.confirm(`${selectedForDelete.size}개의 항목을 삭제하시겠습니까?`)) return;
+    if (selectedForDelete.size === 0 || !window.confirm(t("fidicHistory.confirm.deleteBatch", { count: selectedForDelete.size }))) return;
 
     try {
       setOperationInProgress(true);
@@ -177,7 +179,7 @@ export function FIDICHistoryPage() {
       setSelectedForDelete(new Set());
       await loadHistory();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "배치 삭제에 실패했습니다.");
+      setError(e instanceof Error ? e.message : t("fidicHistory.errors.batchDelete"));
     } finally {
       setOperationInProgress(false);
     }
@@ -186,7 +188,7 @@ export function FIDICHistoryPage() {
   function formatDate(dateString?: string): string {
     if (!dateString) return "";
     try {
-      return new Date(dateString).toLocaleDateString("ko-KR", {
+      return new Date(dateString).toLocaleDateString(i18n.language === "en" ? "en-US" : "ko-KR", {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
@@ -205,10 +207,10 @@ export function FIDICHistoryPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="font-display text-3xl font-semibold tracking-tight text-[var(--tb-ink)]">
-                내 저장 내역
+                {t("fidicHistory.heading")}
               </h1>
               <p className="mt-1 text-sm text-[var(--tb-muted)]">
-                {sortedItems.length}개의 비교 결과
+                {sortedItems.length}{t("fidicHistory.countSuffix")}
               </p>
             </div>
             <button
@@ -216,7 +218,7 @@ export function FIDICHistoryPage() {
               onClick={() => navigate("/")}
               className="rounded-lg border border-[var(--tb-line)] bg-white px-4 py-2 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-sand)]"
             >
-              ← 돌아가기
+              {t("fidicHistory.back")}
             </button>
           </div>
         </div>
@@ -228,39 +230,39 @@ export function FIDICHistoryPage() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
             <div>
               <label className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--tb-green)]">
-                정렬
+                {t("fidicHistory.sort.label")}
               </label>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortBy)}
                 className="mt-2 rounded-lg border border-[var(--tb-line)] bg-white px-3 py-2 text-sm text-[var(--tb-ink)]"
               >
-                <option value="recent">최근순</option>
-                <option value="score-high">점수 높음순</option>
-                <option value="score-low">점수 낮음순</option>
+                <option value="recent">{t("fidicHistory.sort.recent")}</option>
+                <option value="score-high">{t("fidicHistory.sort.scoreHigh")}</option>
+                <option value="score-low">{t("fidicHistory.sort.scoreLow")}</option>
               </select>
             </div>
 
             <div>
               <label className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--tb-green)]">
-                기간
+                {t("fidicHistory.period.label")}
               </label>
               <select
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value as DateFilter)}
                 className="mt-2 rounded-lg border border-[var(--tb-line)] bg-white px-3 py-2 text-sm text-[var(--tb-ink)]"
               >
-                <option value="7days">최근 7일</option>
-                <option value="all">전체</option>
+                <option value="7days">{t("fidicHistory.period.last7days")}</option>
+                <option value="all">{t("fidicHistory.period.all")}</option>
               </select>
             </div>
           </div>
 
           <div className="text-sm text-[var(--tb-muted)]">
-            {sortedItems.length === 0 ? "저장 내역이 없습니다" : `${sortedItems.length}개 항목`}
+            {sortedItems.length === 0 ? t("fidicHistory.noHistory") : t("fidicHistory.itemsCount", { count: sortedItems.length })}
             {selectedForDelete.size > 0 && (
               <span className="ml-4 font-semibold text-[var(--tb-green)]">
-                {selectedForDelete.size}개 선택됨
+                {t("fidicHistory.selectedCount", { count: selectedForDelete.size })}
               </span>
             )}
           </div>
@@ -272,7 +274,7 @@ export function FIDICHistoryPage() {
               disabled={operationInProgress}
               className="ml-auto mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-50"
             >
-              {selectedForDelete.size}개 항목 삭제
+              {t("fidicHistory.deleteSelected", { count: selectedForDelete.size })}
             </button>
           )}
         </div>
@@ -285,22 +287,22 @@ export function FIDICHistoryPage() {
               onClick={() => setError(null)}
               className="ml-3 font-semibold underline"
             >
-              닫기
+              {t("fidicHistory.close")}
             </button>
           </div>
         )}
 
         {loading ? (
-          <div className="text-center text-[var(--tb-muted)]">로드 중...</div>
+          <div className="text-center text-[var(--tb-muted)]">{t("fidicHistory.loading")}</div>
         ) : sortedItems.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[var(--tb-line)] bg-white p-12 text-center">
-            <p className="text-[var(--tb-muted)]">저장된 비교 결과가 없습니다.</p>
+            <p className="text-[var(--tb-muted)]">{t("fidicHistory.empty.message")}</p>
             <button
               type="button"
               onClick={() => navigate("/")}
               className="mt-4 inline-block rounded-lg border border-[var(--tb-line)] bg-[var(--tb-sand)] px-4 py-2 text-sm font-semibold text-[var(--tb-ink)] hover:bg-white"
             >
-              계약서 비교하러 가기
+              {t("fidicHistory.empty.cta")}
             </button>
           </div>
         ) : (
@@ -356,10 +358,10 @@ export function FIDICHistoryPage() {
           <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
             <div className="mb-6">
               <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--tb-green)]">
-                저장된 비교 결과
+                {t("fidicHistory.modal.eyebrow")}
               </p>
               <h2 className="mt-2 text-2xl font-semibold text-[var(--tb-ink)]">
-                점수 {selectedItem.overall_score} / 100
+                {t("fidicHistory.modal.score", { score: selectedItem.overall_score })}
               </h2>
               <p className="mt-1 text-sm text-[var(--tb-muted)]">
                 {selectedItem.balance}
@@ -367,7 +369,7 @@ export function FIDICHistoryPage() {
             </div>
 
             <div className="mb-6 max-h-96 overflow-y-auto rounded-lg border border-[var(--tb-line)] bg-[var(--tb-sand)] p-4">
-              <h3 className="text-sm font-semibold text-[var(--tb-ink)]">요약</h3>
+              <h3 className="text-sm font-semibold text-[var(--tb-ink)]">{t("fidicHistory.modal.summary")}</h3>
               <p className="mt-2 text-sm leading-relaxed text-[var(--tb-muted)]">
                 {selectedItem.summary}
               </p>
@@ -375,7 +377,7 @@ export function FIDICHistoryPage() {
               {selectedItem.focus_areas.length > 0 && (
                 <div className="mt-4">
                   <h4 className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--tb-green)]">
-                    핵심 항목
+                    {t("fidicHistory.modal.focusAreas")}
                   </h4>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {selectedItem.focus_areas.map((area) => (
@@ -401,7 +403,7 @@ export function FIDICHistoryPage() {
                 disabled={operationInProgress}
                 className="order-2 rounded-lg border border-[var(--tb-line)] bg-white px-4 py-2 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-sand)] disabled:opacity-50 sm:order-1"
               >
-                닫기
+                {t("fidicHistory.modal.close")}
               </button>
 
               <button
@@ -410,7 +412,7 @@ export function FIDICHistoryPage() {
                 disabled={operationInProgress}
                 className="rounded-lg border border-[var(--tb-line)] bg-white px-4 py-2 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-sand)] disabled:opacity-50"
               >
-                JSON
+                {t("fidicHistory.modal.json")}
               </button>
 
               <button
@@ -419,7 +421,7 @@ export function FIDICHistoryPage() {
                 disabled={operationInProgress}
                 className="rounded-lg border border-[var(--tb-line)] bg-white px-4 py-2 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-sand)] disabled:opacity-50"
               >
-                CSV
+                {t("fidicHistory.modal.csv")}
               </button>
 
               <button
@@ -428,7 +430,7 @@ export function FIDICHistoryPage() {
                 disabled={operationInProgress}
                 className="rounded-lg border border-[var(--tb-line)] bg-white px-4 py-2 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-sand)] disabled:opacity-50"
               >
-                Excel
+                {t("fidicHistory.modal.excel")}
               </button>
 
               <button
@@ -437,7 +439,7 @@ export function FIDICHistoryPage() {
                 disabled={operationInProgress}
                 className="rounded-lg border border-[var(--tb-line)] bg-white px-4 py-2 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-sand)] disabled:opacity-50"
               >
-                PDF
+                {t("fidicHistory.modal.pdf")}
               </button>
 
               <button
@@ -446,7 +448,7 @@ export function FIDICHistoryPage() {
                 disabled={operationInProgress}
                 className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-50"
               >
-                삭제
+                {t("fidicHistory.modal.delete")}
               </button>
             </div>
           </div>

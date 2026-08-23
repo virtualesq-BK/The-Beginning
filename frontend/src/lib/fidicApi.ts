@@ -1,4 +1,9 @@
 import { supabase } from "./supabase";
+import i18n from "../i18n";
+
+function currentLanguage(): "ko" | "en" {
+  return i18n.language?.startsWith("en") ? "en" : "ko";
+}
 
 export type FIDICComparisonIssue = {
   id: string;
@@ -28,7 +33,7 @@ export async function compareDraftToFIDICAPI(contractText: string): Promise<FIDI
   const res = await fetch(`${API_BASE}/api/v1/fidic/compare`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contract_text: contractText }),
+    body: JSON.stringify({ contract_text: contractText, language: currentLanguage() }),
   });
 
   if (!res.ok) {
@@ -116,7 +121,7 @@ export async function saveFIDICComparisonResult(contractText: string, comparison
   const fallbackRes = await fetch(`${API_BASE}/api/v1/fidic/compare/save`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contract_text: contractText, comparison_id: comparisonId ?? null }),
+    body: JSON.stringify({ contract_text: contractText, comparison_id: comparisonId ?? null, language: currentLanguage() }),
   });
 
   if (!fallbackRes.ok) {
@@ -194,7 +199,7 @@ export async function exportFIDICComparisonReport(contractText: string): Promise
   const res = await fetch(`${API_BASE}/api/v1/fidic/compare/export`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contract_text: contractText }),
+    body: JSON.stringify({ contract_text: contractText, language: currentLanguage() }),
   });
 
   if (!res.ok) {
@@ -215,7 +220,7 @@ export async function exportFIDICComparisonJSONReport(contractText: string): Pro
   const res = await fetch(`${API_BASE}/api/v1/fidic/compare/export-json`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contract_text: contractText }),
+    body: JSON.stringify({ contract_text: contractText, language: currentLanguage() }),
   });
 
   if (!res.ok) {
@@ -268,7 +273,7 @@ export async function exportFIDICComparisonCSV(contractText: string): Promise<vo
   const res = await fetch(`${API_BASE}/api/v1/fidic/compare/export-csv`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contract_text: contractText }),
+    body: JSON.stringify({ contract_text: contractText, language: currentLanguage() }),
   });
 
   if (!res.ok) {
@@ -289,7 +294,7 @@ export async function exportFIDICComparisonExcel(contractText: string): Promise<
   const res = await fetch(`${API_BASE}/api/v1/fidic/compare/export-excel`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contract_text: contractText }),
+    body: JSON.stringify({ contract_text: contractText, language: currentLanguage() }),
   });
 
   if (!res.ok) {

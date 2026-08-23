@@ -1,9 +1,9 @@
 export const USAGE_PURPOSE_OPTIONS = [
-  { value: "draft_writing", label: "초안 작성" },
-  { value: "negotiation_prep", label: "협상 준비" },
-  { value: "post_contract_review", label: "계약 체결 후 검토" },
-  { value: "dispute_prep", label: "분쟁 준비" },
-  { value: "dispute_response", label: "분쟁 대응" },
+  { value: "draft_writing", labelKey: "auth.usagePurpose.draftWriting" },
+  { value: "negotiation_prep", labelKey: "auth.usagePurpose.negotiationPrep" },
+  { value: "post_contract_review", labelKey: "auth.usagePurpose.postContractReview" },
+  { value: "dispute_prep", labelKey: "auth.usagePurpose.disputePrep" },
+  { value: "dispute_response", labelKey: "auth.usagePurpose.disputeResponse" },
 ] as const;
 
 export type UsagePurpose = (typeof USAGE_PURPOSE_OPTIONS)[number]["value"];

@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
 import { USAGE_PURPOSE_OPTIONS, type UsagePurpose } from "../types/auth";
 
@@ -6,6 +7,7 @@ const inputClass =
   "mt-1.5 w-full border border-[var(--tb-line)] bg-[var(--tb-sand)] px-3 py-2.5 text-sm outline-none transition focus:border-[var(--tb-green)]";
 
 export function AuthModal() {
+  const { t } = useTranslation();
   const {
     authOpen,
     authMode,
@@ -94,7 +96,7 @@ export function AuthModal() {
       }
 
       if (usagePurposes.length === 0) {
-        setError("사용목적을 하나 이상 선택해 주세요.");
+        setError(t("auth.errors.usagePurposeRequired"));
         return;
       }
 
@@ -118,7 +120,7 @@ export function AuthModal() {
       if (message) {
         if (message.includes("가입 메일") || message.includes("확인 링크")) {
           setInfo(message);
-          openAuth("login", "이메일 확인 후 로그인해 주세요.");
+          openAuth("login", t("auth.notice.confirmEmail"));
         } else {
           setError(message);
         }
@@ -129,14 +131,14 @@ export function AuthModal() {
   }
 
   const title =
-    authMode === "signup" ? "회원 가입" : authMode === "complete" ? "회원 정보 입력" : "로그인";
+    authMode === "signup" ? t("auth.title.signup") : authMode === "complete" ? t("auth.title.complete") : t("auth.title.login");
 
   const description =
     authMode === "signup"
-      ? "서비스 이용을 위해 기본 정보와 사용목적을 입력해 주세요."
+      ? t("auth.description.signup")
       : authMode === "complete"
-        ? "이메일 확인은 완료되었습니다. 추가 정보를 입력해야 서비스를 이용할 수 있습니다."
-        : "가입한 이메일로 로그인해 주세요.";
+        ? t("auth.description.complete")
+        : t("auth.description.login");
 
   return (
     <div
@@ -163,7 +165,7 @@ export function AuthModal() {
               onClick={closeAuth}
               className="text-sm font-semibold text-[var(--tb-muted)] transition hover:text-[var(--tb-ink)]"
             >
-              닫기
+              {t("auth.close")}
             </button>
           )}
         </div>
@@ -176,15 +178,14 @@ export function AuthModal() {
 
         {!configured && (
           <p className="mt-4 border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-            Supabase 연결을 위해 `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` 환경 변수가
-            필요합니다.
+            {t("auth.supabaseWarning")}
           </p>
         )}
 
         <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
           {(authMode === "login" || authMode === "signup" || isCompleteMode) && (
             <label className="block text-sm font-medium text-[var(--tb-ink)]">
-              이메일
+              {t("auth.fields.email")}
               <input
                 type="email"
                 required={authMode !== "complete"}
@@ -199,7 +200,7 @@ export function AuthModal() {
 
           {(authMode === "login" || authMode === "signup") && (
             <label className="block text-sm font-medium text-[var(--tb-ink)]">
-              비밀번호
+              {t("auth.fields.password")}
               <input
                 type="password"
                 required
@@ -215,7 +216,7 @@ export function AuthModal() {
           {showProfileFields && (
             <>
               <label className="block text-sm font-medium text-[var(--tb-ink)]">
-                이름
+                {t("auth.fields.fullName")}
                 <input
                   type="text"
                   required
@@ -227,7 +228,7 @@ export function AuthModal() {
               </label>
 
               <label className="block text-sm font-medium text-[var(--tb-ink)]">
-                전화번호
+                {t("auth.fields.phone")}
                 <input
                   type="tel"
                   required
@@ -240,7 +241,7 @@ export function AuthModal() {
               </label>
 
               <label className="block text-sm font-medium text-[var(--tb-ink)]">
-                회사명
+                {t("auth.fields.companyName")}
                 <input
                   type="text"
                   required
@@ -252,7 +253,7 @@ export function AuthModal() {
               </label>
 
               <label className="block text-sm font-medium text-[var(--tb-ink)]">
-                직책/직위
+                {t("auth.fields.jobTitle")}
                 <input
                   type="text"
                   required
@@ -264,7 +265,7 @@ export function AuthModal() {
               </label>
 
               <label className="block text-sm font-medium text-[var(--tb-ink)]">
-                주소
+                {t("auth.fields.address")}
                 <input
                   type="text"
                   required
@@ -277,7 +278,7 @@ export function AuthModal() {
 
               <fieldset>
                 <legend className="text-sm font-medium text-[var(--tb-ink)]">
-                  사용목적 <span className="font-normal text-[var(--tb-muted)]">(복수 선택 가능)</span>
+                  {t("auth.fields.usagePurpose")} <span className="font-normal text-[var(--tb-muted)]">{t("auth.fields.multiSelect")}</span>
                 </legend>
                 <div className="mt-2 space-y-2 border border-[var(--tb-line)] bg-[var(--tb-sand)] p-3">
                   {USAGE_PURPOSE_OPTIONS.map((option) => (
@@ -288,19 +289,19 @@ export function AuthModal() {
                         onChange={() => togglePurpose(option.value)}
                         className="h-4 w-4 accent-[var(--tb-green)]"
                       />
-                      {option.label}
+                      {t(option.labelKey)}
                     </label>
                   ))}
                 </div>
               </fieldset>
 
               <label className="block text-sm font-medium text-[var(--tb-ink)]">
-                기타 요청 사항
+                {t("auth.fields.otherRequests")}
                 <textarea
                   rows={3}
                   value={otherRequests}
                   onChange={(e) => setOtherRequests(e.target.value)}
-                  placeholder="추가로 전달할 내용이 있으면 적어 주세요."
+                  placeholder={t("auth.fields.otherRequestsPlaceholder")}
                   className={`${inputClass} resize-y`}
                 />
               </label>
@@ -316,12 +317,12 @@ export function AuthModal() {
             className="w-full bg-[var(--tb-green)] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[var(--tb-green-deep)] disabled:opacity-50"
           >
             {submitting
-              ? "처리 중..."
+              ? t("auth.submit.submitting")
               : authMode === "signup"
-                ? "회원 가입하기"
+                ? t("auth.submit.signup")
                 : authMode === "complete"
-                  ? "정보 저장하고 시작하기"
-                  : "로그인하기"}
+                  ? t("auth.submit.complete")
+                  : t("auth.submit.login")}
           </button>
         </form>
 
@@ -329,24 +330,24 @@ export function AuthModal() {
           <p className="mt-4 text-center text-sm text-[var(--tb-muted)]">
             {authMode === "signup" ? (
               <>
-                이미 계정이 있으신가요?{" "}
+                {t("auth.switchToLogin.prompt")}{" "}
                 <button
                   type="button"
                   className="font-semibold text-[var(--tb-green-deep)] underline-offset-2 hover:underline"
                   onClick={() => openAuth("login", authMessage ?? undefined)}
                 >
-                  로그인
+                  {t("auth.switchToLogin.cta")}
                 </button>
               </>
             ) : (
               <>
-                계정이 없으신가요?{" "}
+                {t("auth.switchToSignup.prompt")}{" "}
                 <button
                   type="button"
                   className="font-semibold text-[var(--tb-green-deep)] underline-offset-2 hover:underline"
                   onClick={() => openAuth("signup", authMessage ?? undefined)}
                 >
-                  회원 가입
+                  {t("auth.switchToSignup.cta")}
                 </button>
               </>
             )}

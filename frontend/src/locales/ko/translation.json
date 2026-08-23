@@ -1,0 +1,314 @@
+{
+  "common": {
+    "close": "닫기",
+    "back": "돌아가기",
+    "loading": "로드 중..."
+  },
+  "lifecycle": {
+    "step1": { "title": "번역 요약", "desc": "해외 계약 조항을 한국어로 정리합니다." },
+    "step2": { "title": "리스크 검토", "desc": "고위험 조항과 근거를 먼저 보여줍니다." },
+    "step3": { "title": "협상 체크", "desc": "수정·협상 포인트를 체크리스트로 만듭니다." },
+    "step4": { "title": "전 세계 전문가 연결", "desc": "필요하면 검수·법률 전문가로 이어집니다." }
+  },
+  "valueProps": {
+    "item1": { "title": "해외 계약에 특화", "desc": "FIDIC·EPC·지체상금·하자담보 등 다양한 해외 계약 실무 리스크를 중심으로 1차 검토합니다." },
+    "item2": { "title": "근거가 남는 AI 검토", "desc": "SAC-RAG로 국제 실무 기준을 검색해, 위험 판정마다 출처를 함께 제시합니다." },
+    "item3": { "title": "한국어로 바로 의사결정", "desc": "번역·리스크·협상 포인트를 한 흐름으로 제공해 검토 시간을 줄입니다." }
+  },
+  "testimonials": {
+    "heading": "사용자 후기",
+    "imageAlt": "사용자 후기: 글로벌 마케팅 매니저, 스타트업 대표, 수출입 담당자의 실제 이용 후기",
+    "item1": {
+      "quote": "14년간 공기업과 대기업 해외법무팀장의 노하우가 앱 하나에 그대로 들어있네요.",
+      "body": "번역부터 위험조항 분석까지 순식간에 끝납니다. 8월 무료 기간에 써봤는데 검토 시간이 90% 이상 단축됐어요.",
+      "author": "글로벌 마케팅 매니저, 김**님"
+    },
+    "item2": {
+      "quote": "뉴욕 변호사가 만든 서비스라 확실히 리스크를 잡아내는 깊이가 다릅니다.",
+      "body": "AI가 독소 조항을 즉시 찾고 실무적인 협상 포인트까지 짚어줘서 해외 바이어와의 협상력이 대폭 높아졌습니다.",
+      "author": "스타트업 대표, 이**님"
+    },
+    "item3": {
+      "quote": "대기업 법무팀 수준의 검토를 8월 무료 혜택으로 경험했습니다.",
+      "body": "1차 AI 검토 후 검증된 현지 변호사 연결까지 한 번에 해결되어 자문 비용과 시간을 대폭 절약했습니다.",
+      "author": "수출입 담당자, 박**님"
+    }
+  },
+  "constructionDashboard": {
+    "item1": { "label": "기본 기준", "value": "FIDIC Red / Yellow / Silver", "detail": "패밀리별 책임 분배와 계약 형태를 비교" },
+    "item2": { "label": "입력 계약서", "value": "사용자 초안/발주자 문안", "detail": "성격·범위·법정 요건을 입력값으로 정리" },
+    "item3": { "label": "핵심 점검", "value": "EOT / LD / DLP / Variation", "detail": "공기와 비용 조정의 체계성 확인" },
+    "item4": { "label": "리스크 요약", "value": "공사액·보증·책임한도·중재", "detail": "불균형 조항을 한눈에 식별" }
+  },
+  "nav": {
+    "logout": "로그아웃",
+    "signup": "회원 가입",
+    "contractGenerator": "계약서 자동 생성",
+    "reviewStart": "계약서 검토 시작",
+    "analyzing": "분석 중...",
+    "langToggle": "EN"
+  },
+  "intro": {
+    "close": "닫기 ✕",
+    "unmute": "🔊 소리와 함께 재생하기"
+  },
+  "promo": {
+    "badge": "MVP 베타 출시",
+    "text": "회원가입 시 8월 말까지 무료로 무제한 사용 · 지금 가입하고 바로 시작하세요"
+  },
+  "authNotice": {
+    "close": "닫기"
+  },
+  "hero": {
+    "titleLine1": "해외 계약 서명 전,",
+    "titleEm": "5분이면 충분합니다",
+    "subtitle": "각종 해외 계약서(복잡한 대규모 해외 인프라 투자/건설 PF 사업 관련 FIDIC·EPC 실무 포함)를 해외 법률 전문가들이 직접 훈련시킨 AI가 번역 요약부터 주요 리스크, 협상 체크리스트까지 한 번에 정리합니다.",
+    "uploadCta": "계약서 업로드하고 분석하기",
+    "uploadCtaLoading": "분석 중... (최대 1분)",
+    "formats": ".txt · .pdf · .docx · .doc · 최대 10페이지"
+  },
+  "metrics": {
+    "item1": { "label": "1차 검토 속도", "value": "수 분 내", "note": "업로드 후 AI 분석" },
+    "item2": { "label": "검토 범위", "value": "번역·리스크·협상", "note": "의사결정에 필요한 핵심만" },
+    "item3": { "label": "다음 단계", "value": "전 세계 전문가 연결", "note": "검수·해외 법률 자문" }
+  },
+  "reviewLoop": {
+    "eyebrow": "Review Loop",
+    "titleLine1": "계약 검토의 전 과정을",
+    "titleLine2": "하나의 루프로",
+    "subtitle": "업로드부터 번역·리스크·협상·전문가 연결까지, 계약 검토 흐름을 끊김 없이 이어줍니다."
+  },
+  "whyUs": {
+    "eyebrow": "Why The Beginning",
+    "titleLine1": "팀이 실제로 쓰는",
+    "titleLine2": "계약 인텔리전스"
+  },
+  "standardContracts": {
+    "eyebrow": "Standard Contracts",
+    "titleLine1": "해외 사업에 바로 쓰는",
+    "titleLine2": "표준계약서 자료를 열람하세요",
+    "subtitle": "ITC·ICC·국내 기관 자료를 기준으로, 준거법·중재·CISG·현지 강행규정 체크 포인트까지 함께 안내합니다.",
+    "groupAll": "전체",
+    "groupConstruction": "해외 건설 계약"
+  },
+  "constructionSpecial": {
+    "label": "해외 건설 계약 Special",
+    "dashboardEyebrow": "FIDIC vs 사용자 계약서 대시보드",
+    "engineEyebrow": "FIDIC Comparison Engine",
+    "titleLine1": "계약서 내용을 붙여 넣으면",
+    "titleLine2": "FIDIC 기준과 자동 비교합니다",
+    "pasteLabel": "계약서 초안 또는 주요 조항 붙여넣기",
+    "pastePlaceholder": "예: The Contractor shall complete the Works within 18 months ... Variation may be ordered by the Employer ... Liquidated Damages shall be ...",
+    "compareCta": "FIDIC 비교표 생성",
+    "comparing": "비교 중...",
+    "reset": "초기화",
+    "exportPdf": "PDF로 내보내기",
+    "exportJson": "JSON으로 내보내기",
+    "matchScoreLabel": "FIDIC 매칭 점수",
+    "scoreOutOf": "/ 100",
+    "biasLabel": "계약 편향: {{balance}}",
+    "employerBias": "발주자 편향 점수",
+    "contractorBias": "시공사 편향 점수",
+    "emptyResult": "계약서 내용을 입력하면 FIDIC 기준에 대한 종합 점수와 핵심 비교 항목이 표시됩니다.",
+    "evidenceLabel": "근거 문장",
+    "status": { "good": "양호", "watch": "주의", "risk": "위험" },
+    "mySavedHistory": "내 저장 내역",
+    "viewAll": "전체 보기 →",
+    "savedHistoryDesc": "로그인한 다음 내 저장 내역 페이지로 이동하여 목록을 조회하고 관리할 수 있습니다.",
+    "errors": {
+      "emptyCompare": "비교할 계약서 내용을 먼저 입력해 주세요.",
+      "compareFailed": "비교 분석에 실패했습니다.",
+      "emptyExport": "내보낼 계약서 내용을 먼저 입력해 주세요.",
+      "exportFailed": "내보내기에 실패했습니다.",
+      "exportJsonFailed": "JSON 내보내기에 실패했습니다."
+    }
+  },
+  "contractGeneratorSection": {
+    "eyebrow": "Contract Generator",
+    "titleLine1": "인하우스 변호사 없이도,",
+    "titleLine2": "몇 가지 질문으로 영문 계약서 초안을",
+    "subtitle": "해외 진출을 준비하는 중소기업·스타트업을 위한 서비스입니다. 계약 유형을 고르고 거래 조건을 입력하면, 표준계약서 자료를 근거로 영문 초안과 조항별 한국어 해설을 함께 만들어 드립니다."
+  },
+  "startReview": {
+    "eyebrow": "Start Review",
+    "titleLine1": "지금 바로 1차 검토를",
+    "titleLine2": "시작하세요",
+    "formats": "지원 형식: .txt · .pdf · .docx · .doc (스캔 이미지 PDF는 미지원)",
+    "maxPages": "최대 10페이지까지 업로드할 수 있습니다."
+  },
+  "footer": {
+    "disclaimer": "본 서비스는 참고용 정보를 제공하며 법적 효력이 없습니다.",
+    "copyright": "© 2026 The Beginning · NoFear"
+  },
+  "errors": {
+    "authRequiredUpload": "문서를 Supabase에 저장하고 분석하려면 로그인과 회원 정보 입력이 필요합니다.",
+    "unknown": "알 수 없는 오류가 발생했습니다."
+  },
+  "fidicHistory": {
+    "heading": "내 저장 내역",
+    "countSuffix": "개의 비교 결과",
+    "back": "← 돌아가기",
+    "sort": {
+      "label": "정렬",
+      "recent": "최근순",
+      "scoreHigh": "점수 높음순",
+      "scoreLow": "점수 낮음순"
+    },
+    "period": {
+      "label": "기간",
+      "last7days": "최근 7일",
+      "all": "전체"
+    },
+    "noHistory": "저장 내역이 없습니다",
+    "itemsCount": "{{count}}개 항목",
+    "selectedCount": "{{count}}개 선택됨",
+    "deleteSelected": "{{count}}개 항목 삭제",
+    "close": "닫기",
+    "loading": "로드 중...",
+    "empty": {
+      "message": "저장된 비교 결과가 없습니다.",
+      "cta": "계약서 비교하러 가기"
+    },
+    "modal": {
+      "eyebrow": "저장된 비교 결과",
+      "score": "점수 {{score}} / 100",
+      "summary": "요약",
+      "focusAreas": "핵심 항목",
+      "close": "닫기",
+      "json": "JSON",
+      "csv": "CSV",
+      "excel": "Excel",
+      "pdf": "PDF",
+      "delete": "삭제"
+    },
+    "confirm": {
+      "deleteOne": "이 저장 내역을 삭제하시겠습니까?",
+      "deleteBatch": "{{count}}개의 항목을 삭제하시겠습니까?"
+    },
+    "errors": {
+      "loadHistory": "히스토리 로드에 실패했습니다.",
+      "loadItem": "항목 로드에 실패했습니다.",
+      "itemNotFound": "항목을 찾을 수 없습니다.",
+      "delete": "삭제에 실패했습니다.",
+      "batchDelete": "배치 삭제에 실패했습니다.",
+      "contractNotFound": "계약 내용을 찾을 수 없습니다.",
+      "pdfDownload": "PDF 다운로드에 실패했습니다.",
+      "jsonDownload": "JSON 다운로드에 실패했습니다.",
+      "csvDownload": "CSV 다운로드에 실패했습니다.",
+      "excelDownload": "Excel 다운로드에 실패했습니다."
+    }
+  },
+  "auth": {
+    "title": {
+      "signup": "회원 가입",
+      "complete": "회원 정보 입력",
+      "login": "로그인"
+    },
+    "description": {
+      "signup": "서비스 이용을 위해 기본 정보와 사용목적을 입력해 주세요.",
+      "complete": "이메일 확인은 완료되었습니다. 추가 정보를 입력해야 서비스를 이용할 수 있습니다.",
+      "login": "가입한 이메일로 로그인해 주세요."
+    },
+    "close": "닫기",
+    "supabaseWarning": "Supabase 연결을 위해 `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` 환경 변수가 필요합니다.",
+    "fields": {
+      "email": "이메일",
+      "password": "비밀번호",
+      "fullName": "이름",
+      "phone": "전화번호",
+      "companyName": "회사명",
+      "jobTitle": "직책/직위",
+      "address": "주소",
+      "usagePurpose": "사용목적",
+      "multiSelect": "(복수 선택 가능)",
+      "otherRequests": "기타 요청 사항",
+      "otherRequestsPlaceholder": "추가로 전달할 내용이 있으면 적어 주세요."
+    },
+    "submit": {
+      "submitting": "처리 중...",
+      "signup": "회원 가입하기",
+      "complete": "정보 저장하고 시작하기",
+      "login": "로그인하기"
+    },
+    "switchToLogin": { "prompt": "이미 계정이 있으신가요?", "cta": "로그인" },
+    "switchToSignup": { "prompt": "계정이 없으신가요?", "cta": "회원 가입" },
+    "errors": {
+      "usagePurposeRequired": "사용목적을 하나 이상 선택해 주세요."
+    },
+    "notice": {
+      "confirmEmail": "이메일 확인 후 로그인해 주세요."
+    },
+    "usagePurpose": {
+      "draftWriting": "초안 작성",
+      "negotiationPrep": "협상 준비",
+      "postContractReview": "계약 체결 후 검토",
+      "disputePrep": "분쟁 준비",
+      "disputeResponse": "분쟁 대응"
+    }
+  },
+  "contractGenerator": {
+    "loadingTemplates": "템플릿 목록을 불러오는 중입니다...",
+    "answerCta": "질문에 답하고 초안 만들기 →",
+    "backToTemplates": "← 템플릿 다시 선택",
+    "selectPlaceholder": "선택하세요",
+    "generateCta": "영문 계약서 초안 생성하기",
+    "generating": "초안 생성 중... (최대 1분)",
+    "downloadTxt": ".txt로 다운로드",
+    "reenterConditions": "조건 다시 입력",
+    "commentaryLabel": "조항 해설",
+    "errors": {
+      "authRequired": "계약서 초안을 생성하려면 로그인과 회원 정보 입력이 필요합니다.",
+      "missingRequired": "다음 항목을 입력해 주세요: {{fields}}",
+      "unknown": "알 수 없는 오류가 발생했습니다."
+    }
+  },
+  "report": {
+    "disclaimerPrefix": "⚠",
+    "translationSummary": {
+      "heading": "번역 요약",
+      "totalClauses": "총 조항",
+      "clauseUnit": "건",
+      "highRisk": "고위험(4점 이상)",
+      "highRiskUnit": "건"
+    },
+    "majorRisks": {
+      "heading": "주요 리스크",
+      "empty": "중위험 이상의 주요 리스크가 탐지되지 않았습니다.",
+      "showMore": "주요 리스크 더보기",
+      "showLess": "주요 리스크 접기"
+    },
+    "clauseDetail": {
+      "riskReason": "위험 근거",
+      "recommendation": "수정 권고",
+      "references": "근거 출처",
+      "lawyerReviewWarning": "이 조항은 위험도 4점 이상으로, 변호사 검토를 권고합니다."
+    },
+    "checklist": {
+      "heading": "협상 체크리스트",
+      "empty": "협상 시 별도 확인이 필요한 항목이 없습니다.",
+      "riskLevel": "위험도 {{score}}/5"
+    },
+    "expert": {
+      "heading": "전문가 연결",
+      "desc": "AI 1차 검토 결과를 바탕으로 전문가 검수 또는 해외 법률 자문을 요청할 수 있습니다.",
+      "cta": "전문가 연결",
+      "translationReview": "전문가 번역 검수",
+      "legalExpert": "해외 법률 전문가 연결",
+      "notifyLabel": "요청 알림 수신",
+      "sending": "요청 메일 발송 중...",
+      "successMessage": "{{email}}로 요청 메일을 보냈습니다. 받은편지함(스팸함 포함)을 확인해 주세요.",
+      "errorFallback": "{{msg}} 메일 앱이 열리면 {{email}}로 전송해 주세요.",
+      "authRequired": "{{label}} 요청을 진행하려면 회원 가입 또는 로그인이 필요합니다.",
+      "genericError": "전문가 연결 요청에 실패했습니다."
+    },
+    "riskDetailsAuthRequired": "주요 리스크 상세를 보려면 회원 가입 또는 로그인이 필요합니다."
+  },
+  "standardContractDetail": {
+    "loading": "자료를 불러오는 중입니다...",
+    "openOriginal": "원본 자료 열기",
+    "backToList": "목록으로 돌아가기"
+  },
+  "riskBadge": {
+    "label": "위험도 {{score}}/5"
+  }
+}

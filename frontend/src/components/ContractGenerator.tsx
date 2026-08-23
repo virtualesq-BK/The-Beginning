@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   generateContract,
   getContractTemplates,
@@ -30,6 +31,7 @@ function assembleDownloadText(result: GeneratedContract): string {
 }
 
 export function ContractGenerator({ requireAuth }: Props) {
+  const { t } = useTranslation();
   const [templates, setTemplates] = useState<ContractTemplate[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -68,11 +70,11 @@ export function ContractGenerator({ requireAuth }: Props) {
 
   async function handleGenerate() {
     if (!selectedTemplate) return;
-    if (!requireAuth("계약서 초안을 생성하려면 로그인과 회원 정보 입력이 필요합니다.")) {
+    if (!requireAuth(t("contractGenerator.errors.authRequired"))) {
       return;
     }
     if (missingRequired.length > 0) {
-      setError(`다음 항목을 입력해 주세요: ${missingRequired.join(", ")}`);
+      setError(t("contractGenerator.errors.missingRequired", { fields: missingRequired.join(", ") }));
       return;
     }
 
@@ -84,7 +86,7 @@ export function ContractGenerator({ requireAuth }: Props) {
       setResult(draft);
       setStatus("idle");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "알 수 없는 오류가 발생했습니다.");
+      setError(e instanceof Error ? e.message : t("contractGenerator.errors.unknown"));
       setStatus("error");
     }
   }
@@ -105,29 +107,29 @@ export function ContractGenerator({ requireAuth }: Props) {
     <div className="mt-8">
       {!selectedTemplate ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {templates.map((t) => (
+          {templates.map((tpl) => (
             <button
-              key={t.id}
+              key={tpl.id}
               type="button"
-              onClick={() => selectTemplate(t.id)}
+              onClick={() => selectTemplate(tpl.id)}
               className="flex h-full flex-col border border-[var(--tb-line)] bg-[var(--tb-sand)] p-6 text-left transition hover:-translate-y-0.5 hover:border-[var(--tb-green)]"
             >
               <span className="w-fit rounded-full bg-[var(--tb-green-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--tb-green-deep)]">
-                {t.family}
+                {tpl.family}
               </span>
               <h3 className="mt-4 font-display text-xl font-semibold text-[var(--tb-ink)]">
-                {t.title}
+                {tpl.title}
               </h3>
               <p className="mt-3 flex-1 text-sm leading-relaxed text-[var(--tb-muted)]">
-                {t.description}
+                {tpl.description}
               </p>
               <span className="mt-4 text-sm font-semibold text-[var(--tb-green-deep)]">
-                질문에 답하고 초안 만들기 →
+                {t("contractGenerator.answerCta")}
               </span>
             </button>
           ))}
           {templates.length === 0 && (
-            <p className="text-sm text-[var(--tb-muted)]">템플릿 목록을 불러오는 중입니다...</p>
+            <p className="text-sm text-[var(--tb-muted)]">{t("contractGenerator.loadingTemplates")}</p>
           )}
         </div>
       ) : (
@@ -146,7 +148,7 @@ export function ContractGenerator({ requireAuth }: Props) {
               onClick={() => selectTemplate("")}
               className="text-sm font-semibold text-[var(--tb-muted)] hover:text-[var(--tb-ink)]"
             >
-              ← 템플릿 다시 선택
+              {t("contractGenerator.backToTemplates")}
             </button>
           </div>
 
@@ -175,7 +177,7 @@ export function ContractGenerator({ requireAuth }: Props) {
                       onChange={(e) => setField(field.key, e.target.value)}
                       className="mt-2 w-full border border-[var(--tb-line)] bg-white px-3 py-2 text-sm text-[var(--tb-ink)] focus:border-[var(--tb-green)] focus:outline-none"
                     >
-                      <option value="">선택하세요</option>
+                      <option value="">{t("contractGenerator.selectPlaceholder")}</option>
                       {field.options?.map((opt) => (
                         <option key={opt.value} value={opt.value}>
                           {opt.label}
@@ -209,7 +211,7 @@ export function ContractGenerator({ requireAuth }: Props) {
               disabled={status === "loading"}
               className="mt-8 bg-[var(--tb-green)] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[var(--tb-green-deep)] disabled:opacity-50"
             >
-              {status === "loading" ? "초안 생성 중... (최대 1분)" : "영문 계약서 초안 생성하기"}
+              {status === "loading" ? t("contractGenerator.generating") : t("contractGenerator.generateCta")}
             </button>
           )}
 
@@ -225,7 +227,7 @@ export function ContractGenerator({ requireAuth }: Props) {
                     onClick={handleDownload}
                     className="border border-[var(--tb-line)] px-4 py-2 text-sm font-semibold text-[var(--tb-ink)] hover:bg-[var(--tb-green-soft)]"
                   >
-                    .txt로 다운로드
+                    {t("contractGenerator.downloadTxt")}
                   </button>
                   <button
                     type="button"
@@ -234,7 +236,7 @@ export function ContractGenerator({ requireAuth }: Props) {
                     }}
                     className="border border-[var(--tb-line)] px-4 py-2 text-sm font-semibold text-[var(--tb-ink)] hover:bg-[var(--tb-green-soft)]"
                   >
-                    조건 다시 입력
+                    {t("contractGenerator.reenterConditions")}
                   </button>
                 </div>
               </div>
@@ -254,10 +256,10 @@ export function ContractGenerator({ requireAuth }: Props) {
                     </p>
                     <div className="mt-4 border-l-2 border-[var(--tb-green)] bg-[var(--tb-green-soft)] p-3">
                       <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--tb-green-deep)]">
-                        조항 해설
+                        {t("contractGenerator.commentaryLabel")}
                       </p>
                       <p className="mt-1 text-sm leading-relaxed text-[var(--tb-green-deep)]">
-                        {clause.commentary_kr}
+                        {clause.commentary ?? clause.commentary_kr}
                       </p>
                     </div>
                   </div>

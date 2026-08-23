@@ -1,4 +1,9 @@
 import type { ContractReport } from "../types";
+import i18n from "../i18n";
+
+function currentLanguage(): "ko" | "en" {
+  return i18n.language?.startsWith("en") ? "en" : "ko";
+}
 
 // 로컬: Vite DEV면 백엔드(8000), 프로덕션: 같은 오리진(상대 경로)
 const API_BASE =
@@ -31,6 +36,7 @@ function errorDetail(body: unknown, fallback: string): string {
 export async function analyzeContract(file: File): Promise<ContractReport> {
   const formData = new FormData();
   formData.append("file", file);
+  formData.append("language", currentLanguage());
 
   const res = await fetch(`${API_BASE}/api/v1/contracts/analyze`, {
     method: "POST",
@@ -55,7 +61,7 @@ export async function requestExpert(requestType: ExpertRequestType): Promise<voi
   const res = await fetch(`${API_BASE}/api/v1/expert-requests`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ request_type: requestType }),
+    body: JSON.stringify({ request_type: requestType, language: currentLanguage() }),
   });
 
   if (!res.ok) {
@@ -117,6 +123,7 @@ export type GeneratedClause = {
   heading: string;
   body_en: string;
   commentary_kr: string;
+  commentary?: string;
 };
 
 export type GeneratedContract = {
@@ -137,7 +144,7 @@ export async function generateContract(
   const res = await fetch(`${API_BASE}/api/v1/contract-templates/${templateId}/generate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ answers }),
+    body: JSON.stringify({ answers, language: currentLanguage() }),
   });
 
   if (!res.ok) {

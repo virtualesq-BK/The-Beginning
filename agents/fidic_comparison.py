@@ -1,6 +1,63 @@
 import re
 from typing import Any
 
+ISSUE_LABELS_EN = {
+    "design-responsibility": "Design Responsibility",
+    "variation": "Variation / Change Orders",
+    "delay-damages": "Delay Damages / LD",
+    "defects-liability": "Defects Liability / DLP",
+    "performance-security": "Performance Security / Guarantees",
+    "dispute-resolution": "Dispute Resolution / Arbitration",
+    "payment-and-acceptance": "Payment & Acceptance / Testing",
+}
+
+ISSUE_BENCHMARKS_EN = {
+    "design-responsibility": "Red Book is employer-centric; Yellow/Silver place greater design responsibility on the contractor",
+    "variation": "Variations must be linked to EOT and cost-adjustment procedures",
+    "delay-damages": "Delay damages should generally be reviewed together with a cap and any exceptions",
+    "defects-liability": "The defects liability period is typically 1-2 years; excessively long periods are risky",
+    "performance-security": "Guarantee amount, eligibility, and effect upon termination are key to performance stability",
+    "dispute-resolution": "DAB, arbitration institution, seat, governing law, and language must be clear to limit dispute cost and duration",
+    "payment-and-acceptance": "Interim payments, acceptance criteria, testing, and exemption conditions govern cash flow and project completion",
+}
+
+ISSUE_RECOMMENDATIONS_EN = {
+    "design-responsibility": "Clearly separate the design scope and responsibility in the document. If the contractor bears design responsibility, specify the review/approval process and scope of responsibility.",
+    "variation": "Add language linking variations to extension of time, cost adjustment, and claim procedures.",
+    "delay-damages": "Clarify the LD cap, exceptions, and any restriction on duplicate damages claims to avoid excessive liability.",
+    "defects-liability": "Set realistic notification periods, rectification periods, notice timing, and performance criteria, and specify the basis for any remedial work.",
+    "performance-security": "Clarify the performance security, guarantee amount, and conditions for calling the guarantee upon termination to secure project stability.",
+    "dispute-resolution": "Specify the arbitration institution, seat, governing law, and language, and consider adding a DAB or mediation procedure.",
+    "payment-and-acceptance": "Clarify acceptance criteria, testing procedures, and payment withholding grounds/notice periods to reduce cash-flow disputes.",
+}
+
+_EMPTY_SUMMARY = {
+    "ko": "계약서 내용이 비어 있습니다. 비교표를 만들려면 건설계약 원문이나 초안을 붙여 넣어 주세요.",
+    "en": "The contract content is empty. Paste the original construction contract text or draft to generate a comparison table.",
+}
+
+_BALANCE_LABELS = {
+    "ko": {"employer": "발주자 유리", "contractor": "시공사 유리", "neutral": "균형형"},
+    "en": {"employer": "Employer-favorable", "contractor": "Contractor-favorable", "neutral": "Balanced"},
+}
+
+
+def _issue_label(issue: dict, language: str) -> str:
+    return ISSUE_LABELS_EN.get(issue["id"], issue["label"]) if language == "en" else issue["label"]
+
+
+def _issue_benchmark(issue: dict, language: str) -> str:
+    return ISSUE_BENCHMARKS_EN.get(issue["id"], issue["fidic_benchmark"]) if language == "en" else issue["fidic_benchmark"]
+
+
+def _issue_recommendation(issue: dict, language: str) -> str:
+    return (
+        ISSUE_RECOMMENDATIONS_EN.get(issue["id"], issue["recommended_action"])
+        if language == "en"
+        else issue["recommended_action"]
+    )
+
+
 ISSUE_TEMPLATES = [
     {
         "id": "design-responsibility",
@@ -209,19 +266,21 @@ def _calculate_bias_scores(text: str) -> dict[str, int]:
     return {"employer": employer_score, "contractor": contractor_score}
 
 
-def _classify_contract_balance(text: str) -> str:
+def _classify_contract_balance(text: str, language: str = "ko") -> str:
+    labels = _BALANCE_LABELS.get(language, _BALANCE_LABELS["ko"])
     bias_scores = _calculate_bias_scores(text)
     employer_score = bias_scores["employer"]
     contractor_score = bias_scores["contractor"]
 
     if employer_score - contractor_score >= 12:
-        return "발주자 유리"
+        return labels["employer"]
     if contractor_score - employer_score >= 12:
-        return "시공사 유리"
-    return "균형형"
+        return labels["contractor"]
+    return labels["neutral"]
 
 
-def compare_contract_to_fidic(contract_text: str) -> dict[str, Any]:
+def compare_contract_to_fidic(contract_text: str, language: str = "ko") -> dict[str, Any]:
+    labels = _BALANCE_LABELS.get(language, _BALANCE_LABELS["ko"])
     text = contract_text or ""
     if not text.strip():
         empty_issues = []
@@ -230,21 +289,21 @@ def compare_contract_to_fidic(contract_text: str) -> dict[str, Any]:
             empty_issues.append(
                 {
                     "id": issue["id"],
-                    "label": issue["label"],
+                    "label": _issue_label(issue, language),
                     "score": 0,
                     "status": "risk",
-                    "fidic_benchmark": issue["fidic_benchmark"],
+                    "fidic_benchmark": _issue_benchmark(issue, language),
                     "evidence": evidence,
                     "sentence_evidence": evidence,
-                    "recommendation": issue["recommended_action"],
+                    "recommendation": _issue_recommendation(issue, language),
                 }
             )
         return {
             "overall_score": 0,
-            "summary": "계약서 내용이 비어 있습니다. 비교표를 만들려면 건설계약 원문이나 초안을 붙여 넣어 주세요.",
+            "summary": _EMPTY_SUMMARY.get(language, _EMPTY_SUMMARY["ko"]),
             "issues": empty_issues,
-            "focus_areas": [issue["label"] for issue in ISSUE_TEMPLATES],
-            "balance": "균형형",
+            "focus_areas": [issue["label"] for issue in empty_issues],
+            "balance": labels["neutral"],
             "bias_scores": {"employer": 0, "contractor": 0},
         }
 
@@ -276,28 +335,40 @@ def compare_contract_to_fidic(contract_text: str) -> dict[str, Any]:
         issues.append(
             {
                 "id": issue["id"],
-                "label": issue["label"],
+                "label": _issue_label(issue, language),
                 "score": score,
                 "status": status,
-                "fidic_benchmark": issue["fidic_benchmark"],
+                "fidic_benchmark": _issue_benchmark(issue, language),
                 "evidence": issue_evidence,
                 "sentence_evidence": sentence_evidence,
-                "recommendation": issue["recommended_action"],
+                "recommendation": _issue_recommendation(issue, language),
             }
         )
 
     overall_score = round(sum(i["score"] for i in issues) / max(len(issues), 1))
     focus_areas = [issue["label"] for issue in issues if issue["score"] < 60][:5]
     if not focus_areas:
-        summary = "현재 문안은 FIDIC 기준에 근접하게 정리되어 있습니다. 다만 세부 문구를 점검해 안정성을 더 높이면 좋습니다."
+        if language == "en":
+            summary = (
+                "The current draft is well aligned with FIDIC standards. Still, reviewing the finer "
+                "wording could further improve stability."
+            )
+        else:
+            summary = "현재 문안은 FIDIC 기준에 근접하게 정리되어 있습니다. 다만 세부 문구를 점검해 안정성을 더 높이면 좋습니다."
     else:
-        summary = f"현재 문안은 {', '.join(focus_areas)} 항목에서 FIDIC 기준과의 편차가 가장 큽니다. 우선순위 조정이 필요합니다."
+        if language == "en":
+            summary = (
+                f"The current draft deviates most from FIDIC standards in: {', '.join(focus_areas)}. "
+                "These should be prioritized for revision."
+            )
+        else:
+            summary = f"현재 문안은 {', '.join(focus_areas)} 항목에서 FIDIC 기준과의 편차가 가장 큽니다. 우선순위 조정이 필요합니다."
 
     bias_scores = _calculate_bias_scores(text)
-    balance = _classify_contract_balance(text)
-    if balance == "발주자 유리" and bias_scores["contractor"] > bias_scores["employer"]:
+    balance = _classify_contract_balance(text, language=language)
+    if balance == labels["employer"] and bias_scores["contractor"] > bias_scores["employer"]:
         bias_scores["contractor"] = max(0, bias_scores["contractor"] - 8)
-    if balance == "시공사 유리" and bias_scores["employer"] > bias_scores["contractor"]:
+    if balance == labels["contractor"] and bias_scores["employer"] > bias_scores["contractor"]:
         bias_scores["employer"] = max(0, bias_scores["employer"] - 8)
 
     return {
@@ -310,22 +381,51 @@ def compare_contract_to_fidic(contract_text: str) -> dict[str, Any]:
     }
 
 
-def generate_fidic_pdf_bytes(report: dict[str, Any]) -> bytes:
+_PDF_LABELS = {
+    "ko": {
+        "title": "FIDIC vs 사용자 계약서 비교표",
+        "bias_line": "발주자 편향: {employer} | 시공사 편향: {contractor}",
+        "summary_heading": "요약",
+        "table_heading": "표 1. 항목별 점수",
+        "table_columns": "항목 | 점수 | 상태",
+        "detail_heading": "상세 항목 분석",
+        "benchmark": "Benchmark",
+        "evidence": "Evidence",
+        "recommendation": "Recommendation",
+        "default_balance": "균형형",
+    },
+    "en": {
+        "title": "FIDIC vs User Contract Comparison Report",
+        "bias_line": "Employer bias: {employer} | Contractor bias: {contractor}",
+        "summary_heading": "Summary",
+        "table_heading": "Table 1. Scores by Item",
+        "table_columns": "Item | Score | Status",
+        "detail_heading": "Detailed Item Analysis",
+        "benchmark": "Benchmark",
+        "evidence": "Evidence",
+        "recommendation": "Recommendation",
+        "default_balance": "Balanced",
+    },
+}
+
+
+def generate_fidic_pdf_bytes(report: dict[str, Any], language: str = "ko") -> bytes:
+    labels = _PDF_LABELS.get(language, _PDF_LABELS["ko"])
     issues = report.get("issues", []) or []
     bias_scores = report.get("bias_scores", {"employer": 0, "contractor": 0})
     summary_lines: list[str] = [
-        "FIDIC vs 사용자 계약서 비교표",
+        labels["title"],
         "=" * 42,
         f"Overall Score: {report.get('overall_score', 0)} / 100",
-        f"Balance: {report.get('balance', '균형형')}",
-        f"발주자 편향: {bias_scores.get('employer', 0)} | 시공사 편향: {bias_scores.get('contractor', 0)}",
+        f"Balance: {report.get('balance', labels['default_balance'])}",
+        labels["bias_line"].format(employer=bias_scores.get("employer", 0), contractor=bias_scores.get("contractor", 0)),
         "",
-        "요약",
+        labels["summary_heading"],
         "-" * 20,
         report.get("summary", ""),
         "",
-        "표 1. 항목별 점수",
-        "항목 | 점수 | 상태",
+        labels["table_heading"],
+        labels["table_columns"],
         "-" * 24,
     ]
 
@@ -334,14 +434,14 @@ def generate_fidic_pdf_bytes(report: dict[str, Any]) -> bytes:
             f"{issue.get('label', '')} | {issue.get('score', 0)} | {issue.get('status', 'risk')}"
         )
 
-    summary_lines.extend(["", "상세 항목 분석", "-" * 20])
+    summary_lines.extend(["", labels["detail_heading"], "-" * 20])
     for issue in issues:
         summary_lines.append(f"[{issue.get('label', '')}]")
-        summary_lines.append(f"Benchmark: {issue.get('fidic_benchmark', '')}")
+        summary_lines.append(f"{labels['benchmark']}: {issue.get('fidic_benchmark', '')}")
         evidence = issue.get("sentence_evidence") or issue.get("evidence") or []
         if evidence:
-            summary_lines.append(f"Evidence: {'; '.join(evidence[:2])}")
-        summary_lines.append(f"Recommendation: {issue.get('recommendation', '')}")
+            summary_lines.append(f"{labels['evidence']}: {'; '.join(evidence[:2])}")
+        summary_lines.append(f"{labels['recommendation']}: {issue.get('recommendation', '')}")
         summary_lines.append("")
 
     content_lines = []

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { StandardContractItem } from "../lib/api";
 
 type Props = {
@@ -7,6 +8,7 @@ type Props = {
 };
 
 export function StandardContractDetail({ itemId, onBack }: Props) {
+  const { t } = useTranslation();
   const [item, setItem] = useState<StandardContractItem | null>(null);
 
   useEffect(() => {
@@ -43,22 +45,22 @@ export function StandardContractDetail({ itemId, onBack }: Props) {
             rel="noreferrer"
             className="rounded-full bg-[var(--tb-green)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--tb-green-deep)]"
           >
-            원본 자료 열기
+            {t("standardContractDetail.openOriginal")}
           </a>
           <button
             type="button"
             onClick={onBack}
             className="rounded-full border border-[var(--tb-line)] px-4 py-2 text-sm font-semibold text-[var(--tb-ink)]"
           >
-            목록으로 돌아가기
+            {t("standardContractDetail.backToList")}
           </button>
         </div>
       </div>
     );
-  }, [item, onBack]);
+  }, [item, onBack, t]);
 
   if (!item) {
-    return <div className="rounded-2xl border border-[var(--tb-line)] bg-white p-8 text-sm text-[var(--tb-muted)]">자료를 불러오는 중입니다...</div>;
+    return <div className="rounded-2xl border border-[var(--tb-line)] bg-white p-8 text-sm text-[var(--tb-muted)]">{t("standardContractDetail.loading")}</div>;
   }
 
   return content;
