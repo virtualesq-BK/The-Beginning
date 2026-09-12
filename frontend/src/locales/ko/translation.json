@@ -43,6 +43,9 @@
   "nav": {
     "logout": "로그아웃",
     "signup": "회원 가입",
+    "login": "로그인",
+    "constructionSpecial": "해외 건설 계약 Special",
+    "standardContracts": "해외 표준 계약서 열람",
     "contractGenerator": "계약서 자동 생성",
     "reviewStart": "계약서 검토 시작",
     "analyzing": "분석 중...",
@@ -121,7 +124,91 @@
       "emptyExport": "내보낼 계약서 내용을 먼저 입력해 주세요.",
       "exportFailed": "내보내기에 실패했습니다.",
       "exportJsonFailed": "JSON 내보내기에 실패했습니다."
-    }
+    },
+    "quantumEyebrow": "Quantum Claim Guide",
+    "quantumTitleLine1": "국제건설계약의 금전 클레임,",
+    "quantumTitleLine2": "Quantum Claim 실무 가이드",
+    "quantumIntro": "해외 건설 프로젝트의 금전 클레임(Quantum Claim)은 프로젝트 규모에 따라 수천만에서 수억 달러 규모로 발생합니다. FIDIC·JCT 등 표준계약조건과 영미법 손해배상 법리를 기준으로, 시공자가 실무에서 가장 많이 제기하는 7가지 클레임 유형과 핵심 산정 방법을 정리했습니다.",
+    "quantumCategories": {
+      "item1": {
+        "tag": "Contractor's Claim vs Variation",
+        "title": "시공자 클레임과 공사변경(Variation)",
+        "desc": "계약상 금전 보상을 받는 두 경로인 시공자 클레임과 공사변경은 산정 기준이 다릅니다. 시공자 클레임은 손실 및 지출(loss and expense) 또는 비용(cost) 개념으로, 공사변경은 계약단가·공정한 단가(fair rates and prices) 개념으로 평가됩니다.",
+        "points": [
+          "손실 및 지출(loss and expense)과 비용(cost)의 범위 차이 확인",
+          "'현장 내외(on or off the site)' 지출의 인정 여부 검토",
+          "동시기록(contemporary records)과 원가대장(cost ledger) 정비"
+        ]
+      },
+      "item2": {
+        "tag": "Variation Valuation",
+        "title": "공사변경 금액 평가",
+        "desc": "설계변경을 포함한 공사변경은 계약 내역서·물량산출서와 단가 내역서의 차이, 계약단가 오류, 공사의 성격·조건 변화 등에 따라 평가 방법이 달라집니다.",
+        "points": [
+          "계약단가 적용이 당사자에게 불리한 결과를 낳는지 점검",
+          "추가 작업과 삭제 작업에 동일한 평가 기준이 적용되는지 확인",
+          "공사변경으로 인한 현장간접비·공정 차질 보상 가능 여부 검토"
+        ]
+      },
+      "item3": {
+        "tag": "Disruption Claim",
+        "title": "방해(Disruption) 클레임",
+        "desc": "발주자 측 사유로 계획 대비 생산성이 저하되었을 때 제기하는 클레임입니다. 지연(delay) 클레임과 구분되며, 기록 관리 여부가 승패를 좌우합니다.",
+        "points": [
+          "Measured Mile 분석 – 방해받지 않은 구간과 비교",
+          "획득가치분석(EVM)·산업표준 연구 방법 활용",
+          "총원가(total cost)·수정 총원가(modified total cost) 방식은 최후의 수단으로 제한적 활용"
+        ]
+      },
+      "item4": {
+        "tag": "Prolongation Claim",
+        "title": "현장간접비(On-Site Overhead) 클레임",
+        "desc": "공사기간이 계약 기간보다 연장되어 발생하는 인건비·임대료 등 현장간접비를 청구하는 클레임(prolongation claim)입니다.",
+        "points": [
+          "일일간접비 기반 방법(daily overhead rate) vs 발주자 사유 직접 연계 방법",
+          "동시지연(concurrent delay)과 중복보상 방지 원칙 확인",
+          "공사완료일에 영향이 없는 비critical delay는 원칙적으로 제외"
+        ]
+      },
+      "item5": {
+        "tag": "Off-Site OH / Loss of Profit",
+        "title": "본사간접비·이윤·일실손해 클레임",
+        "desc": "본사에서 발생하는 간접비, 계약상 이윤, 그리고 발주자 사유로 다른 공사에서 얻지 못한 일실손해(loss of profit)를 청구하는 클레임입니다.",
+        "points": [
+          "Hudson·Emden·Eichleay 등 공식 활용 시 전제조건 확인",
+          "분쟁 프로젝트 지원을 위해 실제 발생한 본사비용은 별도 입증",
+          "공기지연과 기회비용 상실 간 인과관계 입증 필요"
+        ]
+      },
+      "item6": {
+        "tag": "Back Charge",
+        "title": "백차지(Back Charge) 클레임",
+        "desc": "하도사·공급업체의 하자·계약위반으로 시공자가 대신 부담한 비용을 상환 청구하는 클레임입니다.",
+        "points": [
+          "실제·필연적·합리적으로 발생한 지출인지 확인",
+          "하도 계약상 하도사의 책임 범위와 연관성 입증",
+          "비용 발생 전 계약위반 시정 기회를 사전 통지했는지 확인"
+        ]
+      },
+      "item7": {
+        "tag": "Termination Account",
+        "title": "계약 해지에 따른 정산 클레임",
+        "desc": "시공자 사유 해지, 발주자 임의해지(termination for convenience), 발주자 사유 해지 등 FIDIC 해지 유형별로 정산해야 할 금액 항목이 다릅니다.",
+        "points": [
+          "최종 정산 금액과 대체시공자 계약금액 비교 검토",
+          "임의해지 시 인정되는 보상 항목 범위 확인",
+          "해지 사유별 손해배상액 예정(LD) 조항 적용 가능 여부 점검"
+        ]
+      }
+    },
+    "quantumCautionHeading": "산정 시 공통 유의사항",
+    "quantumCautions": [
+      "사실적 인과관계(causation in fact)와 법적 인과관계(예견가능성)를 함께 입증해야 합니다.",
+      "손해경감의무(duty to mitigate)와 개량(betterment) 공제 여부를 사전에 점검하세요.",
+      "글로벌 클레임(전체 손해를 개별 원인과 연결하지 않고 뭉뚱그려 청구)은 인과관계 입증에서 불리하게 작용할 수 있습니다.",
+      "동시기록(contemporary records)을 상시 축적해야 소송·중재에서 입증력이 높아집니다."
+    ],
+    "quantumDisclaimer": "본 가이드는 국제건설계약 금전 클레임(Quantum Claim) 실무 문헌을 참고하여 정리한 일반 정보이며, 개별 사안에 대한 법적 자문을 대체하지 않습니다."
   },
   "contractGeneratorSection": {
     "eyebrow": "Contract Generator",

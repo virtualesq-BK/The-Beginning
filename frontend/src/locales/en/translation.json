@@ -43,6 +43,9 @@
   "nav": {
     "logout": "Log Out",
     "signup": "Sign Up",
+    "login": "Log In",
+    "constructionSpecial": "Overseas Construction Contract Special",
+    "standardContracts": "Browse Standard Contracts",
     "contractGenerator": "Generate Contract",
     "reviewStart": "Start Contract Review",
     "analyzing": "Analyzing...",
@@ -121,7 +124,91 @@
       "emptyExport": "Please enter the contract text you want to export first.",
       "exportFailed": "Export failed.",
       "exportJsonFailed": "JSON export failed."
-    }
+    },
+    "quantumEyebrow": "Quantum Claim Guide",
+    "quantumTitleLine1": "Monetary claims in international",
+    "quantumTitleLine2": "construction contracts: a Quantum Claim guide",
+    "quantumIntro": "Quantum claims on overseas construction projects can range from tens of millions to hundreds of millions of dollars. Based on standard forms such as FIDIC and JCT and common-law damages principles, here are the 7 claim types contractors raise most often and how they are typically valued.",
+    "quantumCategories": {
+      "item1": {
+        "tag": "Contractor's Claim vs Variation",
+        "title": "Contractor's claim vs Variation",
+        "desc": "The two contractual routes to monetary compensation are valued differently: a Contractor's claim is assessed on a loss-and-expense or cost basis, while a Variation is valued using contract rates or fair rates and prices.",
+        "points": [
+          "Check the scope difference between 'loss and expense' and 'cost'",
+          "Assess whether expenditure incurred on or off the site is recoverable",
+          "Keep contemporary records and a project cost ledger up to date"
+        ]
+      },
+      "item2": {
+        "tag": "Variation Valuation",
+        "title": "Valuing Variations",
+        "desc": "Valuation of Variations, including design changes, depends on differences between the bill of quantities and rate schedules, errors in contract rates, and changes in the character and conditions of the work.",
+        "points": [
+          "Check whether applying the contract rate produces an unfair result for either party",
+          "Confirm whether the same valuation rule applies to omitted work as to added work",
+          "Assess recoverability of site overheads and progress disruption caused by the Variation"
+        ]
+      },
+      "item3": {
+        "tag": "Disruption Claim",
+        "title": "Disruption claims",
+        "desc": "Raised when productivity falls below plan due to an Employer-risk event. Distinct from delay claims, and record-keeping is often decisive.",
+        "points": [
+          "Measured Mile analysis — compare against an unimpacted period",
+          "Earned Value Method (EVM) and industry-study benchmarking",
+          "Total cost / modified total cost methods should be a last resort"
+        ]
+      },
+      "item4": {
+        "tag": "Prolongation Claim",
+        "title": "On-site overhead (prolongation) claims",
+        "desc": "Claims for site overheads such as labour and rental costs incurred because the works ran longer than the contract period.",
+        "points": [
+          "Daily overhead rate method vs resource-by-resource analysis",
+          "Check for concurrent delay and avoid double recovery",
+          "Non-critical delay is generally excluded from prolongation costs"
+        ]
+      },
+      "item5": {
+        "tag": "Off-Site OH / Loss of Profit",
+        "title": "Off-site overhead, profit & loss-of-profit claims",
+        "desc": "Claims for head-office overheads, contractual profit margin, and loss of profit from opportunities missed elsewhere due to an Employer-risk delay.",
+        "points": [
+          "Check the preconditions before applying formulae such as Hudson, Emden or Eichleay",
+          "Actual head-office costs incurred to support the dispute should be proven separately",
+          "Causation between the delay and the lost opportunity must be established"
+        ]
+      },
+      "item6": {
+        "tag": "Back Charge",
+        "title": "Back charge claims",
+        "desc": "Claims to recover costs the contractor incurred in place of a subcontractor or vendor due to their defect or breach.",
+        "points": [
+          "Confirm the cost was actually, necessarily and reasonably incurred",
+          "Establish the subcontractor's responsibility under the subcontract",
+          "Confirm reasonable notice to cure was given before the cost was incurred"
+        ]
+      },
+      "item7": {
+        "tag": "Termination Account",
+        "title": "Termination account claims",
+        "desc": "The FIDIC termination routes — termination for Contractor default, for the Employer's convenience, or for Employer default — each require a different set of account items.",
+        "points": [
+          "Compare the final account against the cost of completion by a replacement contractor",
+          "Confirm which heads of compensation apply on a termination for convenience",
+          "Check whether liquidated damages provisions still apply after termination"
+        ]
+      }
+    },
+    "quantumCautionHeading": "Common pitfalls in quantum evaluation",
+    "quantumCautions": [
+      "Both factual causation and legal causation (foreseeability) must be established.",
+      "Check the duty to mitigate and any betterment deduction in advance.",
+      "Global claims — lumping losses together without linking them to individual causes — weaken proof of causation.",
+      "Maintaining contemporary records consistently strengthens your position in litigation or arbitration."
+    ],
+    "quantumDisclaimer": "This guide summarizes general information drawn from international construction quantum claim literature and does not substitute for legal advice on a specific matter."
   },
   "contractGeneratorSection": {
     "eyebrow": "Contract Generator",

@@ -65,87 +65,21 @@ export default function App() {
     },
   ];
 
-  const IMMIGRATION_STATS = [
-    { label: t("immigration.stats.item1.label"), value: t("immigration.stats.item1.value") },
-    { label: t("immigration.stats.item2.label"), value: t("immigration.stats.item2.value") },
-    { label: t("immigration.stats.item3.label"), value: t("immigration.stats.item3.value") },
-    { label: t("immigration.stats.item4.label"), value: t("immigration.stats.item4.value") },
-  ];
-
-  const IMMIGRATION_REQUIREMENTS = [
-    t("immigration.requirements.item1"),
-    t("immigration.requirements.item2"),
-    t("immigration.requirements.item3"),
-    t("immigration.requirements.item4"),
-    t("immigration.requirements.item5"),
-    t("immigration.requirements.item6"),
-    t("immigration.requirements.item7"),
-    t("immigration.requirements.item8"),
-    t("immigration.requirements.item9"),
-  ];
-
-  const IMMIGRATION_INVESTMENT = [
-    t("immigration.investment.item1"),
-    t("immigration.investment.item2"),
-    t("immigration.investment.item3"),
-    t("immigration.investment.item4"),
-    t("immigration.investment.item5"),
-    t("immigration.investment.item6"),
-  ];
-
-  const IMMIGRATION_LOW_INVESTMENT = [
-    t("immigration.lowInvestment.item1"),
-    t("immigration.lowInvestment.item2"),
-    t("immigration.lowInvestment.item3"),
-    t("immigration.lowInvestment.item4"),
-    t("immigration.lowInvestment.item5"),
-    t("immigration.lowInvestment.item6"),
-    t("immigration.lowInvestment.item7"),
-  ];
-
-  const IMMIGRATION_EXPENDITURES_GOOD = [
-    t("immigration.expendituresGood.item1"),
-    t("immigration.expendituresGood.item2"),
-    t("immigration.expendituresGood.item3"),
-    t("immigration.expendituresGood.item4"),
-    t("immigration.expendituresGood.item5"),
-    t("immigration.expendituresGood.item6"),
-    t("immigration.expendituresGood.item7"),
-    t("immigration.expendituresGood.item8"),
-    t("immigration.expendituresGood.item9"),
-  ];
-
-  const IMMIGRATION_EXPENDITURES_WEAK = [
-    t("immigration.expendituresWeak.item1"),
-    t("immigration.expendituresWeak.item2"),
-    t("immigration.expendituresWeak.item3"),
-    t("immigration.expendituresWeak.item4"),
-    t("immigration.expendituresWeak.item5"),
-    t("immigration.expendituresWeak.item6"),
-  ];
-
-  const IMMIGRATION_DENIALS = [
-    t("immigration.denials.item1"),
-    t("immigration.denials.item2"),
-    t("immigration.denials.item3"),
-    t("immigration.denials.item4"),
-    t("immigration.denials.item5"),
-    t("immigration.denials.item6"),
-    t("immigration.denials.item7"),
-  ];
-
-  const IMMIGRATION_SPECIAL_CASES = [
-    { title: t("immigration.specialCases.consulting.title"), desc: t("immigration.specialCases.consulting.desc") },
-    { title: t("immigration.specialCases.realEstate.title"), desc: t("immigration.specialCases.realEstate.desc") },
-    { title: t("immigration.specialCases.trading.title"), desc: t("immigration.specialCases.trading.desc") },
-  ];
-
   const CONSTRUCTION_DASHBOARD = [
     { label: t("constructionDashboard.item1.label"), value: t("constructionDashboard.item1.value"), detail: t("constructionDashboard.item1.detail") },
     { label: t("constructionDashboard.item2.label"), value: t("constructionDashboard.item2.value"), detail: t("constructionDashboard.item2.detail") },
     { label: t("constructionDashboard.item3.label"), value: t("constructionDashboard.item3.value"), detail: t("constructionDashboard.item3.detail") },
     { label: t("constructionDashboard.item4.label"), value: t("constructionDashboard.item4.value"), detail: t("constructionDashboard.item4.detail") },
   ];
+
+  const QUANTUM_CLAIM_CATEGORIES = [1, 2, 3, 4, 5, 6, 7].map((n) => ({
+    tag: t(`constructionSpecial.quantumCategories.item${n}.tag`),
+    title: t(`constructionSpecial.quantumCategories.item${n}.title`),
+    desc: t(`constructionSpecial.quantumCategories.item${n}.desc`),
+    points: t(`constructionSpecial.quantumCategories.item${n}.points`, { returnObjects: true }) as string[],
+  }));
+
+  const QUANTUM_CLAIM_CAUTIONS = t("constructionSpecial.quantumCautions", { returnObjects: true }) as string[];
 
   function toggleLanguage() {
     void i18n.changeLanguage(i18n.language === "en" ? "ko" : "en");
@@ -165,7 +99,8 @@ export default function App() {
   const inputRef = useRef<HTMLInputElement>(null);
   const uploadRef = useRef<HTMLElement>(null);
   const generatorRef = useRef<HTMLElement>(null);
-  const immigrationRef = useRef<HTMLElement>(null);
+  const standardContractsRef = useRef<HTMLElement>(null);
+  const constructionSpecialRef = useRef<HTMLElement>(null);
   const introVideoRef = useRef<HTMLVideoElement>(null);
   const [showIntro, setShowIntro] = useState(true);
   const [needsSoundTap, setNeedsSoundTap] = useState(false);
@@ -363,25 +298,32 @@ export default function App() {
             ) : (
               <button
                 type="button"
-                onClick={() => openAuth("signup")}
+                onClick={() => openAuth("login")}
                 className="border border-[var(--tb-line)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)]"
               >
-                {t("nav.signup")}
+                {t("nav.login")}
               </button>
             )}
+            <button
+              type="button"
+              onClick={() => constructionSpecialRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              className="hidden border border-[var(--tb-line)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)] sm:inline-flex"
+            >
+              {t("nav.constructionSpecial")}
+            </button>
+            <button
+              type="button"
+              onClick={() => standardContractsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              className="hidden border border-[var(--tb-line)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)] sm:inline-flex"
+            >
+              {t("nav.standardContracts")}
+            </button>
             <button
               type="button"
               onClick={() => generatorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
               className="border border-[var(--tb-line)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)]"
             >
               {t("nav.contractGenerator")}
-            </button>
-            <button
-              type="button"
-              onClick={() => immigrationRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
-              className="hidden border border-[var(--tb-line)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)] sm:inline-flex"
-            >
-              {t("immigration.navLabel")}
             </button>
             <button
               type="button"
@@ -588,7 +530,7 @@ export default function App() {
       </section>
 
       {/* Standard contracts library */}
-      <section className="border-t border-[var(--tb-line)] bg-white px-6 py-20">
+      <section ref={standardContractsRef} className="border-t border-[var(--tb-line)] bg-white px-6 py-20">
         <div className="mx-auto max-w-6xl">
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
             Standard Contracts
@@ -670,7 +612,7 @@ export default function App() {
         </div>
       </section>
 
-      <section className="border-t border-[var(--tb-line)] bg-[var(--tb-sand)] px-6 py-20">
+      <section ref={constructionSpecialRef} className="border-t border-[var(--tb-line)] bg-[var(--tb-sand)] px-6 py-20">
         <div className="mx-auto max-w-6xl">
           <p className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
             {t("constructionSpecial.label")}
@@ -689,6 +631,57 @@ export default function App() {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="mt-3 mb-10 rounded-2xl border border-[var(--tb-line)] bg-white p-6">
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
+              {t("constructionSpecial.quantumEyebrow")}
+            </p>
+            <h3 className="mt-3 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+              {t("constructionSpecial.quantumTitleLine1")}
+              <br />
+              {t("constructionSpecial.quantumTitleLine2")}
+            </h3>
+            <p className="mt-4 max-w-3xl text-sm leading-relaxed text-[var(--tb-muted)]">
+              {t("constructionSpecial.quantumIntro")}
+            </p>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {QUANTUM_CLAIM_CATEGORIES.map((item) => (
+                <div key={item.title} className="rounded-xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-4">
+                  <span className="inline-block rounded-full border border-[var(--tb-green)]/30 bg-[var(--tb-green-soft)] px-2.5 py-1 text-xs font-semibold text-[var(--tb-green-deep)]">
+                    {item.tag}
+                  </span>
+                  <p className="mt-3 font-display text-base font-semibold text-[var(--tb-ink)]">{item.title}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--tb-muted)]">{item.desc}</p>
+                  <ul className="mt-3 space-y-1.5">
+                    {item.points.map((point) => (
+                      <li key={point} className="flex gap-2 text-xs leading-relaxed text-[var(--tb-muted)]">
+                        <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-[var(--tb-green)]" />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 border border-[var(--tb-line)] bg-[var(--tb-ink)] p-6 text-white">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--tb-muted)]">
+                {t("constructionSpecial.quantumCautionHeading")}
+              </p>
+              <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                {QUANTUM_CLAIM_CAUTIONS.map((caution) => (
+                  <li key={caution} className="flex gap-2 text-sm leading-relaxed text-white/85">
+                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-white/50" />
+                    {caution}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <p className="mt-4 text-xs leading-relaxed text-[var(--tb-muted)]">
+              {t("constructionSpecial.quantumDisclaimer")}
+            </p>
           </div>
 
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
@@ -881,162 +874,6 @@ export default function App() {
               <p className="mt-2 text-sm text-[var(--tb-muted)]">{t("constructionSpecial.savedHistoryDesc")}</p>
             </div>
           )}
-        </div>
-      </section>
-
-      {/* US Immigration Law — E-2 Investor Visa service */}
-      <section ref={immigrationRef} className="border-t border-[var(--tb-line)] bg-white px-6 py-20">
-        <div className="mx-auto max-w-6xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
-            {t("immigration.eyebrow")}
-          </p>
-          <h2 className="mt-3 max-w-2xl font-display text-3xl font-semibold tracking-tight text-[var(--tb-ink)] sm:text-4xl">
-            {t("immigration.titleLine1")}
-            <br />
-            {t("immigration.titleLine2")}
-          </h2>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-[var(--tb-muted)]">
-            {t("immigration.subtitle")}
-          </p>
-
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {IMMIGRATION_STATS.map((item) => (
-              <div key={item.label} className="border border-[var(--tb-line)] bg-[var(--tb-sand)] p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--tb-muted)]">{item.label}</p>
-                <p className="mt-2 font-display text-2xl font-semibold text-[var(--tb-ink)]">{item.value}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 grid gap-6 lg:grid-cols-2">
-            <div className="border border-[var(--tb-line)] bg-[var(--tb-sand)] p-6">
-              <h3 className="font-display text-lg font-semibold text-[var(--tb-ink)]">
-                {t("immigration.requirements.heading")}
-              </h3>
-              <ul className="mt-4 space-y-2.5">
-                {IMMIGRATION_REQUIREMENTS.map((item) => (
-                  <li key={item} className="flex gap-2 text-sm leading-relaxed text-[var(--tb-muted)]">
-                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--tb-green)]" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-5 border-t border-[var(--tb-line)] pt-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--tb-green)]">
-                  {t("immigration.validity.heading")}
-                </p>
-                <ul className="mt-2 space-y-1.5">
-                  <li className="text-sm leading-relaxed text-[var(--tb-muted)]">{t("immigration.validity.item1")}</li>
-                  <li className="text-sm leading-relaxed text-[var(--tb-muted)]">{t("immigration.validity.item2")}</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="border border-[var(--tb-line)] bg-[var(--tb-sand)] p-6">
-              <h3 className="font-display text-lg font-semibold text-[var(--tb-ink)]">
-                {t("immigration.investment.heading")}
-              </h3>
-              <ul className="mt-4 space-y-2.5">
-                {IMMIGRATION_INVESTMENT.map((item) => (
-                  <li key={item} className="flex gap-2 text-sm leading-relaxed text-[var(--tb-muted)]">
-                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--tb-green)]" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <div className="mt-6 border border-[var(--tb-green)]/30 bg-[var(--tb-green-soft)] p-6">
-            <h3 className="font-display text-lg font-semibold text-[var(--tb-green-deep)]">
-              {t("immigration.lowInvestment.heading")}
-            </h3>
-            <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
-              {IMMIGRATION_LOW_INVESTMENT.map((item) => (
-                <li key={item} className="flex gap-2 text-sm leading-relaxed text-[var(--tb-green-deep)]">
-                  <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--tb-green)]" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="mt-6 grid gap-6 lg:grid-cols-2">
-            <div className="border border-emerald-200 bg-emerald-50 p-6">
-              <h3 className="font-display text-lg font-semibold text-emerald-800">
-                {t("immigration.expendituresGood.heading")}
-              </h3>
-              <ul className="mt-4 space-y-2.5">
-                {IMMIGRATION_EXPENDITURES_GOOD.map((item) => (
-                  <li key={item} className="flex gap-2 text-sm leading-relaxed text-emerald-800/90">
-                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="border border-rose-200 bg-rose-50 p-6">
-              <h3 className="font-display text-lg font-semibold text-rose-800">
-                {t("immigration.expendituresWeak.heading")}
-              </h3>
-              <ul className="mt-4 space-y-2.5">
-                {IMMIGRATION_EXPENDITURES_WEAK.map((item) => (
-                  <li key={item} className="flex gap-2 text-sm leading-relaxed text-rose-800/90">
-                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-500" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <div className="mt-10">
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
-              {t("immigration.specialCases.heading")}
-            </p>
-            <div className="mt-5 grid gap-6 md:grid-cols-3">
-              {IMMIGRATION_SPECIAL_CASES.map((item) => (
-                <div key={item.title} className="border-t-2 border-[var(--tb-green)] pt-5">
-                  <h4 className="font-display text-base font-semibold text-[var(--tb-ink)]">{item.title}</h4>
-                  <p className="mt-2 text-sm leading-relaxed text-[var(--tb-muted)]">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-10 border border-[var(--tb-line)] bg-[var(--tb-ink)] p-8 text-white">
-            <h3 className="font-display text-lg font-semibold text-[var(--tb-muted)]">
-              {t("immigration.denials.heading")}
-            </h3>
-            <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
-              {IMMIGRATION_DENIALS.map((item) => (
-                <li key={item} className="flex gap-2 text-sm leading-relaxed text-white/80">
-                  <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-white/50" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="mt-10 flex flex-col items-start gap-4 border border-[var(--tb-line)] bg-[var(--tb-sand)] p-8 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h3 className="font-display text-xl font-semibold text-[var(--tb-ink)]">
-                {t("immigration.cta.heading")}
-              </h3>
-              <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--tb-muted)]">
-                {t("immigration.cta.desc")}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => openAuth("signup")}
-              className="shrink-0 bg-[var(--tb-green)] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[var(--tb-green-deep)]"
-            >
-              {t("immigration.cta.button")}
-            </button>
-          </div>
-          <p className="mt-4 text-xs leading-relaxed text-[var(--tb-muted)]">{t("immigration.cta.disclaimer")}</p>
         </div>
       </section>
 
