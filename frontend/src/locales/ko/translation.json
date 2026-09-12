@@ -43,10 +43,10 @@
   "nav": {
     "logout": "로그아웃",
     "signup": "회원 가입",
-    "login": "로그인",
+    "login": "로그인/회원가입",
     "constructionSpecial": "해외 건설 계약 Special",
     "standardContracts": "해외 표준 계약서 열람",
-    "contractGenerator": "계약서 자동 생성",
+    "contractGenerator": "해외계약서 자동 생성",
     "reviewStart": "계약서 검토 시작",
     "analyzing": "분석 중...",
     "langToggle": "EN"
