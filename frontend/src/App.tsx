@@ -633,57 +633,6 @@ export default function App() {
             </div>
           </div>
 
-          <div className="mt-3 mb-10 rounded-2xl border border-[var(--tb-line)] bg-white p-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
-              {t("constructionSpecial.quantumEyebrow")}
-            </p>
-            <h3 className="mt-3 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-              {t("constructionSpecial.quantumTitleLine1")}
-              <br />
-              {t("constructionSpecial.quantumTitleLine2")}
-            </h3>
-            <p className="mt-4 max-w-3xl text-sm leading-relaxed text-[var(--tb-muted)]">
-              {t("constructionSpecial.quantumIntro")}
-            </p>
-
-            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {QUANTUM_CLAIM_CATEGORIES.map((item) => (
-                <div key={item.title} className="rounded-xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-4">
-                  <span className="inline-block rounded-full border border-[var(--tb-green)]/30 bg-[var(--tb-green-soft)] px-2.5 py-1 text-xs font-semibold text-[var(--tb-green-deep)]">
-                    {item.tag}
-                  </span>
-                  <p className="mt-3 font-display text-base font-semibold text-[var(--tb-ink)]">{item.title}</p>
-                  <p className="mt-2 text-sm leading-relaxed text-[var(--tb-muted)]">{item.desc}</p>
-                  <ul className="mt-3 space-y-1.5">
-                    {item.points.map((point) => (
-                      <li key={point} className="flex gap-2 text-xs leading-relaxed text-[var(--tb-muted)]">
-                        <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-[var(--tb-green)]" />
-                        {point}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-6 border border-[var(--tb-line)] bg-[var(--tb-ink)] p-6 text-white">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--tb-muted)]">
-                {t("constructionSpecial.quantumCautionHeading")}
-              </p>
-              <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-                {QUANTUM_CLAIM_CAUTIONS.map((caution) => (
-                  <li key={caution} className="flex gap-2 text-sm leading-relaxed text-white/85">
-                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-white/50" />
-                    {caution}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <p className="mt-4 text-xs leading-relaxed text-[var(--tb-muted)]">
-              {t("constructionSpecial.quantumDisclaimer")}
-            </p>
-          </div>
-
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
             {t("constructionSpecial.engineEyebrow")}
           </p>
@@ -874,6 +823,57 @@ export default function App() {
               <p className="mt-2 text-sm text-[var(--tb-muted)]">{t("constructionSpecial.savedHistoryDesc")}</p>
             </div>
           )}
+
+          <div className="mt-10 rounded-2xl border border-[var(--tb-line)] bg-white p-6">
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
+              {t("constructionSpecial.quantumEyebrow")}
+            </p>
+            <h3 className="mt-3 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+              {t("constructionSpecial.quantumTitleLine1")}
+              <br />
+              {t("constructionSpecial.quantumTitleLine2")}
+            </h3>
+            <p className="mt-4 max-w-3xl text-sm leading-relaxed text-[var(--tb-muted)]">
+              {t("constructionSpecial.quantumIntro")}
+            </p>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {QUANTUM_CLAIM_CATEGORIES.map((item) => (
+                <div key={item.title} className="rounded-xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-4">
+                  <span className="inline-block rounded-full border border-[var(--tb-green)]/30 bg-[var(--tb-green-soft)] px-2.5 py-1 text-xs font-semibold text-[var(--tb-green-deep)]">
+                    {item.tag}
+                  </span>
+                  <p className="mt-3 font-display text-base font-semibold text-[var(--tb-ink)]">{item.title}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--tb-muted)]">{item.desc}</p>
+                  <ul className="mt-3 space-y-1.5">
+                    {item.points.map((point) => (
+                      <li key={point} className="flex gap-2 text-xs leading-relaxed text-[var(--tb-muted)]">
+                        <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-[var(--tb-green)]" />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 border border-[var(--tb-line)] bg-[var(--tb-ink)] p-6 text-white">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--tb-muted)]">
+                {t("constructionSpecial.quantumCautionHeading")}
+              </p>
+              <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                {QUANTUM_CLAIM_CAUTIONS.map((caution) => (
+                  <li key={caution} className="flex gap-2 text-sm leading-relaxed text-white/85">
+                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-white/50" />
+                    {caution}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <p className="mt-4 text-xs leading-relaxed text-[var(--tb-muted)]">
+              {t("constructionSpecial.quantumDisclaimer")}
+            </p>
+          </div>
         </div>
       </section>
 
