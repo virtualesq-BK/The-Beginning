@@ -30,17 +30,50 @@ function ClauseDetailCard({ clause }: { clause: Clause }) {
       </p>
 
       <div className="space-y-2 rounded-xl bg-slate-50 p-4 text-sm dark:bg-slate-900/60">
-        <p>
-          <span className="font-semibold text-slate-900 dark:text-white">{t("report.clauseDetail.riskReason")} </span>
-          <span className="text-slate-600 dark:text-slate-300">{clause.risk.risk_reason}</span>
-        </p>
+        {clause.risk.rules_applied && clause.risk.rules_applied.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pb-1">
+            {clause.risk.rules_applied.map((ruleId) => (
+              <span
+                key={ruleId}
+                className="rounded-full bg-[var(--tb-green)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--tb-green-deep)] dark:bg-[var(--tb-green)]/20"
+                title={t("report.clauseDetail.ruleAppliedTooltip")}
+              >
+                {ruleId}
+              </span>
+            ))}
+          </div>
+        )}
         <p className="border-l-2 border-[var(--tb-green)]/30 pl-3 italic text-slate-500">
           “{clause.risk.evidence_quote}”
         </p>
         <p>
+          <span className="font-semibold text-slate-900 dark:text-white">{t("report.clauseDetail.riskReason")} </span>
+          <span className="text-slate-600 dark:text-slate-300">{clause.risk.risk_reason}</span>
+        </p>
+        {clause.risk.business_impact && (
+          <p>
+            <span className="font-semibold text-slate-900 dark:text-white">{t("report.clauseDetail.businessImpact")} </span>
+            <span className="text-slate-600 dark:text-slate-300">{clause.risk.business_impact}</span>
+          </p>
+        )}
+        <p>
           <span className="font-semibold text-slate-900 dark:text-white">{t("report.clauseDetail.recommendation")} </span>
           <span className="text-slate-600 dark:text-slate-300">{clause.risk.recommendation}</span>
         </p>
+        {clause.risk.negotiation_point && (
+          <p>
+            <span className="font-semibold text-slate-900 dark:text-white">{t("report.clauseDetail.negotiationPoint")} </span>
+            <span className="text-slate-600 dark:text-slate-300">{clause.risk.negotiation_point}</span>
+          </p>
+        )}
+        {clause.risk.alternative_text && (
+          <p className="rounded-lg bg-white p-3 font-mono text-xs text-slate-500 dark:bg-slate-950 dark:text-slate-400">
+            <span className="mb-1 block font-semibold text-slate-900 dark:text-white">
+              {t("report.clauseDetail.alternativeText")}
+            </span>
+            {clause.risk.alternative_text}
+          </p>
+        )}
         {clause.risk.references && clause.risk.references.length > 0 && (
           <p className="pt-1 text-xs text-slate-400 dark:text-slate-500">
             {t("report.clauseDetail.references")}: {clause.risk.references.join(", ")}
@@ -195,6 +228,57 @@ export function ReportView({ report }: { report: ContractReport }) {
           </div>
         )}
       </section>
+
+      {/* 2.5. Cross-clause combination risks */}
+      {report.cross_clause_risks && report.cross_clause_risks.length > 0 && (
+        <section className="rounded-2xl border border-rose-200 bg-rose-50/60 p-6 dark:border-rose-900/60 dark:bg-rose-950/20">
+          <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-rose-700 dark:text-rose-300">
+            {t("report.crossClauseRisks.heading")}
+          </h2>
+          <p className="mb-4 text-sm text-rose-700/80 dark:text-rose-300/80">
+            {t("report.crossClauseRisks.desc")}
+          </p>
+          <ul className="space-y-4">
+            {report.cross_clause_risks.map((combo) => (
+              <li
+                key={combo.combo_id}
+                className="rounded-xl border border-rose-200 bg-white p-4 dark:border-rose-900/60 dark:bg-slate-950"
+              >
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex flex-wrap gap-1.5">
+                    {combo.matched_rules.map((ruleId) => (
+                      <span
+                        key={ruleId}
+                        className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                      >
+                        {ruleId}
+                      </span>
+                    ))}
+                  </div>
+                  <span className="rounded-full bg-rose-600 px-3 py-0.5 text-xs font-semibold uppercase text-white">
+                    {combo.combined_severity}
+                  </span>
+                </div>
+                <p className="mb-2 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+                  {combo.description}
+                </p>
+                <p className="mb-1 text-sm">
+                  <span className="font-semibold text-slate-900 dark:text-white">
+                    {t("report.crossClauseRisks.businessImpact")}{" "}
+                  </span>
+                  <span className="text-slate-600 dark:text-slate-300">{combo.business_impact}</span>
+                </p>
+                <p className="text-sm">
+                  <span className="font-semibold text-slate-900 dark:text-white">
+                    {t("report.crossClauseRisks.negotiationPriority")}{" "}
+                  </span>
+                  <span className="text-slate-600 dark:text-slate-300">{combo.negotiation_priority}</span>
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* 3. Negotiation checklist */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-950">

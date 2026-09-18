@@ -7,6 +7,7 @@ from agents.document_parser import parse_contract
 from agents.translator import translate_clause
 from agents.risk_analyzer import summarize_document, analyze_clause
 from agents.file_extractor import extract_text
+from agents.risk_ontology import evaluate_cross_clause_risks
 
 DISCLAIMER_KO = "본 분석은 참고용입니다. 법적 효력이 없으며, 위험도 4점 이상 조항은 반드시 변호사 검토가 필요합니다."
 DISCLAIMER_EN = (
@@ -40,12 +41,19 @@ def run_pipeline(raw_text: str, language: str = "ko") -> dict:
         risk = analyze_clause(clause["clause_type"], clause["translated_text"], doc_summary, language=language)
         clause["risk"] = risk
 
+    print("[Agent 4] 조항 간 상호작용(Cross-Clause Risk) 분석 중...")
+    all_rules_applied: set[str] = set()
+    for clause in clauses:
+        all_rules_applied.update(clause["risk"].get("rules_applied", []))
+    cross_clause_risks = evaluate_cross_clause_risks(all_rules_applied)
+
     report = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "disclaimer": disclaimer,
         "document_summary": doc_summary,
         "clause_count": len(clauses),
         "high_risk_count": sum(1 for c in clauses if c["risk"]["risk_score"] >= 4),
+        "cross_clause_risks": cross_clause_risks,
         "clauses": clauses,
     }
     return report

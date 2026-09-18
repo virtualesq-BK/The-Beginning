@@ -1,60 +1,42 @@
-# 해외 건설 계약 리스크 탐지 규칙 (MVP 시드 세트, 정식 버전은 150개 이상으로 확장 예정)
+"""해외 건설 계약 리스크 탐지 규칙.
+
+FIDIC Delay 클러스터(지체상금 등 지체 관련 조항)는 risk_ontology.py의
+Legal Decision Model(계층형 Knowledge Graph)에서 파생된다. 나머지
+조항유형은 아직 온톨로지로 이전되지 않은 MVP 시드 세트이며, 정식
+버전에서는 risk_ontology.py 구조로 전체를 이전할 예정이다.
+
+get_rules_for()는 하위호환을 위해 계속 flat list[str]을 반환하지만,
+risk_analyzer.py는 가능한 경우 get_nodes_for() 를 통해 온톨로지
+노드(RiskNode) 전체 - 위험조건/예외조건/관련조항/협상목표/대체문구 등 -
+를 직접 사용해 Evidence 기반 근거를 구성한다.
+"""
+
+from . import risk_ontology
+
+# 조항유형별 질문은 이제 전부 risk_ontology.py의 Legal Decision Model에서
+# 파생된다 (단일 소스 유지). 각 조항유형의 risk_condition을 flat list로
+# 뽑아내며, 온톨로지 노드가 아직 없는 조항유형(건설계약/FIDIC 총괄)만
+# 예전처럼 직접 정의한다.
+_DELAY_RULES = [node.risk_condition for node in risk_ontology.get_cluster("Delay")]
+
+
+def _rules_from_node(node_id: str) -> list[str]:
+    node = risk_ontology.get_node(node_id)
+    return [node.risk_condition] if node else []
+
+
 RISK_RULES = {
-    "지체상금": [
-        "지체상금 상한(cap)이 계약금액의 10%를 초과하는가",
-        "지체상금과 별도로 손해배상 청구가 중복 허용되는가",
-        "지체상금의 계산 기준이 계약서에서 명확히 정의되어 있는가",
-    ],
-    "면책": [
-        "발주자 면책 범위가 일방적으로 과도하게 넓은가",
-        "고의/중과실에 대한 면책 배제 조항이 없는가",
-        "면책의 예외(고의·중과실·지적재산권 침해·기밀유지 위반)가 누락되었는가",
-    ],
-    "중재": [
-        "중재지가 계약 당사자 일방에게 현저히 불리한 국가인가",
-        "중재기관 및 준거법이 명확히 특정되어 있는가",
-        "중재 절차와 결정의 집행 가능성에 대한 규정이 결여되어 있는가",
-    ],
-    "하자담보": [
-        "하자담보책임기간(DLP)이 업계 관행(통상 1~2년) 대비 과도하게 긴가",
-        "하자보수보증금 비율이 과도한가",
-        "하자 통지 기한이 너무 짧아 시공사 방어권을 심각하게 제한하는가",
-    ],
-    "변경명령(Change Order)": [
-        "발주자의 일방적 변경 지시권이 대금/공기 조정 없이 인정되는가",
-        "변경으로 인한 클레임 제기 기한이 비합리적으로 짧은가",
-        "변경지시와 공기 연장(EOT), 비용 조정 절차가 연계되어 있는가",
-    ],
-    "불가항력": [
-        "불가항력 사유가 지나치게 좁게 정의되어 있는가",
-        "불가항력 발생 시 공기 연장만 인정되고 비용 보전은 배제되는가",
-        "불가항력의 통지 의무와 증빙 요건이 과도하게 엄격한가",
-    ],
-    "계약해지": [
-        "발주자의 임의해지(termination for convenience) 시 보상 범위가 과소한가",
-        "시공사 귀책 해지 사유가 모호하게 규정되어 있는가",
-        "계약해지 시 기완성물·미수금·자재 회수 권리가 불명확한가",
-    ],
-    "성능보증": [
-        "성능보증 기준이 객관적 수치·테스트 절차 없이 추상적으로 규정되는가",
-        "보증기간과 결함보수기한이 실제 프로젝트 특성에 비해 과도하게 긴가",
-        "성능 미달 시 보상, 보완, 해지의 순서가 불명확한가",
-    ],
-    "지급·인도": [
-        "중도금 지급 인증이 발주자 단독 판단에 맡겨져 있는가",
-        "인도(acceptance) 및 시운전 기준이 불명확하거나 지나치게 발주자에게 유리한가",
-        "지급 보류 사유가 과도하게 넓어 시공사의 현금흐름을 심각하게 훼손하는가",
-    ],
-    "보증·보험": [
-        "이행보증 및 보험 가입 범위가 프로젝트 위험을 충분히 커버하지 못하는가",
-        "보증금, 보험금, 책임한도 간 관계가 분리되어 불명확한가",
-        "시공사 보증 또는 발주자 보증의 책임 전가가 과도한가",
-    ],
-    "공사변경": [
-        "변경사항의 승인 절차가 너무 단순하거나 발주자 일방적 판단으로 운영되는가",
-        "기술 변경에 따른 설계·공정·비용 재조정 절차가 명시되지 않았는가",
-        "추가 범위와 기존 범위의 경계가 모호한가",
-    ],
+    "지체상금": _DELAY_RULES,
+    "면책": _rules_from_node("FIDIC-INDEMNITY"),
+    "중재": _rules_from_node("FIDIC-ARBITRATION"),
+    "하자담보": _rules_from_node("FIDIC-DLP"),
+    "변경명령(Change Order)": _rules_from_node("FIDIC-CHANGE-ORDER"),
+    "불가항력": _rules_from_node("FIDIC-FORCE-MAJEURE"),
+    "계약해지": _rules_from_node("FIDIC-TERMINATION"),
+    "성능보증": _rules_from_node("FIDIC-PERFORMANCE-SECURITY"),
+    "지급·인도": _rules_from_node("FIDIC-PAYMENT-ACCEPTANCE"),
+    "보증·보험": _rules_from_node("FIDIC-GUARANTEE-INSURANCE"),
+    "공사변경": _rules_from_node("FIDIC-VARIATION-SCOPE"),
     "건설계약": [
         "설계 책임과 시공 책임이 명확히 분리되어 있는가",
         "공기 연장(EOT), 지체상금(LD), 변경명령, 테스트/인수 절차가 일관되게 연결되는가",
@@ -77,3 +59,14 @@ def get_rules_for(clause_type: str) -> list[str]:
             return rules
     fallback = RISK_RULES.get("건설계약", [])
     return fallback if fallback else []
+
+
+def get_nodes_for(clause_type: str) -> list[risk_ontology.RiskNode]:
+    """조항유형에 대응하는 온톨로지 노드(RiskNode) 전체를 반환한다.
+
+    risk_analyzer.py에서 Evidence/Rule Applied/Negotiation Point 등을
+    구성할 때 사용한다. 아직 온톨로지로 이전되지 않은 조항유형은 빈
+    리스트를 반환하며, 이 경우 risk_analyzer.py는 get_rules_for()의
+    flat 질문 리스트로 폴백한다.
+    """
+    return risk_ontology.get_nodes_for_clause_type(clause_type)

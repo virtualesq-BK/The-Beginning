@@ -368,7 +368,17 @@
       "riskReason": "Risk Rationale",
       "recommendation": "Recommendation",
       "references": "Sources",
-      "lawyerReviewWarning": "This clause has a risk score of 4 or higher; legal review is recommended."
+      "lawyerReviewWarning": "This clause has a risk score of 4 or higher; legal review is recommended.",
+      "ruleAppliedTooltip": "Legal Decision Model rule ID applied to this clause",
+      "businessImpact": "Business Impact",
+      "negotiationPoint": "Negotiation Point",
+      "alternativeText": "Alternative Draft Text"
+    },
+    "crossClauseRisks": {
+      "heading": "Cross-Clause Interaction Risks",
+      "desc": "An individual clause may look low-risk on its own, but the combination below sharply raises the actual risk.",
+      "businessImpact": "Business Impact",
+      "negotiationPriority": "Negotiation Priority"
     },
     "checklist": {
       "heading": "Negotiation Checklist",

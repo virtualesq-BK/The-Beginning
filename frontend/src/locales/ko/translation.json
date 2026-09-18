@@ -368,7 +368,17 @@
       "riskReason": "위험 근거",
       "recommendation": "수정 권고",
       "references": "근거 출처",
-      "lawyerReviewWarning": "이 조항은 위험도 4점 이상으로, 변호사 검토를 권고합니다."
+      "lawyerReviewWarning": "이 조항은 위험도 4점 이상으로, 변호사 검토를 권고합니다.",
+      "ruleAppliedTooltip": "이 조항에 적용된 Legal Decision Model 규칙 ID",
+      "businessImpact": "실무 영향",
+      "negotiationPoint": "협상 포인트",
+      "alternativeText": "대체 문구 초안"
+    },
+    "crossClauseRisks": {
+      "heading": "조항 간 상호작용 리스크",
+      "desc": "개별 조항은 위험도가 낮아 보여도, 아래 조합이 함께 발견되면 위험도가 급격히 높아집니다.",
+      "businessImpact": "실무 영향",
+      "negotiationPriority": "협상 우선순위"
     },
     "checklist": {
       "heading": "협상 체크리스트",

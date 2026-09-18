@@ -7,6 +7,7 @@ doc_id 단위로 확장하여 Pinecone에 적재한다.
 
 from .vector_store import LocalVectorStore
 from .standard_contract_catalog import build_standard_contract_seed_docs
+from . import risk_ontology
 
 SEED_DOCS = [
     {
@@ -64,3 +65,50 @@ def build_knowledge_store() -> LocalVectorStore:
     metadatas = [{"doc_id": d["doc_id"], "clause_type": d["clause_type"], "text": d["text"]} for d in docs]
     store.add(texts, metadatas)
     return store
+
+
+# ---------------------------------------------------------------------------
+# Hybrid Retrieval (Vector DB + Rule Engine)
+#
+# 순수 Vector RAG는 "비슷한 문장을 찾아서 보여주는" 수준에 머문다. 이 제품은
+# 두 개의 독립된 검색 경로를 명시적으로 분리해서 LLM에 넘긴다.
+#
+#   1) Semantic Retrieval  : LocalVectorStore -> SEED_DOCS/표준계약서 -
+#                            "관련 있어 보이는 실무 기준 문서" 검색
+#   2) Rule Retrieval      : risk_ontology    -> Legal Decision Model -
+#                            "이 조항유형에 실제로 적용되는 확정 규칙" 조회
+#
+# risk_analyzer.analyze_clause()는 이미 이 두 경로를 각각 호출하고 있었지만
+# (retrieved = knowledge_store.query(...), rules = get_nodes_for(...)),
+# 이 함수는 그 관계를 하나의 진입점으로 명시해 "Vector DB + Knowledge Graph
+# + Rule Engine + LLM" 하이브리드 아키텍처임을 코드 구조 자체로 드러낸다.
+# ---------------------------------------------------------------------------
+
+
+_shared_store: LocalVectorStore | None = None
+
+
+def _get_shared_store() -> LocalVectorStore:
+    global _shared_store
+    if _shared_store is None:
+        _shared_store = build_knowledge_store()
+    return _shared_store
+
+
+def hybrid_retrieve(clause_type: str, semantic_query: str, top_k: int = 3) -> dict:
+    """Semantic Retrieval(Vector)과 Rule Retrieval(Knowledge Graph)을
+    각각 수행해 두 결과를 분리된 채로 반환한다.
+
+    LLM에게 "모든 판단을 맡기지 않는다"는 원칙에 따라, rule_matches는
+    LLM 추론 없이 결정론적으로(deterministic) 조회되며 semantic_matches는
+    벡터 유사도 기반 참고자료로만 취급된다. 호출부(risk_analyzer)는 이
+    둘을 프롬프트에서 별도 섹션으로 분리해 LLM이 혼동하지 않도록 한다.
+    임베딩 재계산을 피하기 위해 벡터스토어는 프로세스당 한 번만 빌드된다.
+    """
+    store = _get_shared_store()
+    semantic_matches = store.query(semantic_query, top_k=top_k)
+    rule_matches = risk_ontology.get_nodes_for_clause_type(clause_type)
+    return {
+        "semantic_matches": semantic_matches,
+        "rule_matches": rule_matches,
+    }

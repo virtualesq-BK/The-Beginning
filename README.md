@@ -18,16 +18,20 @@
 
 | 경로 | 페이지 | 설명 |
 |---|---|---|
-| `/` | 메인 (`App.tsx`) | 서비스 소개(히어로, 가치 제안, 이용 흐름), 계약서 업로드·분석, 리스크 리포트 확인, 표준계약서 카탈로그, 사용자 후기, 전문가 검토 요청 |
+| `/` | 메인 (`App.tsx`) | 서비스 소개(히어로, 가치 제안, 이용 흐름), 계약서 업로드·분석, 리스크 리포트 확인, FIDIC 표준 대조, 계약서 초안 생성(`ContractGenerator`), 표준계약서 카탈로그, 사용자 후기, 전문가 검토 요청 |
 | `/fidic-history` | FIDIC 히스토리 (`FIDICHistoryPage.tsx`) | 사용자가 저장한 FIDIC 대조/비교 결과 이력 조회 |
 
 ### 핵심 기능
 
 - **계약서 업로드 및 AI 분석**: PDF/DOCX 등 계약서 파일을 업로드하면 번역 요약 → 리스크 검토 → 협상 체크리스트 순으로 리포트를 생성 (`/api/v1/contracts/analyze`)
-- **근거 기반 리스크 판정 (SAC-RAG)**: 국제 실무 기준 지식베이스를 검색해 각 위험 판정에 출처를 함께 제시
+- **근거 기반 리스크 판정 (Evidence → Reasoning → Conclusion)**: 위험도 숫자만 내지 않고, 어떤 Rule이 적용되었는지(`rules_applied`) · 원문 근거(`evidence_quote`) · 추론 과정(`risk_reason`) · 실무 영향(`business_impact`) · 협상 포인트(`negotiation_point`) · 대체 문구(`alternative_text`)까지 감사 가능한(auditable) 형태로 제시
+- **Legal Decision Model / Contract Knowledge Graph**: 리스크 규칙을 "LD 10%면 위험" 같은 단순 프롬프트가 아니라, Contract Type → Clause Type → Legal Concept → Risk Condition → Business Context → Risk Severity → Recommended Action → Negotiation Position → Fallback Position 계층을 갖는 노드(`agents/risk_ontology.py`)로 구조화. FIDIC Delay 클러스터(Employer/Contractor/Concurrent Delay, EOT, LD, Notice, Time Bar) 등 총 18개 노드가 서로 연결되어 있음
+- **조항 간 상호작용(Cross-Clause Risk) 탐지**: 개별 조항은 위험도가 낮아 보여도, 특정 조합(예: "EOT 인정조건 좁음 + Notice 7일 Time Bar + LD 상한 높음")이 함께 발견되면 위험도가 급등하는 패턴을 `evaluate_cross_clause_risks()`로 문서 단위에서 탐지 (`pipeline.py`의 리포트 `cross_clause_risks` 필드)
+- **Hybrid Retrieval (Vector + Rule Engine)**: Semantic Retrieval(벡터 유사도 검색)과 Rule Retrieval(Knowledge Graph 결정론적 조회)을 분리된 경로로 명시해, LLM이 모든 판단을 떠맡지 않도록 구성 (`agents/knowledge_base.py`의 `hybrid_retrieve()`)
 - **FIDIC 계약서 비교**: 사용자 초안을 FIDIC Red/Yellow/Silver 등 표준 기준과 대조해 공기(EOT)·비용(LD)·하자담보(DLP)·변경(Variation) 등 핵심 조항의 불균형 여부 점검, 결과 저장 및 리포트(JSON) 내보내기
 - **표준계약서 카탈로그**: 해외 계약 실무에 쓰이는 표준계약서 목록/상세 제공 (`/api/v1/standard-contracts`)
 - **전문가 검토 연결**: AI 1차 검토 후 필요 시 번역·법률 전문가 검토 요청 메일 발송 (`/api/v1/expert-requests`)
+- **전문가 Feedback Loop / 자체 Benchmark**: 변호사가 AI 판단을 수정한 이력을 "AI 판단 → 수정 내용 → 수정 이유"까지 구조화 저장(`agents/feedback_loop.py`)하고, 검증된 케이스를 Ground Truth로 승격해 Clause Detection·Risk Detection Recall·False Positive·Rule Accuracy·Evidence Accuracy·Cross-Clause Reasoning Recall을 자체 채점(`agents/benchmark.py`)
 - **회원 인증**: Supabase 기반 로그인/회원가입, 로그인 사용자별 업로드·분석 이력 저장
 
 ## 기술 스택
@@ -37,10 +41,12 @@
 - **FastAPI** — REST API 서버 (`server.py`), Vercel Python 함수로 배포 (`api/index.py`)
 - **LLM 연동** — OpenAI / Anthropic / Universal(monorouter) 클라이언트를 선택적으로 구성 (`agents/llm_client.py`)
 - **문서 처리** — PDF/DOCX 등에서 텍스트 추출(`agents/file_extractor.py`) 및 계약서 파싱(`agents/document_parser.py`)
-- **RAG / 지식베이스** — `agents/knowledge_base.py`, `agents/vector_store.py`, `agents/sac_chunker.py`로 표준 실무 문서를 청킹·검색
-- **리스크 분석** — 규칙 기반 + LLM 기반 하이브리드 분석 (`agents/risk_analyzer.py`, `agents/risk_rules.py`)
+- **RAG / 지식베이스** — `agents/knowledge_base.py`(Semantic + Rule Hybrid Retrieval), `agents/vector_store.py`, `agents/sac_chunker.py`로 표준 실무 문서를 청킹·검색
+- **Legal Decision Model** — `agents/risk_ontology.py`: 조항유형별 Contract Knowledge Graph(RiskNode)와 조항 간 조합위험(RiskCombination) 정의
+- **리스크 분석** — 규칙 기반(Knowledge Graph) + LLM 기반 하이브리드 분석, Evidence→Reasoning→Conclusion 구조 출력 (`agents/risk_analyzer.py`, `agents/risk_rules.py`)
+- **전문가 Feedback Loop / Benchmark** — `agents/feedback_loop.py`(AI-변호사 판단 차이 구조화), `agents/benchmark.py`(자체 평가지표 채점)
 - **메일 발송** — 전문가 검토 요청 메일 (`agents/mailer.py`)
-- **인증/DB** — Supabase (회원 인증, 프로필, 이력 저장)
+- **인증/DB** — Supabase (회원 인증, 프로필, 이력 저장, 계약 Lifecycle/Feedback/Benchmark 데이터)
 
 ### 프론트엔드
 
@@ -62,16 +68,22 @@
 │   ├── llm_client.py       # OpenAI / Anthropic / Universal(monorouter) 클라이언트
 │   ├── document_parser.py
 │   ├── file_extractor.py   # pdf/docx 등에서 텍스트 추출
-│   ├── knowledge_base.py / vector_store.py / sac_chunker.py
-│   ├── risk_analyzer.py / risk_rules.py
+│   ├── risk_ontology.py    # Legal Decision Model: RiskNode 계층 + RiskCombination(조항 간 상호작용)
+│   ├── knowledge_base.py / vector_store.py / sac_chunker.py  # Hybrid Retrieval (Semantic + Rule)
+│   ├── risk_analyzer.py / risk_rules.py                       # Evidence→Reasoning→Conclusion 리스크 분석
+│   ├── feedback_loop.py    # 전문가(변호사) 판단 수정 이력 구조화
+│   ├── benchmark.py        # 자체 Contract Intelligence Benchmark 채점기
 │   ├── standard_contract_catalog.py
 │   ├── mailer.py           # 전문가 검토 요청 메일 발송
 │   └── translator.py
 ├── api/index.py            # Vercel Python 함수 엔트리포인트 (server.py의 app을 감쌈)
 ├── frontend/                # React + Vite 프론트엔드
-├── pipeline.py              # 계약서 분석 파이프라인 (extract → analyze → report)
+├── pipeline.py              # 계약서 분석 파이프라인 (extract → analyze → cross-clause → report)
 ├── server.py                 # FastAPI 앱 정의 (로컬 실행 시 uvicorn으로 구동)
-├── supabase/                 # Supabase 관련 설정 (인증/회원 프로필)
+├── supabase/                  # Supabase 스키마/마이그레이션
+│   ├── schema.sql                              # profiles / contract_analyses / fidic_comparisons / expert_requests
+│   ├── migrate_contract_uploads.sql            # 업로드 Storage 연동
+│   └── migrate_lifecycle_and_feedback.sql      # 계약 Lifecycle(contracts/contract_versions/negotiation_events) + expert_feedback/benchmark_cases
 ├── knowledge/                # 지식 문서 (표준계약서 등)
 ├── tests/
 ├── requirements.txt
@@ -83,9 +95,70 @@
 | Method | Path | 설명 |
 |---|---|---|
 | GET | `/health` | 헬스체크 |
-| POST | `/api/v1/contracts/analyze` | 계약서 파일 업로드 → 분석 리포트 반환 |
+| POST | `/api/v1/contracts/analyze` | 계약서 파일 업로드 → 분석 리포트 반환 (`rules_applied`/`cross_clause_risks` 포함) |
 | POST | `/api/v1/expert-requests` | 전문가 검토(번역/법률) 요청 메일 발송 |
 | GET | `/api/v1/standard-contracts` | 표준계약서 카탈로그 조회 |
+| GET | `/api/v1/contract-templates` | 계약서 템플릿 목록 조회 |
+| POST | `/api/v1/contract-templates/{template_id}/generate` | 템플릿 기반 계약서 초안 생성 |
+| POST | `/api/v1/fidic/compare` | 사용자 초안을 FIDIC 표준과 대조 분석 |
+| POST | `/api/v1/fidic/compare/save` | FIDIC 비교 결과 저장 |
+| GET | `/api/v1/fidic/compare/history` | 저장된 FIDIC 비교 이력 목록 조회 |
+| GET | `/api/v1/fidic/compare/history/{comparison_id}` | 저장된 FIDIC 비교 결과 단건 조회 |
+| DELETE | `/api/v1/fidic/compare/history/{comparison_id}` | 저장된 FIDIC 비교 결과 삭제 |
+| DELETE | `/api/v1/fidic/compare/history/batch-delete` | 저장된 FIDIC 비교 결과 일괄 삭제 |
+| POST | `/api/v1/fidic/compare/export`, `export-json`, `export-csv`, `export-excel` | FIDIC 비교표 내보내기 (PDF/JSON/CSV/Excel) |
+
+## Contract Intelligence 아키텍처
+
+이 프로젝트는 "LLM + Prompt + RAG"만으로는 만들 수 없는 데이터·워크플로우·평가체계를 목표로, 다음 구조를 실제 코드로 구현했습니다.
+
+```
+                Contract
+                   ↓
+          Document Parser (agents/document_parser.py)
+                   ↓
+       ┌───────────┴───────────┐
+       ↓                       ↓
+Semantic Retrieval      Rule Retrieval
+(vector_store.py)       (risk_ontology.py — Legal Decision Model)
+       └───────────┬───────────┘
+        agents/knowledge_base.py: hybrid_retrieve()
+                   ↓
+         risk_analyzer.analyze_clause()
+      (Evidence → Reasoning → Conclusion)
+                   ↓
+    pipeline.py: evaluate_cross_clause_risks()
+      (조항 간 상호작용 — 조합 위험 탐지)
+                   ↓
+         전문가 검토 (변호사 수정)
+                   ↓
+      feedback_loop.py → benchmark.py
+   (AI 판단 vs 수정 이유 → Ground Truth 승격 → 자체 벤치마크 채점)
+```
+
+**완료된 항목**
+
+| 항목 | 구현 위치 | 내용 |
+|---|---|---|
+| Legal Decision Model | `agents/risk_ontology.py` | Contract Type → Clause Type → Legal Concept → Risk Condition → ... → Fallback Position 계층의 `RiskNode`. FIDIC Delay 클러스터(8개 노드) + 나머지 10개 조항유형(면책·중재·하자담보·변경명령·불가항력·계약해지·성능보증·지급인도·보증보험·공사변경), 총 18개 노드 |
+| Evidence 기반 출력 | `agents/risk_analyzer.py` | `risk_score` 단일값이 아니라 `rules_applied` / `evidence_quote` / `risk_reason` / `business_impact` / `recommendation` / `negotiation_point` / `alternative_text`까지 감사 가능한 구조로 응답 |
+| 조항 간 상호작용 탐지 | `agents/risk_ontology.py`(`RiskCombination`), `pipeline.py` | 개별 조항은 낮아 보여도 특정 조합이 함께 있으면 위험도가 급등하는 패턴(EOT+Notice+LD 등)을 문서 단위에서 탐지, 리포트의 `cross_clause_risks` 필드로 노출 |
+| Hybrid Retrieval | `agents/knowledge_base.py`(`hybrid_retrieve`) | Semantic Retrieval(Vector)과 Rule Retrieval(Knowledge Graph)을 분리된 경로로 명시, LLM에게 결정론적 규칙과 참고자료를 구분해서 제공 |
+| 계약 Lifecycle 데이터 | `supabase/migrate_lifecycle_and_feedback.sql` | `contracts`(딜 단위 그룹) / `contract_versions`(Draft→Negotiation→Final 버전 이력) / `negotiation_events`(AI 위험탐지→협상포인트→상대방반응→최종합의) |
+| 전문가 Feedback Loop | `agents/feedback_loop.py`, `expert_feedback` 테이블 | AI 판단과 변호사 수정 내용을 "왜 다른가"(`correction_reason`)까지 구조화 저장, `disagreement_type` 자동 1차 분류 |
+| 자체 Benchmark | `agents/benchmark.py`, `benchmark_cases` 테이블 | Clause Detection / Risk Detection Recall / False Positive / Rule Accuracy(F1) / Evidence Accuracy / Cross-Clause Reasoning Recall 채점 |
+
+## 다음 단계 (로드맵 — 아직 미착수)
+
+아래는 지금 구현체보다 한 단계 위의 제품 설계 영역으로, 우선순위가 정해지면 이어서 진행할 항목입니다.
+
+| 항목 | 내용 | 비고 |
+|---|---|---|
+| 온톨로지 확장 | 면책·중재·하자담보 등 10개 조항유형이 현재 조항유형당 1개 노드(단일 레벨)로만 구현됨. Delay 클러스터처럼 하위 Legal Concept(예: 면책 → 고의/중과실 면책, IP침해 면책, 기밀유지 위반 면책)으로 세분화 필요 | `agents/risk_ontology.py`의 `OTHER_NODES`를 확장 |
+| LLM-independent Abstraction Layer | 현재 `agents/llm_client.py`가 OpenAI/Anthropic/Universal을 다루지만, Application Layer — Contract Intelligence Layer — Rule/Knowledge/Evaluation Layer — LLM Abstraction Layer로 명시적 계층 분리는 아직 안 되어 있음 | 모델 교체 시 Rule/Knowledge Graph/Benchmark 자산이 영향받지 않도록 하는 것이 목표 |
+| 협상 시나리오 엔진 | 위험도 분석 → 수정 권고 → 상대방 예상 반론 → 대응 논리 → 양보 가능 조건 → 대체조건 → 협상 우선순위 → 최종 협상 시나리오까지 엔드투엔드로 이어주는 기능 | `negotiation_events` 테이블은 준비됐으나, 시나리오 생성 로직은 미구현 |
+| Contract OS 상위 워크플로우 | Contract Review → Negotiation → Approval → Execution → Obligation Tracking → Claim Detection → Renewal/Termination → Compliance | 지금은 "계약 리뷰"까지만 구현. Approval/Obligation Tracking/Compliance 모듈 없음 |
+| 온톨로지 → Benchmark 자동 연동 | `feedback_loop.promote_to_benchmark_case()`는 구조는 있지만, 실제 운영에서 검증 절차를 거쳐 자동으로 승격시키는 배치/워크플로우는 아직 없음 | 현재는 수동 호출 전제 |
 
 ## 로컬 실행
 
