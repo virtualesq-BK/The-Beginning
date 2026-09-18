@@ -138,7 +138,16 @@
           "Check the scope difference between 'loss and expense' and 'cost'",
           "Assess whether expenditure incurred on or off the site is recoverable",
           "Keep contemporary records and a project cost ledger up to date"
-        ]
+        ],
+        "calc": {
+          "title": "Quick estimate: Loss & Expense",
+          "formula": "Loss & expense = Actual cost incurred − Budgeted (contract) cost",
+          "resultLabel": "Estimated claim amount",
+          "fields": [
+            { "key": "actualCost", "label": "Actual cost incurred", "unit": "USD" },
+            { "key": "budgetedCost", "label": "Budgeted (contract) cost", "unit": "USD" }
+          ]
+        }
       },
       "item2": {
         "tag": "Variation Valuation",
@@ -148,7 +157,16 @@
           "Check whether applying the contract rate produces an unfair result for either party",
           "Confirm whether the same valuation rule applies to omitted work as to added work",
           "Assess recoverability of site overheads and progress disruption caused by the Variation"
-        ]
+        ],
+        "calc": {
+          "title": "Quick estimate: Variation valuation",
+          "formula": "Variation value = Quantity × Applicable rate (contract rate or fair rate)",
+          "resultLabel": "Estimated variation value",
+          "fields": [
+            { "key": "quantity", "label": "Quantity", "unit": "units" },
+            { "key": "rate", "label": "Applicable rate", "unit": "USD/unit" }
+          ]
+        }
       },
       "item3": {
         "tag": "Disruption Claim",
@@ -158,7 +176,18 @@
           "Measured Mile analysis — compare against an unimpacted period",
           "Earned Value Method (EVM) and industry-study benchmarking",
           "Total cost / modified total cost methods should be a last resort"
-        ]
+        ],
+        "calc": {
+          "title": "Quick estimate: Measured Mile method",
+          "formula": "Disruption cost = (Unimpacted productivity − Impacted productivity) ÷ Unimpacted productivity × Impacted hours × Labor rate",
+          "resultLabel": "Estimated disruption cost",
+          "fields": [
+            { "key": "unimpactedProductivity", "label": "Unimpacted-period productivity", "unit": "units/hr" },
+            { "key": "impactedProductivity", "label": "Impacted-period productivity", "unit": "units/hr" },
+            { "key": "impactedHours", "label": "Total hours worked in impacted period", "unit": "hours" },
+            { "key": "laborRate", "label": "Labor rate", "unit": "USD/hr" }
+          ]
+        }
       },
       "item4": {
         "tag": "Prolongation Claim",
@@ -168,7 +197,16 @@
           "Daily overhead rate method vs resource-by-resource analysis",
           "Check for concurrent delay and avoid double recovery",
           "Non-critical delay is generally excluded from prolongation costs"
-        ]
+        ],
+        "calc": {
+          "title": "Quick estimate: Daily overhead rate method",
+          "formula": "Prolongation cost = Daily overhead rate × Recoverable delay days",
+          "resultLabel": "Estimated prolongation claim",
+          "fields": [
+            { "key": "dailyOverheadRate", "label": "Daily overhead rate", "unit": "USD/day" },
+            { "key": "delayDays", "label": "Recoverable delay days", "unit": "days" }
+          ]
+        }
       },
       "item5": {
         "tag": "Off-Site OH / Loss of Profit",
@@ -178,7 +216,18 @@
           "Check the preconditions before applying formulae such as Hudson, Emden or Eichleay",
           "Actual head-office costs incurred to support the dispute should be proven separately",
           "Causation between the delay and the lost opportunity must be established"
-        ]
+        ],
+        "calc": {
+          "title": "Quick estimate: Hudson formula",
+          "formula": "Off-site OH & profit loss = (OH & profit % ÷ 100) × (Contract sum ÷ Contract period) × Delay period",
+          "resultLabel": "Estimated off-site OH & profit loss",
+          "fields": [
+            { "key": "overheadProfitPercent", "label": "OH & profit percentage", "unit": "%" },
+            { "key": "contractSum", "label": "Contract sum", "unit": "USD" },
+            { "key": "contractPeriodWeeks", "label": "Contract period", "unit": "weeks" },
+            { "key": "delayWeeks", "label": "Delay period", "unit": "weeks" }
+          ]
+        }
       },
       "item6": {
         "tag": "Back Charge",
@@ -188,7 +237,16 @@
           "Confirm the cost was actually, necessarily and reasonably incurred",
           "Establish the subcontractor's responsibility under the subcontract",
           "Confirm reasonable notice to cure was given before the cost was incurred"
-        ]
+        ],
+        "calc": {
+          "title": "Quick estimate: Back charge cost",
+          "formula": "Back charge = Replacement/remedial work cost + Administration cost",
+          "resultLabel": "Estimated back charge claim",
+          "fields": [
+            { "key": "remedialCost", "label": "Replacement/remedial work cost", "unit": "USD" },
+            { "key": "adminCost", "label": "Administration cost", "unit": "USD" }
+          ]
+        }
       },
       "item7": {
         "tag": "Termination Account",
@@ -198,7 +256,18 @@
           "Compare the final account against the cost of completion by a replacement contractor",
           "Confirm which heads of compensation apply on a termination for convenience",
           "Check whether liquidated damages provisions still apply after termination"
-        ]
+        ],
+        "calc": {
+          "title": "Quick estimate: Termination account",
+          "formula": "Final account = Value of work done + Additional costs incurred + Termination-related costs − Payments received",
+          "resultLabel": "Estimated final account claim",
+          "fields": [
+            { "key": "workDoneValue", "label": "Value of work done", "unit": "USD" },
+            { "key": "costsIncurred", "label": "Additional costs incurred", "unit": "USD" },
+            { "key": "terminationCosts", "label": "Termination-related costs", "unit": "USD" },
+            { "key": "paymentsReceived", "label": "Payments received to date", "unit": "USD" }
+          ]
+        }
       }
     },
     "quantumCautionHeading": "Common pitfalls in quantum evaluation",
@@ -208,7 +277,12 @@
       "Global claims — lumping losses together without linking them to individual causes — weaken proof of causation.",
       "Maintaining contemporary records consistently strengthens your position in litigation or arbitration."
     ],
-    "quantumDisclaimer": "This guide summarizes general information drawn from international construction quantum claim literature and does not substitute for legal advice on a specific matter."
+    "quantumDisclaimer": "This guide summarizes general information drawn from international construction quantum claim literature and does not substitute for legal advice on a specific matter.",
+    "quantumCalcHint": "Click a card to open its worked formula and estimate the amount yourself.",
+    "quantumCalcModalHeading": "Estimated amount calculator",
+    "quantumCalcResultPlaceholder": "Enter values to see the estimated amount.",
+    "quantumCalcClose": "Close",
+    "quantumCalcDisclaimer": "This is a simplified estimate — actual claim valuation depends on the contract terms and the facts of the case."
   },
   "contractGeneratorSection": {
     "eyebrow": "Contract Generator",

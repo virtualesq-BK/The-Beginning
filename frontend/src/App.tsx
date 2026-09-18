@@ -72,14 +72,67 @@ export default function App() {
     { label: t("constructionDashboard.item4.label"), value: t("constructionDashboard.item4.value"), detail: t("constructionDashboard.item4.detail") },
   ];
 
-  const QUANTUM_CLAIM_CATEGORIES = [1, 2, 3, 4, 5, 6, 7].map((n) => ({
+  const QUANTUM_CALC_FORMULAS: Array<(v: Record<string, number>) => number> = [
+    (v) => (v.actualCost || 0) - (v.budgetedCost || 0),
+    (v) => (v.quantity || 0) * (v.rate || 0),
+    (v) => {
+      const unimpacted = v.unimpactedProductivity || 0;
+      const impacted = v.impactedProductivity || 0;
+      const lostRate = unimpacted > 0 ? Math.max(0, (unimpacted - impacted) / unimpacted) : 0;
+      return lostRate * (v.impactedHours || 0) * (v.laborRate || 0);
+    },
+    (v) => (v.dailyOverheadRate || 0) * (v.delayDays || 0),
+    (v) => {
+      const weeklyRate = (v.contractPeriodWeeks || 0) > 0 ? (v.contractSum || 0) / v.contractPeriodWeeks : 0;
+      return ((v.overheadProfitPercent || 0) / 100) * weeklyRate * (v.delayWeeks || 0);
+    },
+    (v) => (v.remedialCost || 0) + (v.adminCost || 0),
+    (v) => (v.workDoneValue || 0) + (v.costsIncurred || 0) + (v.terminationCosts || 0) - (v.paymentsReceived || 0),
+  ];
+
+  type QuantumCalcField = { key: string; label: string; unit: string };
+  type QuantumCategory = {
+    tag: string;
+    title: string;
+    desc: string;
+    points: string[];
+    calc: { title: string; formula: string; resultLabel: string; fields: QuantumCalcField[] };
+  };
+
+  const QUANTUM_CLAIM_CATEGORIES: QuantumCategory[] = [1, 2, 3, 4, 5, 6, 7].map((n) => ({
     tag: t(`constructionSpecial.quantumCategories.item${n}.tag`),
     title: t(`constructionSpecial.quantumCategories.item${n}.title`),
     desc: t(`constructionSpecial.quantumCategories.item${n}.desc`),
     points: t(`constructionSpecial.quantumCategories.item${n}.points`, { returnObjects: true }) as string[],
+    calc: t(`constructionSpecial.quantumCategories.item${n}.calc`, { returnObjects: true }) as QuantumCategory["calc"],
   }));
 
   const QUANTUM_CLAIM_CAUTIONS = t("constructionSpecial.quantumCautions", { returnObjects: true }) as string[];
+
+  const [quantumSelectedIndex, setQuantumSelectedIndex] = useState<number | null>(null);
+  const [quantumCalcInputs, setQuantumCalcInputs] = useState<Record<string, string>>({});
+
+  function openQuantumCalc(index: number) {
+    setQuantumSelectedIndex(index);
+    setQuantumCalcInputs({});
+  }
+
+  function closeQuantumCalc() {
+    setQuantumSelectedIndex(null);
+    setQuantumCalcInputs({});
+  }
+
+  const quantumSelectedCategory = quantumSelectedIndex !== null ? QUANTUM_CLAIM_CATEGORIES[quantumSelectedIndex] : null;
+  const quantumCalcNumericInputs: Record<string, number> = Object.fromEntries(
+    Object.entries(quantumCalcInputs).map(([key, value]) => [key, parseFloat(value)]),
+  );
+  const quantumHasAnyInput = Object.values(quantumCalcNumericInputs).some((n) => !Number.isNaN(n) && n !== 0);
+  const quantumCalcResult =
+    quantumSelectedIndex !== null && quantumHasAnyInput
+      ? QUANTUM_CALC_FORMULAS[quantumSelectedIndex](
+          Object.fromEntries(Object.entries(quantumCalcNumericInputs).map(([k, v]) => [k, Number.isNaN(v) ? 0 : v])),
+        )
+      : null;
 
   function toggleLanguage() {
     void i18n.changeLanguage(i18n.language === "en" ? "ko" : "en");
@@ -837,9 +890,16 @@ export default function App() {
               {t("constructionSpecial.quantumIntro")}
             </p>
 
+            <p className="mt-4 text-xs text-[var(--tb-muted)]">{t("constructionSpecial.quantumCalcHint")}</p>
+
             <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {QUANTUM_CLAIM_CATEGORIES.map((item) => (
-                <div key={item.title} className="rounded-xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-4">
+              {QUANTUM_CLAIM_CATEGORIES.map((item, index) => (
+                <button
+                  key={item.title}
+                  type="button"
+                  onClick={() => openQuantumCalc(index)}
+                  className="rounded-xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-4 text-left transition hover:-translate-y-0.5 hover:border-[var(--tb-green)] hover:shadow-md"
+                >
                   <span className="inline-block rounded-full border border-[var(--tb-green)]/30 bg-[var(--tb-green-soft)] px-2.5 py-1 text-xs font-semibold text-[var(--tb-green-deep)]">
                     {item.tag}
                   </span>
@@ -853,7 +913,10 @@ export default function App() {
                       </li>
                     ))}
                   </ul>
-                </div>
+                  <span className="mt-3 inline-block text-xs font-semibold text-[var(--tb-green)] underline-offset-2 group-hover:underline">
+                    {item.calc.title} →
+                  </span>
+                </button>
               ))}
             </div>
 
@@ -876,6 +939,85 @@ export default function App() {
           </div>
         </div>
       </section>
+
+      {quantumSelectedCategory && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-8"
+          onClick={closeQuantumCalc}
+        >
+          <div
+            className="max-h-full w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <span className="inline-block rounded-full border border-[var(--tb-green)]/30 bg-[var(--tb-green-soft)] px-2.5 py-1 text-xs font-semibold text-[var(--tb-green-deep)]">
+                  {quantumSelectedCategory.tag}
+                </span>
+                <p className="mt-2 font-display text-lg font-semibold text-[var(--tb-ink)]">
+                  {quantumSelectedCategory.title}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeQuantumCalc}
+                className="shrink-0 text-sm font-semibold text-[var(--tb-muted)] hover:text-[var(--tb-ink)]"
+              >
+                {t("constructionSpecial.quantumCalcClose")}
+              </button>
+            </div>
+
+            <p className="mt-3 text-sm leading-relaxed text-[var(--tb-muted)]">{quantumSelectedCategory.desc}</p>
+            <ul className="mt-3 space-y-1.5">
+              {quantumSelectedCategory.points.map((point) => (
+                <li key={point} className="flex gap-2 text-xs leading-relaxed text-[var(--tb-muted)]">
+                  <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-[var(--tb-green)]" />
+                  {point}
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-5 rounded-xl border border-[var(--tb-line)] bg-[var(--tb-sand)] p-4">
+              <p className="text-sm font-semibold text-[var(--tb-ink)]">
+                {t("constructionSpecial.quantumCalcModalHeading")}: {quantumSelectedCategory.calc.title}
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-[var(--tb-muted)]">{quantumSelectedCategory.calc.formula}</p>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {quantumSelectedCategory.calc.fields.map((field) => (
+                  <label key={field.key} className="block text-xs font-semibold text-[var(--tb-ink)]">
+                    {field.label} ({field.unit})
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      value={quantumCalcInputs[field.key] ?? ""}
+                      onChange={(e) =>
+                        setQuantumCalcInputs((prev) => ({ ...prev, [field.key]: e.target.value }))
+                      }
+                      className="mt-1 w-full rounded-lg border border-[var(--tb-line)] bg-white px-3 py-2 text-sm font-normal text-[var(--tb-ink)] focus:border-[var(--tb-green)] focus:outline-none"
+                    />
+                  </label>
+                ))}
+              </div>
+
+              <div className="mt-4 rounded-lg border border-[var(--tb-green)]/30 bg-[var(--tb-green-soft)] p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--tb-green-deep)]">
+                  {quantumSelectedCategory.calc.resultLabel}
+                </p>
+                <p className="mt-1 font-display text-xl font-semibold text-[var(--tb-ink)]">
+                  {quantumCalcResult !== null
+                    ? `${quantumCalcResult.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+                    : t("constructionSpecial.quantumCalcResultPlaceholder")}
+                </p>
+              </div>
+
+              <p className="mt-3 text-[11px] leading-relaxed text-[var(--tb-muted)]">
+                {t("constructionSpecial.quantumCalcDisclaimer")}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Contract generator */}
       <section ref={generatorRef} className="border-t border-[var(--tb-line)] bg-[var(--tb-sand)] px-6 py-20">

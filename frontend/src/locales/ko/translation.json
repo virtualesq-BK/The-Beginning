@@ -138,7 +138,16 @@
           "손실 및 지출(loss and expense)과 비용(cost)의 범위 차이 확인",
           "'현장 내외(on or off the site)' 지출의 인정 여부 검토",
           "동시기록(contemporary records)과 원가대장(cost ledger) 정비"
-        ]
+        ],
+        "calc": {
+          "title": "간이 산정: 손실 및 지출(Loss & Expense)",
+          "formula": "손실 및 지출 = 실제 발생 비용 − 예산(계약) 비용",
+          "resultLabel": "예상 클레임 금액",
+          "fields": [
+            { "key": "actualCost", "label": "실제 발생 비용", "unit": "USD" },
+            { "key": "budgetedCost", "label": "예산(계약) 비용", "unit": "USD" }
+          ]
+        }
       },
       "item2": {
         "tag": "Variation Valuation",
@@ -148,7 +157,16 @@
           "계약단가 적용이 당사자에게 불리한 결과를 낳는지 점검",
           "추가 작업과 삭제 작업에 동일한 평가 기준이 적용되는지 확인",
           "공사변경으로 인한 현장간접비·공정 차질 보상 가능 여부 검토"
-        ]
+        ],
+        "calc": {
+          "title": "간이 산정: 공사변경 금액",
+          "formula": "공사변경 금액 = 물량 × 적용 단가(계약단가 또는 공정한 단가)",
+          "resultLabel": "공사변경 평가액",
+          "fields": [
+            { "key": "quantity", "label": "물량", "unit": "단위" },
+            { "key": "rate", "label": "적용 단가", "unit": "USD/단위" }
+          ]
+        }
       },
       "item3": {
         "tag": "Disruption Claim",
@@ -158,7 +176,18 @@
           "Measured Mile 분석 – 방해받지 않은 구간과 비교",
           "획득가치분석(EVM)·산업표준 연구 방법 활용",
           "총원가(total cost)·수정 총원가(modified total cost) 방식은 최후의 수단으로 제한적 활용"
-        ]
+        ],
+        "calc": {
+          "title": "간이 산정: Measured Mile 방식",
+          "formula": "방해 비용 = (미방해 구간 생산성 − 방해 구간 생산성) ÷ 미방해 구간 생산성 × 방해 구간 작업시간 × 노무 단가",
+          "resultLabel": "예상 방해(disruption) 비용",
+          "fields": [
+            { "key": "unimpactedProductivity", "label": "미방해 구간 생산성", "unit": "단위/시간" },
+            { "key": "impactedProductivity", "label": "방해 구간 생산성", "unit": "단위/시간" },
+            { "key": "impactedHours", "label": "방해 구간 총 작업시간", "unit": "시간" },
+            { "key": "laborRate", "label": "노무 단가", "unit": "USD/시간" }
+          ]
+        }
       },
       "item4": {
         "tag": "Prolongation Claim",
@@ -168,7 +197,16 @@
           "일일간접비 기반 방법(daily overhead rate) vs 발주자 사유 직접 연계 방법",
           "동시지연(concurrent delay)과 중복보상 방지 원칙 확인",
           "공사완료일에 영향이 없는 비critical delay는 원칙적으로 제외"
-        ]
+        ],
+        "calc": {
+          "title": "간이 산정: 일일간접비 기반 방식",
+          "formula": "현장간접비 클레임 = 일일 간접비율 × 인정 지연일수",
+          "resultLabel": "예상 현장간접비 클레임 금액",
+          "fields": [
+            { "key": "dailyOverheadRate", "label": "일일 간접비율", "unit": "USD/일" },
+            { "key": "delayDays", "label": "인정 지연일수", "unit": "일" }
+          ]
+        }
       },
       "item5": {
         "tag": "Off-Site OH / Loss of Profit",
@@ -178,7 +216,18 @@
           "Hudson·Emden·Eichleay 등 공식 활용 시 전제조건 확인",
           "분쟁 프로젝트 지원을 위해 실제 발생한 본사비용은 별도 입증",
           "공기지연과 기회비용 상실 간 인과관계 입증 필요"
-        ]
+        ],
+        "calc": {
+          "title": "간이 산정: Hudson 공식",
+          "formula": "본사간접비·이윤 손해 = (간접비·이윤율 ÷ 100) × (계약금액 ÷ 계약기간) × 지연기간",
+          "resultLabel": "예상 본사간접비·이윤 손해",
+          "fields": [
+            { "key": "overheadProfitPercent", "label": "간접비·이윤율", "unit": "%" },
+            { "key": "contractSum", "label": "계약금액", "unit": "USD" },
+            { "key": "contractPeriodWeeks", "label": "계약기간", "unit": "주" },
+            { "key": "delayWeeks", "label": "지연기간", "unit": "주" }
+          ]
+        }
       },
       "item6": {
         "tag": "Back Charge",
@@ -188,7 +237,16 @@
           "실제·필연적·합리적으로 발생한 지출인지 확인",
           "하도 계약상 하도사의 책임 범위와 연관성 입증",
           "비용 발생 전 계약위반 시정 기회를 사전 통지했는지 확인"
-        ]
+        ],
+        "calc": {
+          "title": "간이 산정: 백차지(Back Charge) 비용",
+          "formula": "백차지 금액 = 대체 시공(하자보수) 비용 + 관리·행정 비용",
+          "resultLabel": "예상 백차지 청구액",
+          "fields": [
+            { "key": "remedialCost", "label": "대체 시공(하자보수) 비용", "unit": "USD" },
+            { "key": "adminCost", "label": "관리·행정 비용", "unit": "USD" }
+          ]
+        }
       },
       "item7": {
         "tag": "Termination Account",
@@ -198,7 +256,18 @@
           "최종 정산 금액과 대체시공자 계약금액 비교 검토",
           "임의해지 시 인정되는 보상 항목 범위 확인",
           "해지 사유별 손해배상액 예정(LD) 조항 적용 가능 여부 점검"
-        ]
+        ],
+        "calc": {
+          "title": "간이 산정: 해지 정산금액",
+          "formula": "정산금액 = 기성 완료 금액 + 추가 발생 비용 + 해지 관련 비용 − 기지급액",
+          "resultLabel": "예상 정산 청구액",
+          "fields": [
+            { "key": "workDoneValue", "label": "기성 완료 금액", "unit": "USD" },
+            { "key": "costsIncurred", "label": "추가 발생 비용", "unit": "USD" },
+            { "key": "terminationCosts", "label": "해지 관련 비용", "unit": "USD" },
+            { "key": "paymentsReceived", "label": "기지급액", "unit": "USD" }
+          ]
+        }
       }
     },
     "quantumCautionHeading": "산정 시 공통 유의사항",
@@ -208,7 +277,12 @@
       "글로벌 클레임(전체 손해를 개별 원인과 연결하지 않고 뭉뚱그려 청구)은 인과관계 입증에서 불리하게 작용할 수 있습니다.",
       "동시기록(contemporary records)을 상시 축적해야 소송·중재에서 입증력이 높아집니다."
     ],
-    "quantumDisclaimer": "본 가이드는 국제건설계약 금전 클레임(Quantum Claim) 실무 문헌을 참고하여 정리한 일반 정보이며, 개별 사안에 대한 법적 자문을 대체하지 않습니다."
+    "quantumDisclaimer": "본 가이드는 국제건설계약 금전 클레임(Quantum Claim) 실무 문헌을 참고하여 정리한 일반 정보이며, 개별 사안에 대한 법적 자문을 대체하지 않습니다.",
+    "quantumCalcHint": "카드를 클릭하면 실무에서 쓰는 산정식으로 예상 금액을 직접 계산해볼 수 있습니다.",
+    "quantumCalcModalHeading": "예상 금액 계산기",
+    "quantumCalcResultPlaceholder": "값을 입력하면 예상 금액이 계산됩니다.",
+    "quantumCalcClose": "닫기",
+    "quantumCalcDisclaimer": "간이 계산 결과이며, 실제 클레임 산정은 계약조건과 사실관계에 따라 달라질 수 있습니다."
   },
   "contractGeneratorSection": {
     "eyebrow": "Contract Generator",
