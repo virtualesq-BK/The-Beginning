@@ -5,15 +5,36 @@
     "loading": "Loading..."
   },
   "lifecycle": {
-    "step1": { "title": "Translation Summary", "desc": "Organizes overseas contract clauses into clear Korean." },
-    "step2": { "title": "Risk Review", "desc": "Surfaces high-risk clauses and supporting evidence first." },
-    "step3": { "title": "Negotiation Check", "desc": "Turns revision and negotiation points into a checklist." },
-    "step4": { "title": "Global Expert Connection", "desc": "Connects you to reviewers and legal experts when needed." }
+    "step1": {
+      "title": "Translation Summary",
+      "desc": "Organizes overseas contract clauses into clear Korean."
+    },
+    "step2": {
+      "title": "Risk Review",
+      "desc": "Surfaces high-risk clauses and supporting evidence first."
+    },
+    "step3": {
+      "title": "Negotiation Check",
+      "desc": "Turns revision and negotiation points into a checklist."
+    },
+    "step4": {
+      "title": "Global Expert Connection",
+      "desc": "Connects you to reviewers and legal experts when needed."
+    }
   },
   "valueProps": {
-    "item1": { "title": "Built for Overseas Contracts", "desc": "First-pass review centered on real-world overseas contract risks — FIDIC, EPC, liquidated damages, defects liability, and more." },
-    "item2": { "title": "AI Review Backed by Evidence", "desc": "SAC-RAG retrieves international practice standards and cites the source behind every risk assessment." },
-    "item3": { "title": "Decisions in Korean, Instantly", "desc": "Translation, risk, and negotiation points delivered in one flow to cut down review time." }
+    "item1": {
+      "title": "Built for Overseas Contracts",
+      "desc": "First-pass review centered on real-world overseas contract risks — FIDIC, EPC, liquidated damages, defects liability, and more."
+    },
+    "item2": {
+      "title": "AI Review Backed by Evidence",
+      "desc": "SAC-RAG retrieves international practice standards and cites the source behind every risk assessment."
+    },
+    "item3": {
+      "title": "Decisions in Korean, Instantly",
+      "desc": "Translation, risk, and negotiation points delivered in one flow to cut down review time."
+    }
   },
   "testimonials": {
     "heading": "Customer Reviews",
@@ -35,10 +56,26 @@
     }
   },
   "constructionDashboard": {
-    "item1": { "label": "Baseline Standard", "value": "FIDIC Red / Yellow / Silver", "detail": "Compares liability allocation and contract structure by family" },
-    "item2": { "label": "Input Contract", "value": "User Draft / Employer Wording", "detail": "Organizes nature, scope, and statutory requirements as inputs" },
-    "item3": { "label": "Key Checks", "value": "EOT / LD / DLP / Variation", "detail": "Verifies the coherence of time and cost adjustments" },
-    "item4": { "label": "Risk Summary", "value": "Contract Value · Bonds · Liability Cap · Arbitration", "detail": "Identifies unbalanced clauses at a glance" }
+    "item1": {
+      "label": "Baseline Standard",
+      "value": "FIDIC Red / Yellow / Silver",
+      "detail": "Compares liability allocation and contract structure by family"
+    },
+    "item2": {
+      "label": "Input Contract",
+      "value": "User Draft / Employer Wording",
+      "detail": "Organizes nature, scope, and statutory requirements as inputs"
+    },
+    "item3": {
+      "label": "Key Checks",
+      "value": "EOT / LD / DLP / Variation",
+      "detail": "Verifies the coherence of time and cost adjustments"
+    },
+    "item4": {
+      "label": "Risk Summary",
+      "value": "Contract Value · Bonds · Liability Cap · Arbitration",
+      "detail": "Identifies unbalanced clauses at a glance"
+    }
   },
   "nav": {
     "logout": "Log Out",
@@ -71,9 +108,21 @@
     "formats": ".txt · .pdf · .docx · .doc · up to 10 pages"
   },
   "metrics": {
-    "item1": { "label": "First-Pass Review Speed", "value": "Within Minutes", "note": "AI analysis after upload" },
-    "item2": { "label": "Review Scope", "value": "Translation · Risk · Negotiation", "note": "Only what you need to decide" },
-    "item3": { "label": "Next Step", "value": "Global Expert Connection", "note": "Review and overseas legal counsel" }
+    "item1": {
+      "label": "First-Pass Review Speed",
+      "value": "Within Minutes",
+      "note": "AI analysis after upload"
+    },
+    "item2": {
+      "label": "Review Scope",
+      "value": "Translation · Risk · Negotiation",
+      "note": "Only what you need to decide"
+    },
+    "item3": {
+      "label": "Next Step",
+      "value": "Global Expert Connection",
+      "note": "Review and overseas legal counsel"
+    }
   },
   "reviewLoop": {
     "eyebrow": "Review Loop",
@@ -92,7 +141,8 @@
     "titleLine2": "for your overseas business",
     "subtitle": "Based on ITC, ICC, and domestic institutional resources, with guidance on governing law, arbitration, CISG, and local mandatory-rule checkpoints.",
     "groupAll": "All",
-    "groupConstruction": "Overseas Construction Contracts"
+    "groupConstruction": "Overseas Construction Contracts",
+    "compareCta": "Compare Distributor · OEM/ODM · License Agreements"
   },
   "constructionSpecial": {
     "label": "Overseas Construction Contract Special",
@@ -114,11 +164,16 @@
     "contractorBias": "Contractor Bias Score",
     "emptyResult": "Enter contract text to see an overall FIDIC score and key comparison items.",
     "evidenceLabel": "Supporting Sentences",
-    "status": { "good": "Good", "watch": "Watch", "risk": "Risk" },
+    "status": {
+      "good": "Good",
+      "watch": "Watch",
+      "risk": "Risk"
+    },
     "mySavedHistory": "My Saved History",
     "viewAll": "View All →",
     "savedHistoryDesc": "After logging in, go to your saved history page to view and manage your saved list.",
     "errors": {
+      "authRequired": "You need to log in to use the FIDIC comparison feature.",
       "emptyCompare": "Please enter the contract text you want to compare first.",
       "compareFailed": "Comparison analysis failed.",
       "emptyExport": "Please enter the contract text you want to export first.",
@@ -144,8 +199,16 @@
           "formula": "Loss & expense = Actual cost incurred − Budgeted (contract) cost",
           "resultLabel": "Estimated claim amount",
           "fields": [
-            { "key": "actualCost", "label": "Actual cost incurred", "unit": "USD" },
-            { "key": "budgetedCost", "label": "Budgeted (contract) cost", "unit": "USD" }
+            {
+              "key": "actualCost",
+              "label": "Actual cost incurred",
+              "unit": "USD"
+            },
+            {
+              "key": "budgetedCost",
+              "label": "Budgeted (contract) cost",
+              "unit": "USD"
+            }
           ]
         }
       },
@@ -163,8 +226,16 @@
           "formula": "Variation value = Quantity × Applicable rate (contract rate or fair rate)",
           "resultLabel": "Estimated variation value",
           "fields": [
-            { "key": "quantity", "label": "Quantity", "unit": "units" },
-            { "key": "rate", "label": "Applicable rate", "unit": "USD/unit" }
+            {
+              "key": "quantity",
+              "label": "Quantity",
+              "unit": "units"
+            },
+            {
+              "key": "rate",
+              "label": "Applicable rate",
+              "unit": "USD/unit"
+            }
           ]
         }
       },
@@ -182,10 +253,26 @@
           "formula": "Disruption cost = (Unimpacted productivity − Impacted productivity) ÷ Unimpacted productivity × Impacted hours × Labor rate",
           "resultLabel": "Estimated disruption cost",
           "fields": [
-            { "key": "unimpactedProductivity", "label": "Unimpacted-period productivity", "unit": "units/hr" },
-            { "key": "impactedProductivity", "label": "Impacted-period productivity", "unit": "units/hr" },
-            { "key": "impactedHours", "label": "Total hours worked in impacted period", "unit": "hours" },
-            { "key": "laborRate", "label": "Labor rate", "unit": "USD/hr" }
+            {
+              "key": "unimpactedProductivity",
+              "label": "Unimpacted-period productivity",
+              "unit": "units/hr"
+            },
+            {
+              "key": "impactedProductivity",
+              "label": "Impacted-period productivity",
+              "unit": "units/hr"
+            },
+            {
+              "key": "impactedHours",
+              "label": "Total hours worked in impacted period",
+              "unit": "hours"
+            },
+            {
+              "key": "laborRate",
+              "label": "Labor rate",
+              "unit": "USD/hr"
+            }
           ]
         }
       },
@@ -203,8 +290,16 @@
           "formula": "Prolongation cost = Daily overhead rate × Recoverable delay days",
           "resultLabel": "Estimated prolongation claim",
           "fields": [
-            { "key": "dailyOverheadRate", "label": "Daily overhead rate", "unit": "USD/day" },
-            { "key": "delayDays", "label": "Recoverable delay days", "unit": "days" }
+            {
+              "key": "dailyOverheadRate",
+              "label": "Daily overhead rate",
+              "unit": "USD/day"
+            },
+            {
+              "key": "delayDays",
+              "label": "Recoverable delay days",
+              "unit": "days"
+            }
           ]
         }
       },
@@ -222,10 +317,26 @@
           "formula": "Off-site OH & profit loss = (OH & profit % ÷ 100) × (Contract sum ÷ Contract period) × Delay period",
           "resultLabel": "Estimated off-site OH & profit loss",
           "fields": [
-            { "key": "overheadProfitPercent", "label": "OH & profit percentage", "unit": "%" },
-            { "key": "contractSum", "label": "Contract sum", "unit": "USD" },
-            { "key": "contractPeriodWeeks", "label": "Contract period", "unit": "weeks" },
-            { "key": "delayWeeks", "label": "Delay period", "unit": "weeks" }
+            {
+              "key": "overheadProfitPercent",
+              "label": "OH & profit percentage",
+              "unit": "%"
+            },
+            {
+              "key": "contractSum",
+              "label": "Contract sum",
+              "unit": "USD"
+            },
+            {
+              "key": "contractPeriodWeeks",
+              "label": "Contract period",
+              "unit": "weeks"
+            },
+            {
+              "key": "delayWeeks",
+              "label": "Delay period",
+              "unit": "weeks"
+            }
           ]
         }
       },
@@ -243,8 +354,16 @@
           "formula": "Back charge = Replacement/remedial work cost + Administration cost",
           "resultLabel": "Estimated back charge claim",
           "fields": [
-            { "key": "remedialCost", "label": "Replacement/remedial work cost", "unit": "USD" },
-            { "key": "adminCost", "label": "Administration cost", "unit": "USD" }
+            {
+              "key": "remedialCost",
+              "label": "Replacement/remedial work cost",
+              "unit": "USD"
+            },
+            {
+              "key": "adminCost",
+              "label": "Administration cost",
+              "unit": "USD"
+            }
           ]
         }
       },
@@ -262,10 +381,26 @@
           "formula": "Final account = Value of work done + Additional costs incurred + Termination-related costs − Payments received",
           "resultLabel": "Estimated final account claim",
           "fields": [
-            { "key": "workDoneValue", "label": "Value of work done", "unit": "USD" },
-            { "key": "costsIncurred", "label": "Additional costs incurred", "unit": "USD" },
-            { "key": "terminationCosts", "label": "Termination-related costs", "unit": "USD" },
-            { "key": "paymentsReceived", "label": "Payments received to date", "unit": "USD" }
+            {
+              "key": "workDoneValue",
+              "label": "Value of work done",
+              "unit": "USD"
+            },
+            {
+              "key": "costsIncurred",
+              "label": "Additional costs incurred",
+              "unit": "USD"
+            },
+            {
+              "key": "terminationCosts",
+              "label": "Termination-related costs",
+              "unit": "USD"
+            },
+            {
+              "key": "paymentsReceived",
+              "label": "Payments received to date",
+              "unit": "USD"
+            }
           ]
         }
       }
@@ -391,8 +526,14 @@
       "complete": "Save and Get Started",
       "login": "Log In"
     },
-    "switchToLogin": { "prompt": "Already have an account?", "cta": "Log In" },
-    "switchToSignup": { "prompt": "Don't have an account?", "cta": "Sign Up" },
+    "switchToLogin": {
+      "prompt": "Already have an account?",
+      "cta": "Log In"
+    },
+    "switchToSignup": {
+      "prompt": "Don't have an account?",
+      "cta": "Sign Up"
+    },
     "errors": {
       "usagePurposeRequired": "Please select at least one intended use."
     },
@@ -489,10 +630,22 @@
     "titleLine2": "E-2 Investor Visa Strategy",
     "subtitle": "Working with a network of New York immigration attorneys, we build approval strategies even for low investment amounts or challenging business types.",
     "stats": {
-      "item1": { "label": "Govt. Reported Approval Rate", "value": "80-90%" },
-      "item2": { "label": "Partner Firm Approval Rate", "value": "98%" },
-      "item3": { "label": "Treaty Countries", "value": "80+" },
-      "item4": { "label": "Minimum Investment", "value": "No statutory minimum" }
+      "item1": {
+        "label": "Govt. Reported Approval Rate",
+        "value": "80-90%"
+      },
+      "item2": {
+        "label": "Partner Firm Approval Rate",
+        "value": "98%"
+      },
+      "item3": {
+        "label": "Treaty Countries",
+        "value": "80+"
+      },
+      "item4": {
+        "label": "Minimum Investment",
+        "value": "No statutory minimum"
+      }
     },
     "requirements": {
       "heading": "Core E-2 Visa Requirements",
@@ -581,6 +734,106 @@
       "desc": "Even with a low investment amount or a challenging business type, the right strategy can improve approval odds. Book an initial consultation to review your investment amount, source of funds, and business plan.",
       "button": "Request an Immigration Consultation",
       "disclaimer": "This content is for general information only and does not substitute for individualized legal advice. (Attorney Advertising)"
+    }
+  },
+  "standardContractCompare": {
+    "eyebrow": "Distributor · OEM/ODM · License",
+    "titleLine1": "Compare your distributor, OEM/ODM,",
+    "titleLine2": "or license agreement against standard practice",
+    "subtitle": "Paste a draft distributor, OEM/ODM, or license agreement proposed by an overseas partner to check governing law, liability caps, indemnity, and termination terms against standard practice, with scores and supporting evidence.",
+    "typeLabel": "Contract Type",
+    "types": {
+      "distributor": "Distributor Agreement",
+      "oem_odm": "OEM/ODM Agreement",
+      "license": "License Agreement"
+    },
+    "pasteLabel": "Paste contract text",
+    "pastePlaceholder": "Paste the contract text to compare.",
+    "compareCta": "Run comparison",
+    "comparing": "Analyzing...",
+    "reset": "Reset",
+    "exportPdf": "Export PDF",
+    "exportJson": "Export JSON",
+    "exportCsv": "Export CSV",
+    "exportExcel": "Export Excel",
+    "matchScoreLabel": "Standard Practice Match Score",
+    "scoreOutOf": "/ 100",
+    "emptyResult": "Paste a contract and run the comparison to see results here.",
+    "evidenceLabel": "Supporting Sentences",
+    "status": {
+      "good": "Good",
+      "watch": "Watch",
+      "risk": "Risk"
+    },
+    "mySavedHistory": "My Saved History",
+    "viewAll": "View all →",
+    "savedHistoryDesc": "Revisit and export your saved standard contract comparison results anytime.",
+    "errors": {
+      "emptyCompare": "Please enter the contract text to compare first.",
+      "compareFailed": "The comparison analysis failed.",
+      "emptyExport": "Please enter the contract text to export first.",
+      "exportFailed": "Export failed.",
+      "exportJsonFailed": "JSON export failed.",
+      "exportCsvFailed": "CSV export failed.",
+      "exportExcelFailed": "Excel export failed."
+    },
+    "back": "← Back",
+    "viewHistory": "View saved history"
+  },
+  "standardContractHistory": {
+    "heading": "Standard Contract Comparison History",
+    "countSuffix": " comparison results",
+    "back": "← Back",
+    "sort": {
+      "label": "Sort",
+      "recent": "Most Recent",
+      "scoreHigh": "Highest Score",
+      "scoreLow": "Lowest Score"
+    },
+    "typeFilter": {
+      "label": "Contract Type",
+      "all": "All",
+      "distributor": "Distributor",
+      "oem_odm": "OEM/ODM",
+      "license": "License"
+    },
+    "noHistory": "No saved history",
+    "itemsCount": "{{count}} items",
+    "selectedCount": "{{count}} selected",
+    "deleteSelected": "Delete {{count}} items",
+    "close": "Close",
+    "loading": "Loading...",
+    "empty": {
+      "message": "No saved comparison results.",
+      "cta": "Go compare a contract"
+    },
+    "modal": {
+      "eyebrow": "Saved Comparison Result",
+      "score": "Score {{score}} / 100",
+      "summary": "Summary",
+      "focusAreas": "Key Focus Areas",
+      "close": "Close",
+      "json": "JSON",
+      "csv": "CSV",
+      "excel": "Excel",
+      "pdf": "PDF",
+      "delete": "Delete"
+    },
+    "confirm": {
+      "deleteOne": "Delete this saved item?",
+      "deleteBatch": "Delete {{count}} items?"
+    },
+    "errors": {
+      "loadHistory": "Failed to load history.",
+      "loadItem": "Failed to load item.",
+      "itemNotFound": "Item not found.",
+      "delete": "Failed to delete.",
+      "batchDelete": "Batch delete failed.",
+      "contractNotFound": "Contract content not found.",
+      "pdfDownload": "PDF download failed.",
+      "jsonDownload": "JSON download failed.",
+      "csvDownload": "CSV download failed.",
+      "excelDownload": "Excel download failed."
     }
   }
 }

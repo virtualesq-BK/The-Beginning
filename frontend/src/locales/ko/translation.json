@@ -5,15 +5,36 @@
     "loading": "로드 중..."
   },
   "lifecycle": {
-    "step1": { "title": "번역 요약", "desc": "해외 계약 조항을 한국어로 정리합니다." },
-    "step2": { "title": "리스크 검토", "desc": "고위험 조항과 근거를 먼저 보여줍니다." },
-    "step3": { "title": "협상 체크", "desc": "수정·협상 포인트를 체크리스트로 만듭니다." },
-    "step4": { "title": "전 세계 전문가 연결", "desc": "필요하면 검수·법률 전문가로 이어집니다." }
+    "step1": {
+      "title": "번역 요약",
+      "desc": "해외 계약 조항을 한국어로 정리합니다."
+    },
+    "step2": {
+      "title": "리스크 검토",
+      "desc": "고위험 조항과 근거를 먼저 보여줍니다."
+    },
+    "step3": {
+      "title": "협상 체크",
+      "desc": "수정·협상 포인트를 체크리스트로 만듭니다."
+    },
+    "step4": {
+      "title": "전 세계 전문가 연결",
+      "desc": "필요하면 검수·법률 전문가로 이어집니다."
+    }
   },
   "valueProps": {
-    "item1": { "title": "해외 계약에 특화", "desc": "FIDIC·EPC·지체상금·하자담보 등 다양한 해외 계약 실무 리스크를 중심으로 1차 검토합니다." },
-    "item2": { "title": "근거가 남는 AI 검토", "desc": "SAC-RAG로 국제 실무 기준을 검색해, 위험 판정마다 출처를 함께 제시합니다." },
-    "item3": { "title": "한국어로 바로 의사결정", "desc": "번역·리스크·협상 포인트를 한 흐름으로 제공해 검토 시간을 줄입니다." }
+    "item1": {
+      "title": "해외 계약에 특화",
+      "desc": "FIDIC·EPC·지체상금·하자담보 등 다양한 해외 계약 실무 리스크를 중심으로 1차 검토합니다."
+    },
+    "item2": {
+      "title": "근거가 남는 AI 검토",
+      "desc": "SAC-RAG로 국제 실무 기준을 검색해, 위험 판정마다 출처를 함께 제시합니다."
+    },
+    "item3": {
+      "title": "한국어로 바로 의사결정",
+      "desc": "번역·리스크·협상 포인트를 한 흐름으로 제공해 검토 시간을 줄입니다."
+    }
   },
   "testimonials": {
     "heading": "사용자 후기",
@@ -35,10 +56,26 @@
     }
   },
   "constructionDashboard": {
-    "item1": { "label": "기본 기준", "value": "FIDIC Red / Yellow / Silver", "detail": "패밀리별 책임 분배와 계약 형태를 비교" },
-    "item2": { "label": "입력 계약서", "value": "사용자 초안/발주자 문안", "detail": "성격·범위·법정 요건을 입력값으로 정리" },
-    "item3": { "label": "핵심 점검", "value": "EOT / LD / DLP / Variation", "detail": "공기와 비용 조정의 체계성 확인" },
-    "item4": { "label": "리스크 요약", "value": "공사액·보증·책임한도·중재", "detail": "불균형 조항을 한눈에 식별" }
+    "item1": {
+      "label": "기본 기준",
+      "value": "FIDIC Red / Yellow / Silver",
+      "detail": "패밀리별 책임 분배와 계약 형태를 비교"
+    },
+    "item2": {
+      "label": "입력 계약서",
+      "value": "사용자 초안/발주자 문안",
+      "detail": "성격·범위·법정 요건을 입력값으로 정리"
+    },
+    "item3": {
+      "label": "핵심 점검",
+      "value": "EOT / LD / DLP / Variation",
+      "detail": "공기와 비용 조정의 체계성 확인"
+    },
+    "item4": {
+      "label": "리스크 요약",
+      "value": "공사액·보증·책임한도·중재",
+      "detail": "불균형 조항을 한눈에 식별"
+    }
   },
   "nav": {
     "logout": "로그아웃",
@@ -71,9 +108,21 @@
     "formats": ".txt · .pdf · .docx · .doc · 최대 10페이지"
   },
   "metrics": {
-    "item1": { "label": "1차 검토 속도", "value": "수 분 내", "note": "업로드 후 AI 분석" },
-    "item2": { "label": "검토 범위", "value": "번역·리스크·협상", "note": "의사결정에 필요한 핵심만" },
-    "item3": { "label": "다음 단계", "value": "전 세계 전문가 연결", "note": "검수·해외 법률 자문" }
+    "item1": {
+      "label": "1차 검토 속도",
+      "value": "수 분 내",
+      "note": "업로드 후 AI 분석"
+    },
+    "item2": {
+      "label": "검토 범위",
+      "value": "번역·리스크·협상",
+      "note": "의사결정에 필요한 핵심만"
+    },
+    "item3": {
+      "label": "다음 단계",
+      "value": "전 세계 전문가 연결",
+      "note": "검수·해외 법률 자문"
+    }
   },
   "reviewLoop": {
     "eyebrow": "Review Loop",
@@ -92,7 +141,8 @@
     "titleLine2": "표준계약서 자료를 열람하세요",
     "subtitle": "ITC·ICC·국내 기관 자료를 기준으로, 준거법·중재·CISG·현지 강행규정 체크 포인트까지 함께 안내합니다.",
     "groupAll": "전체",
-    "groupConstruction": "해외 건설 계약"
+    "groupConstruction": "해외 건설 계약",
+    "compareCta": "대리점·OEM/ODM·라이선스 계약 비교하기"
   },
   "constructionSpecial": {
     "label": "해외 건설 계약 Special",
@@ -114,11 +164,16 @@
     "contractorBias": "시공사 편향 점수",
     "emptyResult": "계약서 내용을 입력하면 FIDIC 기준에 대한 종합 점수와 핵심 비교 항목이 표시됩니다.",
     "evidenceLabel": "근거 문장",
-    "status": { "good": "양호", "watch": "주의", "risk": "위험" },
+    "status": {
+      "good": "양호",
+      "watch": "주의",
+      "risk": "위험"
+    },
     "mySavedHistory": "내 저장 내역",
     "viewAll": "전체 보기 →",
     "savedHistoryDesc": "로그인한 다음 내 저장 내역 페이지로 이동하여 목록을 조회하고 관리할 수 있습니다.",
     "errors": {
+      "authRequired": "FIDIC 비교 분석 기능을 사용하려면 로그인이 필요합니다.",
       "emptyCompare": "비교할 계약서 내용을 먼저 입력해 주세요.",
       "compareFailed": "비교 분석에 실패했습니다.",
       "emptyExport": "내보낼 계약서 내용을 먼저 입력해 주세요.",
@@ -144,8 +199,16 @@
           "formula": "손실 및 지출 = 실제 발생 비용 − 예산(계약) 비용",
           "resultLabel": "예상 클레임 금액",
           "fields": [
-            { "key": "actualCost", "label": "실제 발생 비용", "unit": "USD" },
-            { "key": "budgetedCost", "label": "예산(계약) 비용", "unit": "USD" }
+            {
+              "key": "actualCost",
+              "label": "실제 발생 비용",
+              "unit": "USD"
+            },
+            {
+              "key": "budgetedCost",
+              "label": "예산(계약) 비용",
+              "unit": "USD"
+            }
           ]
         }
       },
@@ -163,8 +226,16 @@
           "formula": "공사변경 금액 = 물량 × 적용 단가(계약단가 또는 공정한 단가)",
           "resultLabel": "공사변경 평가액",
           "fields": [
-            { "key": "quantity", "label": "물량", "unit": "단위" },
-            { "key": "rate", "label": "적용 단가", "unit": "USD/단위" }
+            {
+              "key": "quantity",
+              "label": "물량",
+              "unit": "단위"
+            },
+            {
+              "key": "rate",
+              "label": "적용 단가",
+              "unit": "USD/단위"
+            }
           ]
         }
       },
@@ -182,10 +253,26 @@
           "formula": "방해 비용 = (미방해 구간 생산성 − 방해 구간 생산성) ÷ 미방해 구간 생산성 × 방해 구간 작업시간 × 노무 단가",
           "resultLabel": "예상 방해(disruption) 비용",
           "fields": [
-            { "key": "unimpactedProductivity", "label": "미방해 구간 생산성", "unit": "단위/시간" },
-            { "key": "impactedProductivity", "label": "방해 구간 생산성", "unit": "단위/시간" },
-            { "key": "impactedHours", "label": "방해 구간 총 작업시간", "unit": "시간" },
-            { "key": "laborRate", "label": "노무 단가", "unit": "USD/시간" }
+            {
+              "key": "unimpactedProductivity",
+              "label": "미방해 구간 생산성",
+              "unit": "단위/시간"
+            },
+            {
+              "key": "impactedProductivity",
+              "label": "방해 구간 생산성",
+              "unit": "단위/시간"
+            },
+            {
+              "key": "impactedHours",
+              "label": "방해 구간 총 작업시간",
+              "unit": "시간"
+            },
+            {
+              "key": "laborRate",
+              "label": "노무 단가",
+              "unit": "USD/시간"
+            }
           ]
         }
       },
@@ -203,8 +290,16 @@
           "formula": "현장간접비 클레임 = 일일 간접비율 × 인정 지연일수",
           "resultLabel": "예상 현장간접비 클레임 금액",
           "fields": [
-            { "key": "dailyOverheadRate", "label": "일일 간접비율", "unit": "USD/일" },
-            { "key": "delayDays", "label": "인정 지연일수", "unit": "일" }
+            {
+              "key": "dailyOverheadRate",
+              "label": "일일 간접비율",
+              "unit": "USD/일"
+            },
+            {
+              "key": "delayDays",
+              "label": "인정 지연일수",
+              "unit": "일"
+            }
           ]
         }
       },
@@ -222,10 +317,26 @@
           "formula": "본사간접비·이윤 손해 = (간접비·이윤율 ÷ 100) × (계약금액 ÷ 계약기간) × 지연기간",
           "resultLabel": "예상 본사간접비·이윤 손해",
           "fields": [
-            { "key": "overheadProfitPercent", "label": "간접비·이윤율", "unit": "%" },
-            { "key": "contractSum", "label": "계약금액", "unit": "USD" },
-            { "key": "contractPeriodWeeks", "label": "계약기간", "unit": "주" },
-            { "key": "delayWeeks", "label": "지연기간", "unit": "주" }
+            {
+              "key": "overheadProfitPercent",
+              "label": "간접비·이윤율",
+              "unit": "%"
+            },
+            {
+              "key": "contractSum",
+              "label": "계약금액",
+              "unit": "USD"
+            },
+            {
+              "key": "contractPeriodWeeks",
+              "label": "계약기간",
+              "unit": "주"
+            },
+            {
+              "key": "delayWeeks",
+              "label": "지연기간",
+              "unit": "주"
+            }
           ]
         }
       },
@@ -243,8 +354,16 @@
           "formula": "백차지 금액 = 대체 시공(하자보수) 비용 + 관리·행정 비용",
           "resultLabel": "예상 백차지 청구액",
           "fields": [
-            { "key": "remedialCost", "label": "대체 시공(하자보수) 비용", "unit": "USD" },
-            { "key": "adminCost", "label": "관리·행정 비용", "unit": "USD" }
+            {
+              "key": "remedialCost",
+              "label": "대체 시공(하자보수) 비용",
+              "unit": "USD"
+            },
+            {
+              "key": "adminCost",
+              "label": "관리·행정 비용",
+              "unit": "USD"
+            }
           ]
         }
       },
@@ -262,10 +381,26 @@
           "formula": "정산금액 = 기성 완료 금액 + 추가 발생 비용 + 해지 관련 비용 − 기지급액",
           "resultLabel": "예상 정산 청구액",
           "fields": [
-            { "key": "workDoneValue", "label": "기성 완료 금액", "unit": "USD" },
-            { "key": "costsIncurred", "label": "추가 발생 비용", "unit": "USD" },
-            { "key": "terminationCosts", "label": "해지 관련 비용", "unit": "USD" },
-            { "key": "paymentsReceived", "label": "기지급액", "unit": "USD" }
+            {
+              "key": "workDoneValue",
+              "label": "기성 완료 금액",
+              "unit": "USD"
+            },
+            {
+              "key": "costsIncurred",
+              "label": "추가 발생 비용",
+              "unit": "USD"
+            },
+            {
+              "key": "terminationCosts",
+              "label": "해지 관련 비용",
+              "unit": "USD"
+            },
+            {
+              "key": "paymentsReceived",
+              "label": "기지급액",
+              "unit": "USD"
+            }
           ]
         }
       }
@@ -391,8 +526,14 @@
       "complete": "정보 저장하고 시작하기",
       "login": "로그인하기"
     },
-    "switchToLogin": { "prompt": "이미 계정이 있으신가요?", "cta": "로그인" },
-    "switchToSignup": { "prompt": "계정이 없으신가요?", "cta": "회원 가입" },
+    "switchToLogin": {
+      "prompt": "이미 계정이 있으신가요?",
+      "cta": "로그인"
+    },
+    "switchToSignup": {
+      "prompt": "계정이 없으신가요?",
+      "cta": "회원 가입"
+    },
     "errors": {
       "usagePurposeRequired": "사용목적을 하나 이상 선택해 주세요."
     },
@@ -489,10 +630,22 @@
     "titleLine2": "E-2 투자비자를 설계합니다",
     "subtitle": "뉴욕 이민 전문 변호사 네트워크와 함께 투자금액이 적거나 사업 형태가 까다로운 케이스도 승인 전략을 세워 드립니다.",
     "stats": {
-      "item1": { "label": "정부 발표 승인율", "value": "80~90%" },
-      "item2": { "label": "협력 로펌 승인율", "value": "98%" },
-      "item3": { "label": "협약 조약국 수", "value": "80개국 이상" },
-      "item4": { "label": "최소 투자금 기준", "value": "법정 하한 없음" }
+      "item1": {
+        "label": "정부 발표 승인율",
+        "value": "80~90%"
+      },
+      "item2": {
+        "label": "협력 로펌 승인율",
+        "value": "98%"
+      },
+      "item3": {
+        "label": "협약 조약국 수",
+        "value": "80개국 이상"
+      },
+      "item4": {
+        "label": "최소 투자금 기준",
+        "value": "법정 하한 없음"
+      }
     },
     "requirements": {
       "heading": "E-2 비자 기본 요건",
@@ -581,6 +734,106 @@
       "desc": "투자금액이 적거나 업종이 까다로운 경우에도 전략에 따라 승인 가능성을 높일 수 있습니다. 초기 상담을 통해 투자 규모·자금출처·사업계획을 함께 점검해 드립니다.",
       "button": "이민법 상담 신청",
       "disclaimer": "본 내용은 일반 정보 제공 목적이며, 개별 사안에 대한 법률 자문을 대체하지 않습니다. (Attorney Advertising)"
+    }
+  },
+  "standardContractCompare": {
+    "eyebrow": "Distributor · OEM/ODM · License",
+    "titleLine1": "대리점·OEM/ODM·라이선스 계약을",
+    "titleLine2": "표준 관행과 대조해 보세요",
+    "subtitle": "해외 파트너가 제시한 대리점·OEM/ODM·라이선스 계약 초안을 붙여넣으면, 준거법·손해배상 상한·인뎀니티·해지 조건 등 핵심 항목을 표준 관행과 대조해 점수와 근거 문장을 보여드립니다.",
+    "typeLabel": "계약유형",
+    "types": {
+      "distributor": "대리점·유통계약",
+      "oem_odm": "OEM/ODM 위탁제조계약",
+      "license": "라이선스계약"
+    },
+    "pasteLabel": "계약서 원문 붙여넣기",
+    "pastePlaceholder": "비교할 계약서 원문(영문/국문)을 붙여넣어 주세요.",
+    "compareCta": "비교 분석 시작",
+    "comparing": "분석 중...",
+    "reset": "초기화",
+    "exportPdf": "PDF 내보내기",
+    "exportJson": "JSON 내보내기",
+    "exportCsv": "CSV 내보내기",
+    "exportExcel": "Excel 내보내기",
+    "matchScoreLabel": "표준 관행 부합도",
+    "scoreOutOf": "/ 100",
+    "emptyResult": "계약서 원문을 붙여넣고 비교 분석을 실행하면 결과가 여기에 표시됩니다.",
+    "evidenceLabel": "근거 문장",
+    "status": {
+      "good": "양호",
+      "watch": "주의",
+      "risk": "위험"
+    },
+    "mySavedHistory": "내 저장 내역",
+    "viewAll": "전체 보기 →",
+    "savedHistoryDesc": "저장된 표준계약서 비교 결과를 언제든 다시 확인하고 내보낼 수 있습니다.",
+    "errors": {
+      "emptyCompare": "비교할 계약서 내용을 먼저 입력해 주세요.",
+      "compareFailed": "비교 분석에 실패했습니다.",
+      "emptyExport": "내보낼 계약서 내용을 먼저 입력해 주세요.",
+      "exportFailed": "내보내기에 실패했습니다.",
+      "exportJsonFailed": "JSON 내보내기에 실패했습니다.",
+      "exportCsvFailed": "CSV 내보내기에 실패했습니다.",
+      "exportExcelFailed": "Excel 내보내기에 실패했습니다."
+    },
+    "back": "← 돌아가기",
+    "viewHistory": "저장 내역 보기"
+  },
+  "standardContractHistory": {
+    "heading": "표준계약서 비교 저장 내역",
+    "countSuffix": "개의 비교 결과",
+    "back": "← 돌아가기",
+    "sort": {
+      "label": "정렬",
+      "recent": "최근순",
+      "scoreHigh": "점수 높음순",
+      "scoreLow": "점수 낮음순"
+    },
+    "typeFilter": {
+      "label": "계약유형",
+      "all": "전체",
+      "distributor": "대리점·유통계약",
+      "oem_odm": "OEM/ODM",
+      "license": "라이선스"
+    },
+    "noHistory": "저장 내역이 없습니다",
+    "itemsCount": "{{count}}개 항목",
+    "selectedCount": "{{count}}개 선택됨",
+    "deleteSelected": "{{count}}개 항목 삭제",
+    "close": "닫기",
+    "loading": "로드 중...",
+    "empty": {
+      "message": "저장된 비교 결과가 없습니다.",
+      "cta": "계약서 비교하러 가기"
+    },
+    "modal": {
+      "eyebrow": "저장된 비교 결과",
+      "score": "점수 {{score}} / 100",
+      "summary": "요약",
+      "focusAreas": "핵심 항목",
+      "close": "닫기",
+      "json": "JSON",
+      "csv": "CSV",
+      "excel": "Excel",
+      "pdf": "PDF",
+      "delete": "삭제"
+    },
+    "confirm": {
+      "deleteOne": "이 저장 내역을 삭제하시겠습니까?",
+      "deleteBatch": "{{count}}개의 항목을 삭제하시겠습니까?"
+    },
+    "errors": {
+      "loadHistory": "히스토리 로드에 실패했습니다.",
+      "loadItem": "항목 로드에 실패했습니다.",
+      "itemNotFound": "항목을 찾을 수 없습니다.",
+      "delete": "삭제에 실패했습니다.",
+      "batchDelete": "배치 삭제에 실패했습니다.",
+      "contractNotFound": "계약 내용을 찾을 수 없습니다.",
+      "pdfDownload": "PDF 다운로드에 실패했습니다.",
+      "jsonDownload": "JSON 다운로드에 실패했습니다.",
+      "csvDownload": "CSV 다운로드에 실패했습니다.",
+      "excelDownload": "Excel 다운로드에 실패했습니다."
     }
   }
 }

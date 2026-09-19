@@ -247,6 +247,9 @@ export default function App() {
   }
 
   async function handleCompareContractText() {
+    if (!requireAuth(t("constructionSpecial.errors.authRequired"))) {
+      return;
+    }
     if (!contractTextInput.trim()) {
       setComparisonError(t("constructionSpecial.errors.emptyCompare"));
       return;
@@ -266,6 +269,9 @@ export default function App() {
 
 
   async function handleExportComparisonReport() {
+    if (!requireAuth(t("constructionSpecial.errors.authRequired"))) {
+      return;
+    }
     if (!contractTextInput.trim()) {
       setComparisonError(t("constructionSpecial.errors.emptyExport"));
       return;
@@ -278,6 +284,9 @@ export default function App() {
   }
 
   async function handleExportComparisonJSONReport() {
+    if (!requireAuth(t("constructionSpecial.errors.authRequired"))) {
+      return;
+    }
     if (!contractTextInput.trim()) {
       setComparisonError(t("constructionSpecial.errors.emptyExport"));
       return;
@@ -596,6 +605,13 @@ export default function App() {
           <p className="mt-4 max-w-2xl text-base text-[var(--tb-muted)]">
             {t("standardContracts.subtitle")}
           </p>
+          <button
+            type="button"
+            onClick={() => navigate("/standard-contract-compare")}
+            className="mt-6 inline-flex border border-[var(--tb-green)] bg-[var(--tb-green-soft)] px-5 py-2.5 text-sm font-semibold text-[var(--tb-green-deep)] transition hover:bg-[var(--tb-green)] hover:text-white"
+          >
+            {t("standardContracts.compareCta")}
+          </button>
 
           {detailId ? (
             <div className="mt-8">
