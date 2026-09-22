@@ -18,6 +18,9 @@ from . import risk_ontology
 # 뽑아내며, 온톨로지 노드가 아직 없는 조항유형(건설계약/FIDIC 총괄)만
 # 예전처럼 직접 정의한다.
 _DELAY_RULES = [node.risk_condition for node in risk_ontology.get_cluster("Delay")]
+_INDEMNITY_RULES = [node.risk_condition for node in risk_ontology.get_cluster("Indemnity")]
+_FORCE_MAJEURE_RULES = [node.risk_condition for node in risk_ontology.get_cluster("Force Majeure")]
+_TERMINATION_RULES = [node.risk_condition for node in risk_ontology.get_cluster("Termination")]
 
 
 def _rules_from_node(node_id: str) -> list[str]:
@@ -27,12 +30,12 @@ def _rules_from_node(node_id: str) -> list[str]:
 
 RISK_RULES = {
     "지체상금": _DELAY_RULES,
-    "면책": _rules_from_node("FIDIC-INDEMNITY"),
+    "면책": _INDEMNITY_RULES,
     "중재": _rules_from_node("FIDIC-ARBITRATION"),
     "하자담보": _rules_from_node("FIDIC-DLP"),
     "변경명령(Change Order)": _rules_from_node("FIDIC-CHANGE-ORDER"),
-    "불가항력": _rules_from_node("FIDIC-FORCE-MAJEURE"),
-    "계약해지": _rules_from_node("FIDIC-TERMINATION"),
+    "불가항력": _FORCE_MAJEURE_RULES,
+    "계약해지": _TERMINATION_RULES,
     "성능보증": _rules_from_node("FIDIC-PERFORMANCE-SECURITY"),
     "지급·인도": _rules_from_node("FIDIC-PAYMENT-ACCEPTANCE"),
     "보증·보험": _rules_from_node("FIDIC-GUARANTEE-INSURANCE"),

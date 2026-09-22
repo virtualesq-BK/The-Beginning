@@ -20,6 +20,8 @@
 |---|---|---|
 | `/` | 메인 (`App.tsx`) | 서비스 소개(히어로, 가치 제안, 이용 흐름), 계약서 업로드·분석, 리스크 리포트 확인, FIDIC 표준 대조, 계약서 초안 생성(`ContractGenerator`), 표준계약서 카탈로그, 사용자 후기, 전문가 검토 요청 |
 | `/fidic-history` | FIDIC 히스토리 (`FIDICHistoryPage.tsx`) | 사용자가 저장한 FIDIC 대조/비교 결과 이력 조회 |
+| `/standard-contract-compare` | 표준계약서 비교 (`StandardContractComparePage.tsx`) | 대리점·OEM/ODM·라이선스 계약 초안을 표준 관행과 대조, 결과 저장·PDF/JSON/CSV/Excel 내보내기 |
+| `/standard-contract-history` | 표준계약서 비교 히스토리 (`StandardContractHistoryPage.tsx`) | 사용자가 저장한 표준계약서 비교 결과 이력 조회(계약유형별 필터) |
 
 ### 핵심 기능
 
@@ -31,6 +33,7 @@
 - **FIDIC 계약서 비교**: 사용자 초안을 FIDIC Red/Yellow/Silver 등 표준 기준과 대조해 공기(EOT)·비용(LD)·하자담보(DLP)·변경(Variation) 등 핵심 조항의 불균형 여부 점검, 결과 저장 및 리포트(JSON) 내보내기
 - **표준계약서 카탈로그**: 해외 계약 실무에 쓰이는 표준계약서 목록/상세 제공 (`/api/v1/standard-contracts`)
 - **전문가 검토 연결**: AI 1차 검토 후 필요 시 번역·법률 전문가 검토 요청 메일 발송 (`/api/v1/expert-requests`)
+- **인허가·규제 대응 자동화 (RegTech)**: 화학·제약·인프라 사업의 국가/업종별 필요 인허가를 그래프(`agents/regulatory_ontology.py`)로 매핑해 선행 절차 순서까지 정리하고, 신청서 초안(`dossier_drafter`)과 제출 서류 누락·부실 여부(`gap_analyzer`)를 점검 (`/api/v1/regulatory/analyze`). global-compliance-ai 프로젝트에서 이식했으며, 계약 리스크 분석과 달리 계약서가 아닌 정부 인허가 절차를 다룸
 - **전문가 Feedback Loop / 자체 Benchmark**: 변호사가 AI 판단을 수정한 이력을 "AI 판단 → 수정 내용 → 수정 이유"까지 구조화 저장(`agents/feedback_loop.py`)하고, 검증된 케이스를 Ground Truth로 승격해 Clause Detection·Risk Detection Recall·False Positive·Rule Accuracy·Evidence Accuracy·Cross-Clause Reasoning Recall을 자체 채점(`agents/benchmark.py`)
 - **회원 인증**: Supabase 기반 로그인/회원가입, 로그인 사용자별 업로드·분석 이력 저장
 
@@ -83,7 +86,8 @@
 ├── supabase/                  # Supabase 스키마/마이그레이션
 │   ├── schema.sql                              # profiles / contract_analyses / fidic_comparisons / expert_requests
 │   ├── migrate_contract_uploads.sql            # 업로드 Storage 연동
-│   └── migrate_lifecycle_and_feedback.sql      # 계약 Lifecycle(contracts/contract_versions/negotiation_events) + expert_feedback/benchmark_cases
+│   ├── migrate_lifecycle_and_feedback.sql      # 계약 Lifecycle(contracts/contract_versions/negotiation_events) + expert_feedback/benchmark_cases
+│   └── migrate_standard_contract_comparisons.sql # 표준계약서(대리점/OEM·ODM/라이선스) 비교 결과 저장 테이블
 ├── knowledge/                # 지식 문서 (표준계약서 등)
 ├── tests/
 ├── requirements.txt
@@ -98,6 +102,13 @@
 | POST | `/api/v1/contracts/analyze` | 계약서 파일 업로드 → 분석 리포트 반환 (`rules_applied`/`cross_clause_risks` 포함) |
 | POST | `/api/v1/expert-requests` | 전문가 검토(번역/법률) 요청 메일 발송 |
 | GET | `/api/v1/standard-contracts` | 표준계약서 카탈로그 조회 |
+| POST | `/api/v1/standard-contracts/compare` | 대리점(`distributor`)/OEM·ODM(`oem_odm`)/라이선스(`license`) 계약 초안을 표준 관행과 대조 분석 |
+| POST | `/api/v1/standard-contracts/compare/save` | 표준계약서 비교 결과 저장 |
+| GET | `/api/v1/standard-contracts/compare/history` | 저장된 표준계약서 비교 이력 목록 조회 (`contract_type` 쿼리로 필터 가능) |
+| GET | `/api/v1/standard-contracts/compare/history/{comparison_id}` | 저장된 표준계약서 비교 결과 단건 조회 |
+| DELETE | `/api/v1/standard-contracts/compare/history/{comparison_id}` | 저장된 표준계약서 비교 결과 삭제 |
+| DELETE | `/api/v1/standard-contracts/compare/history/batch-delete` | 저장된 표준계약서 비교 결과 일괄 삭제 |
+| POST | `/api/v1/standard-contracts/compare/export`, `export-json`, `export-csv`, `export-excel` | 표준계약서 비교표 내보내기 (PDF/JSON/CSV/Excel) |
 | GET | `/api/v1/contract-templates` | 계약서 템플릿 목록 조회 |
 | POST | `/api/v1/contract-templates/{template_id}/generate` | 템플릿 기반 계약서 초안 생성 |
 | POST | `/api/v1/fidic/compare` | 사용자 초안을 FIDIC 표준과 대조 분석 |
@@ -140,9 +151,10 @@ Semantic Retrieval      Rule Retrieval
 
 | 항목 | 구현 위치 | 내용 |
 |---|---|---|
-| Legal Decision Model | `agents/risk_ontology.py` | Contract Type → Clause Type → Legal Concept → Risk Condition → ... → Fallback Position 계층의 `RiskNode`. FIDIC Delay 클러스터(8개 노드) + 나머지 10개 조항유형(면책·중재·하자담보·변경명령·불가항력·계약해지·성능보증·지급인도·보증보험·공사변경), 총 18개 노드 |
+| Legal Decision Model | `agents/risk_ontology.py` | Contract Type → Clause Type → Legal Concept → Risk Condition → ... → Fallback Position 계층의 `RiskNode`. FIDIC Delay 클러스터(8개 노드), 면책(4개: 고의/중과실·IP침해·기밀유지 세분화), 불가항력(4개: 정의범위·제재/수출통제·장기화 세분화), 계약해지(3개: 귀책해지 치유기간·해지후 정산 세분화) + 아직 단일 노드인 7개 조항유형(중재·하자담보·변경명령·성능보증·지급인도·보증보험·공사변경), 총 26개 노드 |
 | Evidence 기반 출력 | `agents/risk_analyzer.py` | `risk_score` 단일값이 아니라 `rules_applied` / `evidence_quote` / `risk_reason` / `business_impact` / `recommendation` / `negotiation_point` / `alternative_text`까지 감사 가능한 구조로 응답 |
-| 조항 간 상호작용 탐지 | `agents/risk_ontology.py`(`RiskCombination`), `pipeline.py` | 개별 조항은 낮아 보여도 특정 조합이 함께 있으면 위험도가 급등하는 패턴(EOT+Notice+LD 등)을 문서 단위에서 탐지, 리포트의 `cross_clause_risks` 필드로 노출 |
+| 조항 간 상호작용 탐지 | `agents/risk_ontology.py`(`RiskCombination`), `pipeline.py` | 개별 조항은 낮아 보여도 특정 조합이 함께 있으면 위험도가 급등하는 패턴을 문서 단위에서 탐지, 리포트의 `cross_clause_risks` 필드로 노출. 총 6개 조합: EOT+Notice+LD, LD+면책+해지, 변경명령+공사변경+EOT, 불가항력정의+제재+비용미보전, 불가항력장기화+해지후정산, 귀책해지+LD+고의중과실면책 |
+| FIDIC 외 표준계약서 비교 엔진 | `agents/standard_contract_comparison.py`, `/api/v1/standard-contracts/compare*` | FIDIC 전용이던 조항 대조 기능을 대리점(distributor)·OEM/ODM·라이선스(license) 계약까지 확장. 계약유형별 키워드 기반 조항 점검(준거법/관할, 손해배상 상한 carve-out, 해지·보상, IP 귀속 등)과 근거 문장(sentence_evidence) 반환. FIDIC 비교와 동일하게 저장(`/save`)·이력 조회·삭제(단건/배치)·PDF/JSON/CSV/Excel 내보내기까지 백엔드·프론트엔드(`/standard-contract-compare`, `/standard-contract-history` 페이지) 모두 구현 완료. Supabase `standard_contract_comparisons` 테이블(`supabase/migrate_standard_contract_comparisons.sql`)에 `fidic_comparisons`와 동일한 패턴(로그인 시 Supabase 직접 저장, 실패 시 백엔드 REST 폴백)으로 연동 |
 | Hybrid Retrieval | `agents/knowledge_base.py`(`hybrid_retrieve`) | Semantic Retrieval(Vector)과 Rule Retrieval(Knowledge Graph)을 분리된 경로로 명시, LLM에게 결정론적 규칙과 참고자료를 구분해서 제공 |
 | 계약 Lifecycle 데이터 | `supabase/migrate_lifecycle_and_feedback.sql` | `contracts`(딜 단위 그룹) / `contract_versions`(Draft→Negotiation→Final 버전 이력) / `negotiation_events`(AI 위험탐지→협상포인트→상대방반응→최종합의) |
 | 전문가 Feedback Loop | `agents/feedback_loop.py`, `expert_feedback` 테이블 | AI 판단과 변호사 수정 내용을 "왜 다른가"(`correction_reason`)까지 구조화 저장, `disagreement_type` 자동 1차 분류 |
@@ -154,7 +166,8 @@ Semantic Retrieval      Rule Retrieval
 
 | 항목 | 내용 | 비고 |
 |---|---|---|
-| 온톨로지 확장 | 면책·중재·하자담보 등 10개 조항유형이 현재 조항유형당 1개 노드(단일 레벨)로만 구현됨. Delay 클러스터처럼 하위 Legal Concept(예: 면책 → 고의/중과실 면책, IP침해 면책, 기밀유지 위반 면책)으로 세분화 필요 | `agents/risk_ontology.py`의 `OTHER_NODES`를 확장 |
+| 온톨로지 확장 (진행 중) | 면책·불가항력·계약해지는 세분화 완료(총 26개 노드). 남은 7개 조항유형(중재·하자담보·변경명령·성능보증·지급인도·보증보험·공사변경)은 아직 조항유형당 1개 노드(단일 레벨) | `agents/risk_ontology.py`의 `OTHER_NODES`를 확장 |
+| 표준계약서 카탈로그 실제 조문 fixture | `standard_contract_catalog.py`는 설명 텍스트만 있고 CISG/NDA 등은 아직 비교 엔진이 없음 (대리점/OEM/라이선스만 우선 구현) | 실제 표준 조문 원문(저작권 이슈 없는 요약본)을 구할 수 있으면 비교 정확도가 올라감 — 자료 확보 시 알려주면 반영 |
 | LLM-independent Abstraction Layer | 현재 `agents/llm_client.py`가 OpenAI/Anthropic/Universal을 다루지만, Application Layer — Contract Intelligence Layer — Rule/Knowledge/Evaluation Layer — LLM Abstraction Layer로 명시적 계층 분리는 아직 안 되어 있음 | 모델 교체 시 Rule/Knowledge Graph/Benchmark 자산이 영향받지 않도록 하는 것이 목표 |
 | 협상 시나리오 엔진 | 위험도 분석 → 수정 권고 → 상대방 예상 반론 → 대응 논리 → 양보 가능 조건 → 대체조건 → 협상 우선순위 → 최종 협상 시나리오까지 엔드투엔드로 이어주는 기능 | `negotiation_events` 테이블은 준비됐으나, 시나리오 생성 로직은 미구현 |
 | Contract OS 상위 워크플로우 | Contract Review → Negotiation → Approval → Execution → Obligation Tracking → Claim Detection → Renewal/Termination → Compliance | 지금은 "계약 리뷰"까지만 구현. Approval/Obligation Tracking/Compliance 모듈 없음 |

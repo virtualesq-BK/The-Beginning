@@ -9,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 COMPARISON_RESULTS: dict[str, dict] = {}
+STANDARD_COMPARISON_RESULTS: dict[str, dict] = {}
 
 from anthropic import PermissionDeniedError as AnthropicPermissionDeniedError
 
@@ -19,6 +20,15 @@ from agents.standard_contract_catalog import STANDARD_CONTRACT_RESOURCES
 from agents.contract_templates import list_templates
 from agents.contract_generator import generate_contract
 from agents.fidic_comparison import compare_contract_to_fidic, generate_fidic_pdf_bytes
+from agents.standard_contract_comparison import (
+    compare_contract_to_standard,
+    generate_standard_pdf_bytes,
+    supported_contract_types,
+)
+from agents.regulatory_ontology import build_default_graph
+from agents.regulatory_analyzer import run_regulatory_pipeline
+
+REGULATORY_GRAPH = build_default_graph()
 
 app = FastAPI(title="The Beginning - Legal Intelligence API")
 
@@ -85,6 +95,50 @@ _ERROR_MESSAGES: dict[str, dict[str, str]] = {
         "ko": "FIDIC CSV 내보내기 중 오류가 발생했습니다: {err}",
         "en": "An error occurred while exporting the FIDIC comparison CSV: {err}",
     },
+    "standard_contract_compare_error": {
+        "ko": "표준계약서 비교 분석 중 오류가 발생했습니다: {err}",
+        "en": "An error occurred during the standard contract comparison analysis: {err}",
+    },
+    "standard_contract_unsupported_type": {
+        "ko": "지원하지 않는 계약유형입니다: {contract_type} (지원: {allowed})",
+        "en": "Unsupported contract type: {contract_type} (supported: {allowed})",
+    },
+    "standard_contract_save_error": {
+        "ko": "표준계약서 비교 결과 저장 중 오류가 발생했습니다: {err}",
+        "en": "An error occurred while saving the standard contract comparison result: {err}",
+    },
+    "standard_contract_not_found": {
+        "ko": "저장된 비교 결과를 찾을 수 없습니다.",
+        "en": "The saved comparison result could not be found.",
+    },
+    "standard_contract_delete_not_found": {
+        "ko": "삭제할 저장 내역이 없습니다.",
+        "en": "There is no saved item to delete.",
+    },
+    "standard_contract_export_pdf_error": {
+        "ko": "표준계약서 비교표 내보내기 중 오류가 발생했습니다: {err}",
+        "en": "An error occurred while exporting the standard contract comparison report: {err}",
+    },
+    "regulatory_unsupported_sector": {
+        "ko": "지원하지 않는 국가/업종 조합입니다: {country}/{sector} (지원: {allowed})",
+        "en": "Unsupported country/sector combination: {country}/{sector} (supported: {allowed})",
+    },
+    "regulatory_analyze_error": {
+        "ko": "인허가 분석 중 오류가 발생했습니다: {err}",
+        "en": "An error occurred during the permitting analysis: {err}",
+    },
+    "standard_contract_export_json_error": {
+        "ko": "표준계약서 비교 JSON 내보내기 중 오류가 발생했습니다: {err}",
+        "en": "An error occurred while exporting the standard contract comparison JSON: {err}",
+    },
+    "standard_contract_export_csv_error": {
+        "ko": "표준계약서 비교 CSV 내보내기 중 오류가 발생했습니다: {err}",
+        "en": "An error occurred while exporting the standard contract comparison CSV: {err}",
+    },
+    "standard_contract_export_excel_error": {
+        "ko": "표준계약서 비교 Excel 내보내기 중 오류가 발생했습니다: {err}",
+        "en": "An error occurred while exporting the standard contract comparison Excel file: {err}",
+    },
     "fidic_export_excel_error": {
         "ko": "FIDIC Excel 내보내기 중 오류가 발생했습니다: {err}",
         "en": "An error occurred while exporting the FIDIC comparison Excel file: {err}",
@@ -129,6 +183,33 @@ _EXCEL_LABELS = {
 }
 
 
+_STANDARD_CSV_HEADERS = {
+    "ko": "항목,점수,상태,기준,권장사항",
+    "en": "Item,Score,Status,Benchmark,Recommendation",
+}
+
+_STANDARD_EXCEL_LABELS = {
+    "ko": {
+        "sheet_result": "비교 결과",
+        "headers": ["항목", "점수", "상태", "기준", "권장사항"],
+        "sheet_summary": "요약",
+        "summary_headers": ["항목", "값"],
+        "overall_score": "전체 점수",
+        "balance": "계약 편향",
+        "summary": "요약",
+    },
+    "en": {
+        "sheet_result": "Comparison Result",
+        "headers": ["Item", "Score", "Status", "Benchmark", "Recommendation"],
+        "sheet_summary": "Summary",
+        "summary_headers": ["Item", "Value"],
+        "overall_score": "Overall Score",
+        "balance": "Contract Balance",
+        "summary": "Summary",
+    },
+}
+
+
 class ExpertRequestBody(BaseModel):
     request_type: Literal["translation_review", "legal_expert"]
     language: Literal["ko", "en"] = "ko"
@@ -147,6 +228,29 @@ class FIDICComparisonBody(BaseModel):
 class FIDICComparisonSaveBody(FIDICComparisonBody):
     comparison_id: str | None = None
     user_id: str | None = None
+
+
+class StandardContractComparisonBody(BaseModel):
+    contract_text: str
+    contract_type: str
+    language: Literal["ko", "en"] = "ko"
+
+
+class StandardContractComparisonSaveBody(StandardContractComparisonBody):
+    comparison_id: str | None = None
+    user_id: str | None = None
+
+
+class BatchDeleteBody(BaseModel):
+    comparison_ids: list[str]
+
+
+class RegulatoryAnalyzeBody(BaseModel):
+    project_name: str
+    country: str
+    sector: str
+    submitted: dict[str, str] = {}
+    language: Literal["ko", "en"] = "ko"
 
 
 @app.get("/health")
@@ -178,6 +282,34 @@ async def analyze_contract(file: UploadFile = File(...), language: str = Form("k
         raise HTTPException(status_code=502, detail=_msg("analyze_error", language, err=e))
 
     return report
+
+
+@app.get("/api/v1/regulatory/sectors")
+def list_regulatory_sectors():
+    return {"items": REGULATORY_GRAPH.supported_sectors()}
+
+
+@app.post("/api/v1/regulatory/analyze")
+def analyze_regulatory(body: RegulatoryAnalyzeBody):
+    allowed = REGULATORY_GRAPH.supported_sectors()
+    if not REGULATORY_GRAPH.requirements(body.country, body.sector):
+        raise HTTPException(
+            status_code=400,
+            detail=_msg(
+                "regulatory_unsupported_sector",
+                body.language,
+                country=body.country,
+                sector=body.sector,
+                allowed=", ".join(f"{p['country']}/{p['sector']}" for p in allowed),
+            ),
+        )
+    try:
+        return run_regulatory_pipeline(
+            body.project_name, body.country, body.sector, body.submitted,
+            REGULATORY_GRAPH, language=body.language,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=_msg("regulatory_analyze_error", body.language, err=e))
 
 
 @app.post("/api/v1/expert-requests")
@@ -224,6 +356,201 @@ def compare_contract_with_fidic(body: FIDICComparisonBody):
         raise HTTPException(status_code=500, detail=_msg("fidic_compare_error", body.language, err=e))
 
 
+def _require_supported_contract_type(contract_type: str, language: str) -> None:
+    if contract_type not in supported_contract_types():
+        raise HTTPException(
+            status_code=400,
+            detail=_msg(
+                "standard_contract_unsupported_type",
+                language,
+                contract_type=contract_type,
+                allowed=", ".join(supported_contract_types()),
+            ),
+        )
+
+
+@app.post("/api/v1/standard-contracts/compare")
+def compare_contract_with_standard(body: StandardContractComparisonBody):
+    _require_supported_contract_type(body.contract_type, body.language)
+    try:
+        return compare_contract_to_standard(body.contract_text, body.contract_type, language=body.language)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=_msg("standard_contract_compare_error", body.language, err=e))
+
+
+@app.post("/api/v1/standard-contracts/compare/save")
+def save_standard_contract_comparison(body: StandardContractComparisonSaveBody):
+    _require_supported_contract_type(body.contract_type, body.language)
+    try:
+        result = compare_contract_to_standard(body.contract_text, body.contract_type, language=body.language)
+        comparison_id = body.comparison_id or f"std-{body.contract_type}-{len(STANDARD_COMPARISON_RESULTS) + 1}"
+        payload = {
+            "id": comparison_id,
+            "comparison_id": comparison_id,
+            "user_id": body.user_id,
+            "contract_text": body.contract_text,
+            **result,
+        }
+        STANDARD_COMPARISON_RESULTS[comparison_id] = payload
+        return {"comparison_id": comparison_id, "result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=_msg("standard_contract_save_error", body.language, err=e))
+
+
+@app.get("/api/v1/standard-contracts/compare/history")
+def list_standard_contract_comparison_history(contract_type: str | None = None):
+    items = list(STANDARD_COMPARISON_RESULTS.values())
+    if contract_type:
+        items = [item for item in items if item.get("contract_type") == contract_type]
+    return {"items": items}
+
+
+@app.get("/api/v1/standard-contracts/compare/history/{comparison_id}")
+def get_standard_contract_comparison_history_item(comparison_id: str, language: str = "ko"):
+    language = language if language in ("ko", "en") else "ko"
+    item = STANDARD_COMPARISON_RESULTS.get(comparison_id)
+    if not item:
+        raise HTTPException(status_code=404, detail=_msg("standard_contract_not_found", language))
+    return item
+
+
+@app.delete("/api/v1/standard-contracts/compare/history/batch-delete")
+def batch_delete_standard_contract_comparison(body: BatchDeleteBody):
+    deleted_count = 0
+    for cid in body.comparison_ids:
+        if cid in STANDARD_COMPARISON_RESULTS:
+            del STANDARD_COMPARISON_RESULTS[cid]
+            deleted_count += 1
+    return {"deleted": True, "deleted_count": deleted_count, "total_requested": len(body.comparison_ids)}
+
+
+@app.delete("/api/v1/standard-contracts/compare/history/{comparison_id}")
+def delete_standard_contract_comparison_history_item(comparison_id: str, language: str = "ko"):
+    language = language if language in ("ko", "en") else "ko"
+    if comparison_id not in STANDARD_COMPARISON_RESULTS:
+        raise HTTPException(status_code=404, detail=_msg("standard_contract_delete_not_found", language))
+    del STANDARD_COMPARISON_RESULTS[comparison_id]
+    return {"deleted": True, "comparison_id": comparison_id}
+
+
+@app.post("/api/v1/standard-contracts/compare/export")
+def export_standard_contract_comparison(body: StandardContractComparisonBody):
+    _require_supported_contract_type(body.contract_type, body.language)
+    try:
+        comparison = compare_contract_to_standard(body.contract_text, body.contract_type, language=body.language)
+        pdf_bytes = generate_standard_pdf_bytes(comparison, language=body.language)
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": "attachment; filename=standard-contract-comparison-report.pdf"},
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=_msg("standard_contract_export_pdf_error", body.language, err=e))
+
+
+@app.post("/api/v1/standard-contracts/compare/export-json")
+def export_standard_contract_comparison_json(body: StandardContractComparisonBody):
+    _require_supported_contract_type(body.contract_type, body.language)
+    try:
+        comparison = compare_contract_to_standard(body.contract_text, body.contract_type, language=body.language)
+        payload = json.dumps(comparison, ensure_ascii=False, indent=2)
+        return Response(
+            content=payload.encode("utf-8"),
+            media_type="application/json; charset=utf-8",
+            headers={"Content-Disposition": "attachment; filename=standard-contract-comparison-report.json"},
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=_msg("standard_contract_export_json_error", body.language, err=e))
+
+
+@app.post("/api/v1/standard-contracts/compare/export-csv")
+def export_standard_contract_comparison_csv(body: StandardContractComparisonBody):
+    _require_supported_contract_type(body.contract_type, body.language)
+    try:
+        comparison = compare_contract_to_standard(body.contract_text, body.contract_type, language=body.language)
+
+        lines = [_STANDARD_CSV_HEADERS.get(body.language, _STANDARD_CSV_HEADERS["ko"])]
+        for issue in comparison.get("issues", []):
+            lines.append(
+                f"\"{issue.get('label', '')}\","
+                f"\"{issue.get('score', '')}\","
+                f"\"{issue.get('status', '')}\","
+                f"\"{issue.get('benchmark', '').replace(chr(34), chr(34) + chr(34))}\","
+                f"\"{issue.get('recommendation', '').replace(chr(34), chr(34) + chr(34))}\""
+            )
+
+        csv_content = "\n".join(lines)
+        return Response(
+            content=csv_content.encode("utf-8-sig"),
+            media_type="text/csv; charset=utf-8",
+            headers={"Content-Disposition": "attachment; filename=standard-contract-comparison-report.csv"},
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=_msg("standard_contract_export_csv_error", body.language, err=e))
+
+
+@app.post("/api/v1/standard-contracts/compare/export-excel")
+def export_standard_contract_comparison_excel(body: StandardContractComparisonBody):
+    _require_supported_contract_type(body.contract_type, body.language)
+    try:
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, PatternFill, Alignment
+
+        comparison = compare_contract_to_standard(body.contract_text, body.contract_type, language=body.language)
+        excel_labels = _STANDARD_EXCEL_LABELS.get(body.language, _STANDARD_EXCEL_LABELS["ko"])
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = excel_labels["sheet_result"]
+
+        ws.column_dimensions["A"].width = 20
+        ws.column_dimensions["B"].width = 10
+        ws.column_dimensions["C"].width = 10
+        ws.column_dimensions["D"].width = 40
+        ws.column_dimensions["E"].width = 30
+
+        headers = excel_labels["headers"]
+        ws.append(headers)
+
+        header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF")
+        for cell in ws[1]:
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = Alignment(wrap_text=True, vertical="center")
+
+        for issue in comparison.get("issues", []):
+            ws.append([
+                issue.get("label", ""),
+                issue.get("score", ""),
+                issue.get("status", ""),
+                issue.get("benchmark", ""),
+                issue.get("recommendation", ""),
+            ])
+
+        ws_summary = wb.create_sheet(excel_labels["sheet_summary"])
+        ws_summary.append(excel_labels["summary_headers"])
+        ws_summary.append([excel_labels["overall_score"], comparison.get("overall_score", "")])
+        ws_summary.append([excel_labels["balance"], comparison.get("balance", "")])
+        ws_summary.append([excel_labels["summary"], comparison.get("summary", "")])
+
+        ws_summary.column_dimensions["A"].width = 25
+        ws_summary.column_dimensions["B"].width = 50
+
+        from io import BytesIO
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+
+        return Response(
+            content=output.getvalue(),
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": "attachment; filename=standard-contract-comparison-report.xlsx"},
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=_msg("standard_contract_export_excel_error", body.language, err=e))
+
+
 @app.post("/api/v1/fidic/compare/save")
 def save_fidic_comparison(body: FIDICComparisonSaveBody):
     try:
@@ -256,19 +583,6 @@ def get_fidic_comparison_history_item(comparison_id: str, language: str = "ko"):
     return item
 
 
-@app.delete("/api/v1/fidic/compare/history/{comparison_id}")
-def delete_fidic_comparison_history_item(comparison_id: str, language: str = "ko"):
-    language = language if language in ("ko", "en") else "ko"
-    if comparison_id not in COMPARISON_RESULTS:
-        raise HTTPException(status_code=404, detail=_msg("fidic_delete_not_found", language))
-    del COMPARISON_RESULTS[comparison_id]
-    return {"deleted": True, "comparison_id": comparison_id}
-
-
-class BatchDeleteBody(BaseModel):
-    comparison_ids: list[str]
-
-
 @app.delete("/api/v1/fidic/compare/history/batch-delete")
 def batch_delete_fidic_comparison(body: BatchDeleteBody):
     deleted_count = 0
@@ -277,6 +591,15 @@ def batch_delete_fidic_comparison(body: BatchDeleteBody):
             del COMPARISON_RESULTS[cid]
             deleted_count += 1
     return {"deleted": True, "deleted_count": deleted_count, "total_requested": len(body.comparison_ids)}
+
+
+@app.delete("/api/v1/fidic/compare/history/{comparison_id}")
+def delete_fidic_comparison_history_item(comparison_id: str, language: str = "ko"):
+    language = language if language in ("ko", "en") else "ko"
+    if comparison_id not in COMPARISON_RESULTS:
+        raise HTTPException(status_code=404, detail=_msg("fidic_delete_not_found", language))
+    del COMPARISON_RESULTS[comparison_id]
+    return {"deleted": True, "comparison_id": comparison_id}
 
 
 @app.post("/api/v1/fidic/compare/export")
