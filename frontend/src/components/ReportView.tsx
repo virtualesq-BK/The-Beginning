@@ -8,8 +8,21 @@ import { useAuth } from "../contexts/AuthContext";
 
 const EXPERT_EMAIL = "virtual.esq@gmail.com";
 
-function ClauseDetailCard({ clause }: { clause: Clause }) {
+const CONFIDENCE_STYLES: Record<string, string> = {
+  explicit: "bg-rose-600 text-white",
+  semantic: "bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200",
+  co_occurrence: "bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+};
+
+function clauseLabel(clause: Clause): string {
+  return clause.clause_number ? `${clause.clause_number} ${clause.title}` : clause.title;
+}
+
+function ClauseDetailCard({ clause, clausesById }: { clause: Clause; clausesById: Map<number, Clause> }) {
   const { t } = useTranslation();
+  const relatedClauses = (clause.related_clause_ids ?? [])
+    .map((id) => clausesById.get(id))
+    .filter((c): c is Clause => c !== undefined);
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-950">
       <div className="mb-3 flex items-start justify-between gap-3">
@@ -19,7 +32,7 @@ function ClauseDetailCard({ clause }: { clause: Clause }) {
             <span className="text-xs font-medium text-[var(--tb-green)]">
               {clause.clause_type}
             </span>
-            <h3 className="font-semibold text-slate-900 dark:text-white">{clause.title}</h3>
+            <h3 className="font-semibold text-slate-900 dark:text-white">{clauseLabel(clause)}</h3>
           </div>
         </div>
         <RiskBadge score={clause.risk.risk_score} />
@@ -79,6 +92,11 @@ function ClauseDetailCard({ clause }: { clause: Clause }) {
             {t("report.clauseDetail.references")}: {clause.risk.references.join(", ")}
           </p>
         )}
+        {relatedClauses.length > 0 && (
+          <p className="text-xs text-slate-400 dark:text-slate-500">
+            {t("report.clauseDetail.relatedClauses")}: {relatedClauses.map(clauseLabel).join(" · ")}
+          </p>
+        )}
       </div>
 
       {clause.risk.requires_lawyer_review && (
@@ -135,6 +153,8 @@ export function ReportView({ report }: { report: ContractReport }) {
       );
     }
   }
+
+  const clausesById = new Map(report.clauses.map((c) => [c.id, c]));
 
   const majorRisks = [...report.clauses]
     .filter((c) => c.risk.risk_score >= 3)
@@ -223,7 +243,7 @@ export function ReportView({ report }: { report: ContractReport }) {
         {showRiskDetails && (
           <div className="mt-6 space-y-4 border-t border-slate-100 pt-6 dark:border-slate-800">
             {report.clauses.map((clause) => (
-              <ClauseDetailCard key={clause.id} clause={clause} />
+              <ClauseDetailCard key={clause.id} clause={clause} clausesById={clausesById} />
             ))}
           </div>
         )}
@@ -255,13 +275,38 @@ export function ReportView({ report }: { report: ContractReport }) {
                       </span>
                     ))}
                   </div>
-                  <span className="rounded-full bg-rose-600 px-3 py-0.5 text-xs font-semibold uppercase text-white">
-                    {combo.combined_severity}
-                  </span>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {combo.confidence && (
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${CONFIDENCE_STYLES[combo.confidence] ?? ""}`}
+                        title={t(`report.crossClauseRisks.confidenceHint.${combo.confidence}`)}
+                      >
+                        {t(`report.crossClauseRisks.confidence.${combo.confidence}`)}
+                      </span>
+                    )}
+                    <span className="rounded-full bg-rose-600 px-3 py-0.5 text-xs font-semibold uppercase text-white">
+                      {combo.combined_severity}
+                    </span>
+                  </div>
                 </div>
                 <p className="mb-2 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
                   {combo.description}
                 </p>
+                {combo.clause_ids && combo.clause_ids.length > 0 && (
+                  <p className="mb-2 text-xs text-slate-500 dark:text-slate-400">
+                    {t("report.crossClauseRisks.evidenceClauses")}:{" "}
+                    {combo.clause_ids
+                      .map((id) => clausesById.get(id))
+                      .filter((c): c is Clause => c !== undefined)
+                      .map(clauseLabel)
+                      .join(" · ")}
+                  </p>
+                )}
+                {combo.requires_expert_review && (
+                  <p className="mb-2 text-xs font-medium text-amber-700 dark:text-amber-300">
+                    {t("report.crossClauseRisks.expertReviewNote")}
+                  </p>
+                )}
                 <p className="mb-1 text-sm">
                   <span className="font-semibold text-slate-900 dark:text-white">
                     {t("report.crossClauseRisks.businessImpact")}{" "}

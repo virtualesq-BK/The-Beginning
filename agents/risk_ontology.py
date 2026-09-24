@@ -28,6 +28,7 @@ risk_rules.py의 get_rules_for()는 하위호환을 위해 이 온톨로지에�
 risk_condition 문구를 뽑아 flat list로 반환하도록 재구성했다.
 """
 
+import re
 from dataclasses import dataclass, field
 
 
@@ -547,7 +548,28 @@ OTHER_NODES: list[RiskNode] = [
     ),
 ]
 
-_ALL_NODES: dict[str, RiskNode] = {n.node_id: n for n in FIDIC_DELAY_NODES + OTHER_NODES}
+LIABILITY_NODES: list[RiskNode] = [
+    RiskNode(
+        node_id="FIDIC-LIABILITY-CAP",
+        contract_type="FIDIC/EPC",
+        clause_type="책임제한(Liability Cap)",
+        legal_concept="Limitation of Liability",
+        parent_id=None,
+        risk_condition="총 책임한도(Liability Cap)가 없거나, LD·면책·IP침해 등이 한도의 예외(carve-out)로 광범위하게 빠져 있음",
+        exception_condition="carve-out이 사기·고의·중과실 등 국제 관행상 불가피한 항목으로 한정된 경우",
+        related_clauses=["FIDIC 2017 Cl.1.14 (Limitation of Liability)", "FIDIC 1999 Cl.17.6", "Delay Damages 조항", "Indemnity 조항"],
+        contractual_effect="carve-out이 넓을수록 명목상 한도와 무관하게 실질 책임이 무제한이 됨",
+        practical_risk="LD 상한·면책 범위를 개별 협상해도 Liability Cap에서 빠져 있으면 전체 방어가 무너짐",
+        risk_severity="critical",
+        recommended_action="총 책임한도를 계약금액 100% 이내로 두고, LD/면책을 한도 안에 포함시키며 carve-out은 사기·고의·중과실로 한정",
+        negotiation_goal="Liability Cap 명시 + carve-out 최소화",
+        minimum_acceptable="최소한 LD는 한도 내 포함, 간접손해(consequential loss) 배제 확보",
+        fallback_text="\"The total liability of the Contractor under or in connection with the Contract shall not exceed the Accepted Contract Amount, save in cases of fraud, gross negligence, deliberate default or reckless misconduct.\"",
+        internal_review_note="FIDIC-DELAY-LD, FIDIC-INDEMNITY와 반드시 함께 검토 (carve-out 구조가 동일)",
+    ),
+]
+
+_ALL_NODES: dict[str, RiskNode] = {n.node_id: n for n in FIDIC_DELAY_NODES + OTHER_NODES + LIABILITY_NODES}
 
 # risk_rules.py / 사용자 입력에서 쓰이는 조항유형 라벨을 온톨로지 clause_type에 매핑.
 # 계약서 파서가 "지체상금", "공기 지연" 등 다양한 표현을 뽑아내므로, 실제 온톨로지
@@ -584,6 +606,37 @@ _CLAUSE_TYPE_ALIASES: dict[str, str] = {
     "guarantee and insurance": "보증·보험",
     "공사변경": "공사변경",
     "variation": "공사변경",
+    # document_parser.CLAUSE_TYPES 라벨 중 온톨로지 표기와 달랐던 것들
+    "지급조건": "지급·인도",
+    "이행보증": "성능보증",
+    "performance security": "성능보증",
+    "보험": "보증·보험",
+    "준거법": "중재(Arbitration)",  # FIDIC-ARBITRATION 노드가 준거법 특정 여부까지 다룸
+    "governing law": "중재(Arbitration)",
+    "지식재산권": "면책(Indemnity)",  # IP 침해 면책은 면책 클러스터의 하위 노드
+    "손해배상": "책임제한(Liability Cap)",
+    "책임제한": "책임제한(Liability Cap)",
+    "책임한도": "책임제한(Liability Cap)",
+    "limitation of liability": "책임제한(Liability Cap)",
+    "liability cap": "책임제한(Liability Cap)",
+}
+
+# 조항유형 분류가 틀려도 핵심 규칙을 놓치지 않도록, 조항 원문의 키워드로
+# 클러스터를 결정론적으로 추가 조회한다. 예: Notice/Time Bar 조항이 파서에서
+# "분쟁해결"로 분류돼도 Delay 클러스터 규칙이 후보로 제공된다.
+_KEYWORD_TRIGGERS: dict[str, list[str]] = {
+    "FIDIC-DELAY": [
+        r"extension of time", r"\bEOT\b", r"delay damages", r"liquidated damages",
+        r"time[- ]?bar", r"notice of claim", r"지체상금", r"공기\s*연장", r"지연\s*통지",
+    ],
+    "FIDIC-LIABILITY-CAP": [
+        r"limitation of liability", r"aggregate liability", r"total liability",
+        r"consequential (?:loss|damage)", r"책임\s*한도", r"책임\s*제한",
+    ],
+    "FIDIC-TERMINATION": [r"terminat(?:e|ion)", r"계약\s*해지"],
+    "FIDIC-FORCE-MAJEURE": [r"force majeure", r"exceptional event", r"불가항력"],
+    "FIDIC-INDEMNITY": [r"indemnif", r"hold harmless", r"면책"],
+    "FIDIC-CHANGE-ORDER": [r"\bvariations?\b", r"change order", r"변경\s*지시"],
 }
 
 
@@ -603,14 +656,37 @@ def get_cluster(legal_concept: str) -> list[RiskNode]:
     return [root] + get_children(root.node_id)
 
 
-def get_nodes_for_clause_type(clause_type: str) -> list[RiskNode]:
+def canonical_clause_type(clause_type: str) -> str:
+    """파서/사용자 라벨을 온톨로지의 clause_type 표기로 정규화한다 (매핑 없으면 원문 유지)."""
     normalized = clause_type.strip().lower()
-    normalized = _CLAUSE_TYPE_ALIASES.get(normalized, normalized).lower()
+    return _CLAUSE_TYPE_ALIASES.get(normalized, clause_type.strip())
+
+
+def get_nodes_for_clause_type(clause_type: str) -> list[RiskNode]:
+    normalized = canonical_clause_type(clause_type).lower()
+    if not normalized:
+        return []
     return [
         n
         for n in _ALL_NODES.values()
         if n.clause_type.lower() == normalized or normalized in n.clause_type.lower()
     ]
+
+
+def _cluster_of(root_id: str) -> list[RiskNode]:
+    root = _ALL_NODES.get(root_id)
+    return [root] + get_children(root_id) if root else []
+
+
+def get_nodes_by_keywords(text: str) -> list[RiskNode]:
+    """조항 원문에 특정 키워드가 있으면 해당 클러스터 노드를 반환한다 (LLM 없이 결정론적)."""
+    if not text:
+        return []
+    found: list[RiskNode] = []
+    for root_id, patterns in _KEYWORD_TRIGGERS.items():
+        if any(re.search(p, text, flags=re.IGNORECASE) for p in patterns):
+            found.extend(_cluster_of(root_id))
+    return found
 
 
 def all_nodes() -> list[RiskNode]:
@@ -741,6 +817,22 @@ RISK_COMBINATIONS: list[RiskCombination] = [
         combined_severity="critical",
         business_impact="치유기간 없는 즉시해지권이 사실상 발주자의 협상 지렛대로 남용되어 시공사가 방어할 시간적 여유 없이 손해배상에 노출됨",
         negotiation_priority="치유기간(cure period) 확보를 최우선으로, 이후 LD sole remedy 조항과 고의/중과실 carve-out을 함께 확보",
+    ),
+    RiskCombination(
+        combo_id="COMBO-LD-CAP-CARVEOUT",
+        required_node_ids=[
+            "FIDIC-DELAY-LD",
+            "FIDIC-LIABILITY-CAP",
+        ],
+        description=(
+            "LD 상한이 높거나 없고, 총 책임한도(Liability Cap)에서 LD가 예외로 "
+            "빠져 있는 조합. LD 조항만 보면 '상한 10%' 같은 수치가 있어도, "
+            "Liability Cap 조항과 함께 읽으면 LD가 총 한도 밖에서 별도로 "
+            "누적되어 실질적으로 무제한 책임이 될 수 있다."
+        ),
+        combined_severity="critical",
+        business_impact="LD와 일반 손해배상이 각각 별도 한도로 누적되어 계약금액을 초과하는 책임에 노출될 수 있음",
+        negotiation_priority="LD를 총 책임한도 안에 포함시키는 문구를 LD 요율 협상보다 먼저 확보",
     ),
 ]
 

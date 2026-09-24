@@ -7,7 +7,15 @@ from agents.document_parser import parse_contract
 from agents.translator import translate_clause
 from agents.risk_analyzer import summarize_document, analyze_clause
 from agents.file_extractor import extract_text
-from agents.risk_ontology import evaluate_cross_clause_risks
+from agents.sac_chunker import ContractSACIndex
+from agents.clause_graph import (
+    EXPLICIT_KINDS,
+    SEMANTIC_KINDS,
+    build_clause_graph,
+    evaluate_cross_clause_risks_graph,
+)
+
+_MAX_RELATED_CLAUSES = 4
 
 DISCLAIMER_KO = "본 분석은 참고용입니다. 법적 효력이 없으며, 위험도 4점 이상 조항은 반드시 변호사 검토가 필요합니다."
 DISCLAIMER_EN = (
@@ -33,19 +41,40 @@ def run_pipeline(raw_text: str, language: str = "ko") -> dict:
         clause["translation_confidence"] = translation["confidence"]
         clause["translation_notes"] = translation["notes"]
 
-    print("[Agent 3] 문서 요약(SAC) 생성 중...")
+    print("[Agent 3] 문서 요약 생성 중...")
     doc_summary = summarize_document([c["translated_text"] for c in clauses], language=language)
+
+    print("[Agent 3] SAC 인덱스(문서 요약 + 조항) 임베딩 중...")
+    similar_pairs: list[tuple[int, int, float]] = []
+    sac_status = "ok"
+    try:
+        similar_pairs = ContractSACIndex(clauses, doc_summary).similar_clause_pairs(top_k=2)
+    except Exception as e:  # 임베딩 API 실패 시 명시적 참조 그래프만으로 계속 진행
+        sac_status = f"unavailable: {type(e).__name__}"
+        print(f"[Agent 3] SAC 인덱스 생략 ({sac_status})")
+
+    print("[Agent 3] Clause Graph 구성 중...")
+    graph = build_clause_graph(clauses, similar_pairs)
+    by_id = {c["id"]: c for c in clauses}
 
     print("[Agent 3] 조항별 리스크 분석 중...")
     for clause in clauses:
-        risk = analyze_clause(clause["clause_type"], clause["translated_text"], doc_summary, language=language)
-        clause["risk"] = risk
+        explicit = graph.neighbors(clause["id"], EXPLICIT_KINDS)
+        semantic = [cid for cid in graph.neighbors(clause["id"], SEMANTIC_KINDS) if cid not in explicit]
+        related_ids = (explicit + semantic)[:_MAX_RELATED_CLAUSES]
+        clause["related_clause_ids"] = related_ids
+        clause["risk"] = analyze_clause(
+            clause["clause_type"],
+            clause["translated_text"],
+            doc_summary,
+            language=language,
+            related_clauses=[by_id[cid] for cid in related_ids],
+            related_clause_types=[by_id[cid]["clause_type"] for cid in explicit],
+        )
 
     print("[Agent 4] 조항 간 상호작용(Cross-Clause Risk) 분석 중...")
-    all_rules_applied: set[str] = set()
-    for clause in clauses:
-        all_rules_applied.update(clause["risk"].get("rules_applied", []))
-    cross_clause_risks = evaluate_cross_clause_risks(all_rules_applied)
+    clause_rules = {c["id"]: set(c["risk"].get("rules_applied", [])) for c in clauses}
+    cross_clause_risks = evaluate_cross_clause_risks_graph(clause_rules, graph)
 
     report = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -54,6 +83,7 @@ def run_pipeline(raw_text: str, language: str = "ko") -> dict:
         "clause_count": len(clauses),
         "high_risk_count": sum(1 for c in clauses if c["risk"]["risk_score"] >= 4),
         "cross_clause_risks": cross_clause_risks,
+        "clause_graph": {**graph.to_dict(), "sac_status": sac_status},
         "clauses": clauses,
     }
     return report

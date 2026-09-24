@@ -587,13 +587,26 @@
       "ruleAppliedTooltip": "Legal Decision Model rule ID applied to this clause",
       "businessImpact": "Business Impact",
       "negotiationPoint": "Negotiation Point",
-      "alternativeText": "Alternative Draft Text"
+      "alternativeText": "Alternative Draft Text",
+      "relatedClauses": "Linked clauses reviewed together"
     },
     "crossClauseRisks": {
       "heading": "Cross-Clause Interaction Risks",
       "desc": "An individual clause may look low-risk on its own, but the combination below sharply raises the actual risk.",
       "businessImpact": "Business Impact",
-      "negotiationPriority": "Negotiation Priority"
+      "negotiationPriority": "Negotiation Priority",
+      "evidenceClauses": "Evidence clauses",
+      "expertReviewNote": "No direct cross-reference was found between these clauses. Expert review is needed to confirm they actually operate together.",
+      "confidence": {
+        "explicit": "Linked by reference",
+        "semantic": "Semantically linked",
+        "co_occurrence": "Co-occurring"
+      },
+      "confidenceHint": {
+        "explicit": "Found within one clause, or in clauses linked by hierarchy or an explicit reference (e.g. Sub-Clause 20.1)",
+        "semantic": "No explicit reference, but linked through clauses with similar content",
+        "co_occurrence": "Present in the same contract, but no link between the clauses was confirmed"
+      }
     },
     "checklist": {
       "heading": "Negotiation Checklist",
@@ -738,7 +751,7 @@
   },
   "standardContractCompare": {
     "eyebrow": "Distributor · OEM/ODM · License",
-    "titleLine1": "Compare your distributor, OEM/ODM,",
+    "titleLine1": "",
     "titleLine2": "or license agreement against standard practice",
     "subtitle": "Paste a draft distributor, OEM/ODM, or license agreement proposed by an overseas partner to check governing law, liability caps, indemnity, and termination terms against standard practice, with scores and supporting evidence.",
     "typeLabel": "Contract Type",

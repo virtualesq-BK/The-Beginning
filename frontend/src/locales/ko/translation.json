@@ -587,13 +587,26 @@
       "ruleAppliedTooltip": "이 조항에 적용된 Legal Decision Model 규칙 ID",
       "businessImpact": "실무 영향",
       "negotiationPoint": "협상 포인트",
-      "alternativeText": "대체 문구 초안"
+      "alternativeText": "대체 문구 초안",
+      "relatedClauses": "함께 검토한 연결 조항"
     },
     "crossClauseRisks": {
       "heading": "조항 간 상호작용 리스크",
       "desc": "개별 조항은 위험도가 낮아 보여도, 아래 조합이 함께 발견되면 위험도가 급격히 높아집니다.",
       "businessImpact": "실무 영향",
-      "negotiationPriority": "협상 우선순위"
+      "negotiationPriority": "협상 우선순위",
+      "evidenceClauses": "근거 조항",
+      "expertReviewNote": "조항 간 직접 참조가 확인되지 않은 조합입니다. 실제로 함께 작동하는지 전문가 확인이 필요합니다.",
+      "confidence": {
+        "explicit": "참조 연결 확인",
+        "semantic": "의미적 연결",
+        "co_occurrence": "동시 등장"
+      },
+      "confidenceHint": {
+        "explicit": "한 조항 안에 있거나, 상하위 조항·명시적 참조(예: Sub-Clause 20.1)로 연결된 조항들에서 발견됨",
+        "semantic": "명시적 참조는 없지만 내용상 유사한 조항들로 연결됨",
+        "co_occurrence": "같은 계약서에 함께 있지만 조항 간 연결이 확인되지 않음"
+      }
     },
     "checklist": {
       "heading": "협상 체크리스트",
@@ -738,7 +751,7 @@
   },
   "standardContractCompare": {
     "eyebrow": "Distributor · OEM/ODM · License",
-    "titleLine1": "대리점·OEM/ODM·라이선스 계약을",
+    "titleLine1": "대리점·OEM/ODM·라이선스 계약",
     "titleLine2": "표준 관행과 대조해 보세요",
     "subtitle": "해외 파트너가 제시한 대리점·OEM/ODM·라이선스 계약 초안을 붙여넣으면, 준거법·손해배상 상한·인뎀니티·해지 조건 등 핵심 항목을 표준 관행과 대조해 점수와 근거 문장을 보여드립니다.",
     "typeLabel": "계약유형",

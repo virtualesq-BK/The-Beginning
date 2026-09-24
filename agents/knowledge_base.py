@@ -95,7 +95,13 @@ def _get_shared_store() -> LocalVectorStore:
     return _shared_store
 
 
-def hybrid_retrieve(clause_type: str, semantic_query: str, top_k: int = 3) -> dict:
+def hybrid_retrieve(
+    clause_type: str,
+    semantic_query: str,
+    top_k: int = 3,
+    clause_text: str = "",
+    related_clause_types: list[str] | None = None,
+) -> dict:
     """Semantic Retrieval(Vector)과 Rule Retrieval(Knowledge Graph)을
     각각 수행해 두 결과를 분리된 채로 반환한다.
 
@@ -104,10 +110,18 @@ def hybrid_retrieve(clause_type: str, semantic_query: str, top_k: int = 3) -> di
     벡터 유사도 기반 참고자료로만 취급된다. 호출부(risk_analyzer)는 이
     둘을 프롬프트에서 별도 섹션으로 분리해 LLM이 혼동하지 않도록 한다.
     임베딩 재계산을 피하기 위해 벡터스토어는 프로세스당 한 번만 빌드된다.
+
+    rule_matches는 (1) 조항 자신의 유형, (2) 원문 키워드 트리거, (3) Clause
+    Graph에서 명시적으로 연결된 조항의 유형 순으로 합쳐진다. 조항유형 분류가
+    틀려도 Notice/Time Bar처럼 다른 클러스터에 속한 규칙을 놓치지 않기 위함이다.
     """
     store = _get_shared_store()
     semantic_matches = store.query(semantic_query, top_k=top_k)
-    rule_matches = risk_ontology.get_nodes_for_clause_type(clause_type)
+    candidates = risk_ontology.get_nodes_for_clause_type(clause_type)
+    candidates += risk_ontology.get_nodes_by_keywords(clause_text)
+    for related_type in related_clause_types or []:
+        candidates += risk_ontology.get_nodes_for_clause_type(related_type)
+    rule_matches = list({n.node_id: n for n in candidates}.values())
     return {
         "semantic_matches": semantic_matches,
         "rule_matches": rule_matches,

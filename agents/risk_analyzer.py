@@ -31,9 +31,13 @@ _RISK_SYSTEM_KO = """너는 해외 건설·인프라 계약 리스크를 분석�
 [RAG 검색 결과: 관련 국제 실무 기준]
 {retrieved_context}
 
+[이 계약서에서 연결된 조항 (Clause Graph: 상위조항/상호참조/의미유사)]
+{related_clauses}
+
 위험도는 1(낮음)~5(매우 높음)점으로 산정한다.
 위 [적용 가능한 Rule]에 rule_id가 있다면 실제로 이 조항에 해당하는 rule_id만
 골라 rules_applied에 넣어라 (해당 없으면 빈 배열).
+연결된 조항의 내용이 이 조항의 위험을 키우거나 줄이면 risk_reason에 해당 조항 번호를 밝혀라.
 반드시 아래 JSON 스키마로만 응답하라:
 {{
   "risk_score": 1,
@@ -62,9 +66,13 @@ Your answer must leave an auditable "Evidence -> Reasoning -> Conclusion" trail,
 [RAG search results: related international practice standards]
 {retrieved_context}
 
+[Linked clauses in this contract (Clause Graph: parent / cross-reference / semantic)]
+{related_clauses}
+
 Rate the risk on a scale of 1 (low) to 5 (very high).
 If the [Applicable Rules] above include rule_id values, select only the ones that
 actually apply to this clause into rules_applied (empty array if none apply).
+If a linked clause increases or reduces this clause's risk, name that clause number in risk_reason.
 Respond ONLY with the following JSON schema:
 {{
   "risk_score": 1,
@@ -87,6 +95,18 @@ _NO_RULES_TEXT = {
     "en": "- (No rules specific to this clause type; review from a general legal risk perspective)",
 }
 _NO_EVIDENCE_TEXT = {"ko": "- (관련 근거 없음)", "en": "- (No related evidence found)"}
+_NO_RELATED_TEXT = {"ko": "- (연결된 조항 없음)", "en": "- (No linked clauses)"}
+_RELATED_TEXT_LIMIT = 600
+
+
+def _format_related_clauses(related_clauses: list[dict] | None, language: str) -> str:
+    if not related_clauses:
+        return _NO_RELATED_TEXT.get(language, _NO_RELATED_TEXT["ko"])
+    lines = []
+    for c in related_clauses:
+        text = (c.get("translated_text") or c.get("original_text") or "")[:_RELATED_TEXT_LIMIT]
+        lines.append(f"- [조항 {c.get('clause_number') or c.get('id')} | {c.get('clause_type', '')}] {c.get('title', '')}: {text}")
+    return "\n".join(lines)
 
 
 def _format_rule_matches(clause_type: str, rule_matches: list, language: str) -> str:
@@ -110,12 +130,27 @@ def _format_rule_matches(clause_type: str, rule_matches: list, language: str) ->
     return _NO_RULES_TEXT.get(language, _NO_RULES_TEXT["ko"])
 
 
-def analyze_clause(clause_type: str, translated_text: str, doc_summary: str, language: str = "ko") -> dict:
+def analyze_clause(
+    clause_type: str,
+    translated_text: str,
+    doc_summary: str,
+    language: str = "ko",
+    related_clauses: list[dict] | None = None,
+    related_clause_types: list[str] | None = None,
+) -> dict:
+    """related_clauses: Clause Graph에서 연결된 같은 계약서의 조항들 (프롬프트 근거로 제공).
+    related_clause_types: 명시적으로 참조하는 조항의 유형 (규칙 후보 확장용)."""
     # Hybrid Retrieval: Semantic(Vector) + Rule(Knowledge Graph)을 명시적으로 분리 조회.
     # LLM은 이 둘을 각각 다른 성격의 근거로 취급하며, rules_applied는 rule_matches의
     # rule_id 중에서만 선택되도록 강제한다 (결정론적 규칙과 벡터 유사도 참고자료를 혼동하지 않게).
     sac_query = augment_with_summary(clause_type, translated_text, doc_summary)
-    retrieval = hybrid_retrieve(clause_type, sac_query, top_k=3)
+    retrieval = hybrid_retrieve(
+        clause_type,
+        sac_query,
+        top_k=3,
+        clause_text=translated_text,
+        related_clause_types=related_clause_types,
+    )
     retrieved = retrieval["semantic_matches"]
     rules_text = _format_rule_matches(clause_type, retrieval["rule_matches"], language)
 
@@ -124,12 +159,18 @@ def analyze_clause(clause_type: str, translated_text: str, doc_summary: str, lan
     ) or _NO_EVIDENCE_TEXT.get(language, _NO_EVIDENCE_TEXT["ko"])
 
     system_template = _RISK_SYSTEMS.get(language, _RISK_SYSTEM_KO)
-    system = system_template.format(doc_summary=doc_summary, rules=rules_text, retrieved_context=retrieved_context)
+    system = system_template.format(
+        doc_summary=doc_summary,
+        rules=rules_text,
+        retrieved_context=retrieved_context,
+        related_clauses=_format_related_clauses(related_clauses, language),
+    )
     result = chat_json(system, translated_text, temperature=0.2)
     result["risk_score"] = max(1, min(5, int(result.get("risk_score", 1))))
     if result["risk_score"] >= 4:
         result["requires_lawyer_review"] = True
-    result.setdefault("rules_applied", [])
+    offered_rule_ids = {n.node_id for n in retrieval["rule_matches"]}
+    result["rules_applied"] = [rid for rid in result.get("rules_applied", []) if rid in offered_rule_ids]
     result.setdefault("business_impact", "")
     result.setdefault("negotiation_point", "")
     result.setdefault("alternative_text", "")
