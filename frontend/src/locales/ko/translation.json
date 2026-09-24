@@ -835,5 +835,54 @@
       "csvDownload": "CSV 다운로드에 실패했습니다.",
       "excelDownload": "Excel 다운로드에 실패했습니다."
     }
+  },
+  "regulatory": {
+    "entryCta": "인허가 요건 분석하기",
+    "eyebrow": "RegTech · 인허가",
+    "title": "인허가 요건 분석",
+    "subtitle": "사업의 국가와 업종을 고르면 필요한 인허가를 선행 절차 순서대로 정리하고, 준비한 서류 중 누락되거나 보완이 필요한 항목을 점검합니다. 각 요건에는 근거 법령이 함께 표시됩니다.",
+    "back": "← 돌아가기",
+    "projectNameLabel": "사업명",
+    "projectNamePlaceholder": "예: 울산 정밀화학 플랜트",
+    "sectorLabel": "국가 · 업종",
+    "loadingSectors": "지원 업종을 불러오는 중...",
+    "documentsLabel": "제출 서류",
+    "documentsHint": "준비된 서류의 내용을 요약하거나 붙여넣으세요. 비워 둔 서류는 누락, 내용이 20자 미만이면 보완 필요로 표시됩니다.",
+    "documentPlaceholder": "서류 내용 또는 요약",
+    "selectSectorFirst": "국가·업종을 선택하면 필요한 서류 목록이 표시됩니다.",
+    "analyzeCta": "갭 분석 실행",
+    "analyzing": "분석 중...",
+    "reset": "초기화",
+    "emptyResult": "서류를 입력하고 갭 분석을 실행하면 결과가 여기에 표시됩니다.",
+    "summary": {
+      "required": "필요 서류",
+      "ready": "준비됨",
+      "insufficient": "보완 필요",
+      "missing": "누락"
+    },
+    "stepLabel": "{{n}}단계",
+    "authorityLabel": "관할 기관",
+    "legalBasisLabel": "근거 법령",
+    "draftLabel": "신청서 초안 보기",
+    "docStatus": {
+      "ready": "준비됨",
+      "insufficient": "보완 필요",
+      "missing": "누락"
+    },
+    "countries": {
+      "KR": "대한민국",
+      "US": "미국"
+    },
+    "sectors": {
+      "chemical": "화학",
+      "infrastructure": "인프라",
+      "pharma": "제약"
+    },
+    "errors": {
+      "noProjectName": "사업명을 입력해 주세요.",
+      "noSector": "국가·업종을 선택해 주세요.",
+      "loadFailed": "인허가 정보를 불러오지 못했습니다.",
+      "analyzeFailed": "인허가 분석에 실패했습니다."
+    }
   }
 }

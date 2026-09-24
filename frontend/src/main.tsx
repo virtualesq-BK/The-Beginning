@@ -15,6 +15,9 @@ const StandardContractComparePage = lazy(() =>
 const StandardContractHistoryPage = lazy(() =>
   import("./pages/StandardContractHistoryPage").then((m) => ({ default: m.StandardContractHistoryPage })),
 );
+const RegulatoryAnalysisPage = lazy(() =>
+  import("./pages/RegulatoryAnalysisPage").then((m) => ({ default: m.RegulatoryAnalysisPage })),
+);
 const AuthModal = lazy(() => import("./components/AuthModal").then((m) => ({ default: m.AuthModal })));
 
 createRoot(document.getElementById("root")!).render(
@@ -27,6 +30,7 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/fidic-history" element={<FIDICHistoryPage />} />
             <Route path="/standard-contract-compare" element={<StandardContractComparePage />} />
             <Route path="/standard-contract-history" element={<StandardContractHistoryPage />} />
+            <Route path="/regulatory" element={<RegulatoryAnalysisPage />} />
           </Routes>
         </Suspense>
       </BrowserRouter>

@@ -289,20 +289,31 @@ def list_regulatory_sectors():
     return {"items": REGULATORY_GRAPH.supported_sectors()}
 
 
-@app.post("/api/v1/regulatory/analyze")
-def analyze_regulatory(body: RegulatoryAnalyzeBody):
-    allowed = REGULATORY_GRAPH.supported_sectors()
-    if not REGULATORY_GRAPH.requirements(body.country, body.sector):
+def _require_supported_sector(country: str, sector: str, language: str) -> list[dict]:
+    requirements = REGULATORY_GRAPH.requirements(country, sector)
+    if not requirements:
+        allowed = REGULATORY_GRAPH.supported_sectors()
         raise HTTPException(
             status_code=400,
             detail=_msg(
                 "regulatory_unsupported_sector",
-                body.language,
-                country=body.country,
-                sector=body.sector,
+                language,
+                country=country,
+                sector=sector,
                 allowed=", ".join(f"{p['country']}/{p['sector']}" for p in allowed),
             ),
         )
+    return requirements
+
+
+@app.get("/api/v1/regulatory/requirements")
+def list_regulatory_requirements(country: str, sector: str, language: Literal["ko", "en"] = "ko"):
+    return {"items": _require_supported_sector(country, sector, language)}
+
+
+@app.post("/api/v1/regulatory/analyze")
+def analyze_regulatory(body: RegulatoryAnalyzeBody):
+    _require_supported_sector(body.country, body.sector, body.language)
     try:
         return run_regulatory_pipeline(
             body.project_name, body.country, body.sector, body.submitted,

@@ -61,6 +61,16 @@ class RegulatoryEndpointTest(unittest.TestCase):
         })
         self.assertEqual(r.status_code, 400)
 
+    def test_requirements_endpoint_returns_ordered_permits(self):
+        r = self.client.get("/api/v1/regulatory/requirements", params={"country": "KR", "sector": "chemical"})
+        self.assertEqual(r.status_code, 200)
+        permits = [item["permit"] for item in r.json()["items"]]
+        self.assertEqual(permits, ["화학물질 등록 (K-REACH)", "환경영향평가"])
+
+    def test_requirements_endpoint_rejects_unsupported_sector(self):
+        r = self.client.get("/api/v1/regulatory/requirements", params={"country": "FR", "sector": "aerospace"})
+        self.assertEqual(r.status_code, 400)
+
     def test_sectors_endpoint_lists_seeded_pairs(self):
         r = self.client.get("/api/v1/regulatory/sectors")
         self.assertEqual(r.status_code, 200)

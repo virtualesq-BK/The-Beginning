@@ -82,8 +82,8 @@
     "signup": "Sign Up",
     "login": "Log In",
     "constructionSpecial": "Overseas Construction Contract Special",
-    "standardContracts": "Browse Standard Contracts",
-    "contractGenerator": "Generate Contract",
+    "standardContracts": "Checkout Standard Contracts",
+    "contractGenerator": "Generate Your Contract",
     "reviewStart": "Start Contract Review",
     "analyzing": "Analyzing...",
     "langToggle": "KO"
@@ -834,6 +834,55 @@
       "jsonDownload": "JSON download failed.",
       "csvDownload": "CSV download failed.",
       "excelDownload": "Excel download failed."
+    }
+  },
+  "regulatory": {
+    "entryCta": "Analyze Permitting Requirements",
+    "eyebrow": "RegTech · Permitting",
+    "title": "Permitting Requirement Analysis",
+    "subtitle": "Pick your project's country and sector to see the required permits in the order they must be obtained, and check which prepared documents are missing or need more work. Every requirement shows its legal basis.",
+    "back": "← Back",
+    "projectNameLabel": "Project name",
+    "projectNamePlaceholder": "e.g. Ulsan fine-chemicals plant",
+    "sectorLabel": "Country · Sector",
+    "loadingSectors": "Loading supported sectors...",
+    "documentsLabel": "Submission documents",
+    "documentsHint": "Summarize or paste the content of each document you have. Blank documents are marked missing; under 20 characters is marked as needing more work.",
+    "documentPlaceholder": "Document content or summary",
+    "selectSectorFirst": "Select a country and sector to see the required documents.",
+    "analyzeCta": "Run gap analysis",
+    "analyzing": "Analyzing...",
+    "reset": "Reset",
+    "emptyResult": "Fill in the documents and run the gap analysis to see results here.",
+    "summary": {
+      "required": "Required",
+      "ready": "Ready",
+      "insufficient": "Needs work",
+      "missing": "Missing"
+    },
+    "stepLabel": "Step {{n}}",
+    "authorityLabel": "Authority",
+    "legalBasisLabel": "Legal basis",
+    "draftLabel": "View application draft",
+    "docStatus": {
+      "ready": "Ready",
+      "insufficient": "Needs work",
+      "missing": "Missing"
+    },
+    "countries": {
+      "KR": "South Korea",
+      "US": "United States"
+    },
+    "sectors": {
+      "chemical": "Chemicals",
+      "infrastructure": "Infrastructure",
+      "pharma": "Pharmaceuticals"
+    },
+    "errors": {
+      "noProjectName": "Please enter a project name.",
+      "noSector": "Please select a country and sector.",
+      "loadFailed": "Could not load permitting information.",
+      "analyzeFailed": "The permitting analysis failed."
     }
   }
 }

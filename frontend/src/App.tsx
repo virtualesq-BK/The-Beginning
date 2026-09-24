@@ -605,13 +605,22 @@ export default function App() {
           <p className="mt-4 max-w-2xl text-base text-[var(--tb-muted)]">
             {t("standardContracts.subtitle")}
           </p>
-          <button
-            type="button"
-            onClick={() => navigate("/standard-contract-compare")}
-            className="mt-6 inline-flex border border-[var(--tb-green)] bg-[var(--tb-green-soft)] px-5 py-2.5 text-sm font-semibold text-[var(--tb-green-deep)] transition hover:bg-[var(--tb-green)] hover:text-white"
-          >
-            {t("standardContracts.compareCta")}
-          </button>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => navigate("/standard-contract-compare")}
+              className="inline-flex border border-[var(--tb-green)] bg-[var(--tb-green-soft)] px-5 py-2.5 text-sm font-semibold text-[var(--tb-green-deep)] transition hover:bg-[var(--tb-green)] hover:text-white"
+            >
+              {t("standardContracts.compareCta")}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/regulatory")}
+              className="inline-flex border border-[var(--tb-line)] bg-white px-5 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:border-[var(--tb-green)] hover:text-[var(--tb-green-deep)]"
+            >
+              {t("regulatory.entryCta")}
+            </button>
+          </div>
 
           {detailId ? (
             <div className="mt-8">
