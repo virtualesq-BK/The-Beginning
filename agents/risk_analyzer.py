@@ -1,4 +1,4 @@
-from .llm_client import chat, chat_json
+from .llm_client import TIER_AGENT, chat, chat_json
 from .risk_rules import get_rules_for
 from .sac_chunker import augment_with_summary
 from .knowledge_base import hybrid_retrieve
@@ -165,7 +165,7 @@ def analyze_clause(
         retrieved_context=retrieved_context,
         related_clauses=_format_related_clauses(related_clauses, language),
     )
-    result = chat_json(system, translated_text, temperature=0.2)
+    result = chat_json(system, translated_text, temperature=0.2, tier=TIER_AGENT)
     result["risk_score"] = max(1, min(5, int(result.get("risk_score", 1))))
     if result["risk_score"] >= 4:
         result["requires_lawyer_review"] = True

@@ -4,7 +4,7 @@
 영문 조항 초안과 조항별 한국어 해설을 함께 생성한다.
 """
 
-from .llm_client import chat_json
+from .llm_client import TIER_AGENT, chat_json
 from .contract_templates import get_template
 from .knowledge_base import build_knowledge_store
 
@@ -133,7 +133,7 @@ def generate_contract(template_id: str, answers: dict, language: str = "ko") -> 
     )
 
     user_prompt = _GENERATE_USER_PROMPT.get(language, _GENERATE_USER_PROMPT["ko"])
-    result = chat_json(system, user_prompt, temperature=0.3)
+    result = chat_json(system, user_prompt, temperature=0.3, tier=TIER_AGENT)
 
     clauses = result.get("clauses") or []
     for idx, clause in enumerate(clauses, start=1):

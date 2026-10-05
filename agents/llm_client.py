@@ -47,8 +47,21 @@ if os.environ.get("ANTHROPIC_API_KEY") and os.environ.get("ANTHROPIC_ENABLE", "0
     )
 
 _MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-3-5-sonnet-latest")
-_OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 _DEEPSEEK_MODEL = os.environ.get("DEEPSEEK_MODEL", "deepseek-chat")
+
+# 역할(tier)별 모델:
+#   worker = 싸게 많이 처리하는 작업자 (파싱·번역·요약)
+#   agent  = 더 똑똑한 Agent 작업자 (조항 위험 분석·계약서 생성)
+#   expert = 최종 판단을 맡길 전문가
+TIER_WORKER = "worker"
+TIER_AGENT = "agent"
+TIER_EXPERT = "expert"
+
+_TIER_MODELS = {
+    TIER_WORKER: os.environ.get("LLM_MODEL_WORKER", "gpt-5-mini"),
+    TIER_AGENT: os.environ.get("LLM_MODEL_AGENT", "gpt-5.6-luna"),
+    TIER_EXPERT: os.environ.get("LLM_MODEL_EXPERT", "gpt-5.6-sol"),
+}
 _UNIVERSAL_MODEL = os.environ.get("Universal_MODEL", "gpt-5-nano-chat")
 
 
@@ -83,13 +96,25 @@ def _is_quota_exhausted(exc: Exception) -> bool:
     )
 
 
-def _chat_openai(system: str, user: str, temperature: float, json_mode: bool):
+def _client_for_tier(tier: str):
+    """worker는 기본 OpenAI 클라이언트, agent/expert(gpt-5.6 계열)는 Universal 게이트웨이를 우선 사용한다."""
+    if tier != TIER_WORKER and _UNIVERSAL_CLIENT is not None:
+        return _UNIVERSAL_CLIENT
+    return _OPENAI_CLIENT
+
+
+def _chat_openai(system: str, user: str, temperature: float, json_mode: bool, tier: str = TIER_WORKER):
+    if tier not in _TIER_MODELS:
+        raise ValueError(f"Unknown LLM tier: {tier!r} (expected one of {sorted(_TIER_MODELS)})")
+    model = _TIER_MODELS[tier]
     kwargs = {}
     if json_mode:
         kwargs["response_format"] = {"type": "json_object"}
-    resp = _OPENAI_CLIENT.chat.completions.create(
-        model=_OPENAI_MODEL,
-        temperature=temperature,
+    # GPT-5 계열 추론 모델은 temperature 커스텀 값을 허용하지 않는다.
+    if not model.startswith("gpt-5"):
+        kwargs["temperature"] = temperature
+    resp = _client_for_tier(tier).chat.completions.create(
+        model=model,
         messages=[
             {"role": "system", "content": system},
             {"role": "user", "content": user},
@@ -115,10 +140,16 @@ def _chat_deepseek(system: str, user: str, temperature: float, json_mode: bool):
     return _extract_text(resp)
 
 
-def chat(system: str, user: str, temperature: float = 0.2, json_mode: bool = False) -> str:
-    if _OPENAI_CLIENT is not None:
+def chat(
+    system: str,
+    user: str,
+    temperature: float = 0.2,
+    json_mode: bool = False,
+    tier: str = TIER_WORKER,
+) -> str:
+    if _client_for_tier(tier) is not None:
         try:
-            return _chat_openai(system, user, temperature, json_mode)
+            return _chat_openai(system, user, temperature, json_mode, tier)
         except Exception as exc:
             if _DEEPSEEK_CLIENT is not None and _is_quota_exhausted(exc):
                 return _chat_deepseek(system, user, temperature, json_mode)
@@ -172,8 +203,8 @@ def chat_universal(
     return _extract_text(resp)
 
 
-def chat_json(system: str, user: str, temperature: float = 0.2) -> dict:
-    raw = chat(system, user, temperature=temperature, json_mode=True)
+def chat_json(system: str, user: str, temperature: float = 0.2, tier: str = TIER_WORKER) -> dict:
+    raw = chat(system, user, temperature=temperature, json_mode=True, tier=tier)
     return json.loads(raw)
 
 

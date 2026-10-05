@@ -158,6 +158,65 @@ Semantic Retrieval      Rule Retrieval
    (AI 판단 vs 수정 이유 → Ground Truth 승격 → 자체 벤치마크 채점)
 ```
 
+### 시스템 전체 구성도
+
+```mermaid
+flowchart TB
+    subgraph FE["Frontend Layer (React 19 + Vite + Tailwind CSS)"]
+        SPA["React SPA<br/>(/, /fidic-history, /standard-contract-compare)"]
+        Upload["계약서 파일 업로드<br/>(PDF/DOCX)"]
+        Export["리스크 리포트 & 비교표 내보내기<br/>(PDF/JSON/CSV/Excel)"]
+        SPA -->|"1. 파일 선택"| Upload
+    end
+
+    subgraph API["Backend API Layer (FastAPI / Vercel Serverless)"]
+        REST["FastAPI REST Endpoints<br/>(/api/v1/contracts, /fidic, /standard-contracts)"]
+        Auth["Supabase Auth & DB<br/>(회원 인증 및 데이터 저장)"]
+        REST -->|"인증 확인 및 이력 조회"| Auth
+    end
+
+    subgraph DOC["Document Processing Pipeline"]
+        Extractor["File Extractor<br/>(file_extractor.py)"]
+        Parser["Document Parser<br/>(document_parser.py)<br/>- 조항 번호/계층 추출<br/>- 정규식 상호참조 추출"]
+        SAC["SAC Chunker<br/>(sac_chunker.py)<br/>- 문서 요약 + 조항 임베딩<br/>- ContractSACIndex"]
+        Extractor --> Parser --> SAC
+    end
+
+    subgraph CIE["Contract Intelligence Engine"]
+        Graph["Clause Graph (clause_graph.py)<br/>- 계층 / 상호참조 / SAC 유사도 / 의존관계 엣지"]
+        subgraph HR["Hybrid Retrieval Engine (knowledge_base.py)"]
+            Sem["Semantic Retrieval<br/>(vector_store.py)"]
+            Rule["Rule Retrieval<br/>(risk_ontology.py - 27개 RiskNode)"]
+        end
+        Risk["Risk Analyzer (risk_analyzer.py)<br/>- Evidence → Reasoning → Conclusion 리스크 분석"]
+        Cross["Cross-Clause Risk Evaluator<br/>- 조항 간 상호작용 및 조합 위험 탐지"]
+        Graph --> Sem & Rule
+        Sem --> Risk
+        Rule --> Risk
+        Risk --> Cross
+    end
+
+    subgraph FB["Feedback & Evaluation Loop"]
+        Feedback["Expert Feedback Loop<br/>(feedback_loop.py)<br/>- 변호사 수정 이력 구조화 저장"]
+        Bench["Benchmark Suite<br/>(benchmark.py)<br/>- Ground Truth 승격 & 자체 벤치마크 채점"]
+        Feedback --> Bench
+    end
+
+    subgraph EXT["External Services & Storage"]
+        DB[("Supabase DB / Storage")]
+        LLM["LLM Client (llm_client.py)<br/>OpenAI / Anthropic / Universal"]
+    end
+
+    Upload -->|"2. POST /api/v1/contracts/analyze"| REST
+    REST --> Extractor
+    SAC --> Graph
+    Cross --> Export
+    Export -->|"3. 전문가 검토/수정 피드백"| Feedback
+    Risk <-->|"LLM 질의"| LLM
+    Auth <--> DB
+    Feedback --> DB
+```
+
 **완료된 항목**
 
 | 항목 | 구현 위치 | 내용 |
@@ -214,8 +273,11 @@ npm run dev
 
 | 변수 | 설명 |
 |---|---|
-| `OPENAI_API_KEY` / `OPENAI_BASE_URL` / `OPENAI_MODEL` | 기본 LLM 클라이언트 (monorouter의 `/openai/v1` 경로 경유) |
+| `OPENAI_API_KEY` / `OPENAI_BASE_URL` | 기본 LLM 클라이언트 (monorouter의 `/openai/v1` 경로 경유) |
 | `OPENAI_EMBED_MODEL` | 임베딩 모델 |
+| `LLM_MODEL_WORKER` (기본 `gpt-5-mini`) | 싸게 많이 처리하는 작업자 — 문서 파싱·번역·요약 |
+| `LLM_MODEL_AGENT` (기본 `gpt-5.6-luna`) | 더 똑똑한 Agent 작업자 — 조항 위험 분석·계약서 생성 (`Universal_*` 설정 시 해당 게이트웨이 사용) |
+| `LLM_MODEL_EXPERT` (기본 `gpt-5.6-sol`) | 최종 판단을 맡길 전문가 — `chat(..., tier="expert")`로 호출 |
 | `ANTHROPIC_API_KEY` / `ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL` / `ANTHROPIC_ENABLE=1` | Anthropic 클라이언트 (선택, `ANTHROPIC_ENABLE=1`일 때만 활성화) |
 | `EXPERT_EMAIL` | 전문가 검토 요청 메일 수신 주소 |
 | `PUBLIC_APP_ORIGIN` | 메일 링크 등에 쓰이는 앱 공개 도메인. 배포 도메인과 반드시 일치해야 함 |
