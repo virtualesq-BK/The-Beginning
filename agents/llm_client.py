@@ -97,8 +97,9 @@ def _is_quota_exhausted(exc: Exception) -> bool:
 
 
 def _client_for_tier(tier: str):
-    """worker는 기본 OpenAI 클라이언트, agent/expert(gpt-5.6 계열)는 Universal 게이트웨이를 우선 사용한다."""
-    if tier != TIER_WORKER and _UNIVERSAL_CLIENT is not None:
+    """모든 티어에서 Universal 게이트웨이를 우선 사용한다.
+    copa.codyssey.kr(OPENAI_CLIENT)는 system 메시지를 지원하지 않아 파이프라인과 호환되지 않음."""
+    if _UNIVERSAL_CLIENT is not None:
         return _UNIVERSAL_CLIENT
     return _OPENAI_CLIENT
 
