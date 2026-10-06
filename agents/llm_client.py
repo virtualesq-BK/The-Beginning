@@ -58,7 +58,7 @@ TIER_AGENT = "agent"
 TIER_EXPERT = "expert"
 
 _TIER_MODELS = {
-    TIER_WORKER: os.environ.get("LLM_MODEL_WORKER", "gpt-5-mini"),
+    TIER_WORKER: os.environ.get("LLM_MODEL_WORKER", "gpt-5.4-mini"),  # gpt-5-mini은 Universal 미지원
     TIER_AGENT: os.environ.get("LLM_MODEL_AGENT", "gpt-5.6-luna"),
     TIER_EXPERT: os.environ.get("LLM_MODEL_EXPERT", "gpt-5.6-sol"),
 }
