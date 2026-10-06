@@ -51,10 +51,15 @@ TIER_WORKER = "worker"
 TIER_AGENT = "agent"
 TIER_EXPERT = "expert"
 
+def _env_model(key: str, default: str) -> str:
+    """환경변수 값에서 UTF-8 BOM(﻿)과 공백을 제거한다.
+    PowerShell echo 파이프로 설정된 Vercel 환경변수에 BOM이 붙는 문제를 방지한다."""
+    return os.environ.get(key, default).lstrip("﻿").strip() or default
+
 _TIER_MODELS = {
-    TIER_WORKER: os.environ.get("LLM_MODEL_WORKER", "gpt-5.4-mini"),
-    TIER_AGENT:  os.environ.get("LLM_MODEL_AGENT",  "gpt-5.5"),
-    TIER_EXPERT: os.environ.get("LLM_MODEL_EXPERT", "gpt-5.5"),
+    TIER_WORKER: _env_model("LLM_MODEL_WORKER", "gpt-5.4-mini"),
+    TIER_AGENT:  _env_model("LLM_MODEL_AGENT",  "gpt-5.5"),
+    TIER_EXPERT: _env_model("LLM_MODEL_EXPERT", "gpt-5.5"),
 }
 
 
