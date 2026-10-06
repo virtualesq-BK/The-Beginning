@@ -137,6 +137,36 @@ export type GeneratedContract = {
   disclaimer: string;
 };
 
+export type ChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
+
+export async function sendContractChat(
+  contractSummary: string,
+  clausesContext: string,
+  messages: ChatMessage[],
+): Promise<string> {
+  const res = await fetch(`${API_BASE}/api/v1/contracts/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contract_summary: contractSummary,
+      clauses_context: clausesContext,
+      messages,
+      language: currentLanguage(),
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(errorDetail(body, `채팅 응답 요청에 실패했습니다 (HTTP ${res.status})`));
+  }
+
+  const data = await res.json();
+  return data.reply as string;
+}
+
 export async function generateContract(
   templateId: string,
   answers: Record<string, string>,

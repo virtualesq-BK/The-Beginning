@@ -253,6 +253,18 @@ class RegulatoryAnalyzeBody(BaseModel):
     language: Literal["ko", "en"] = "ko"
 
 
+class ChatMessage(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str
+
+
+class ContractChatBody(BaseModel):
+    contract_summary: str
+    clauses_context: str
+    messages: list[ChatMessage]
+    language: Literal["ko", "en"] = "ko"
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
@@ -736,6 +748,58 @@ def export_fidic_comparison_excel(body: FIDICComparisonBody):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=_msg("fidic_export_excel_error", body.language, err=e))
+
+_CHAT_SYSTEM_KO = """당신은 계약서 위험 분석 AI 어시스턴트입니다.
+사용자가 업로드한 계약서의 분석 결과를 바탕으로, 지속적인 협상 지원을 제공합니다.
+
+[역할 및 원칙]
+- 계약서 내용, 위험 조항, 협상 포인트에 대한 질문에 구체적으로 답변합니다.
+- 법적 조언이 아닌 분석/의견 형태로 제공합니다. 최종 법적 판단은 전문 변호사와 확인하도록 안내합니다.
+- 구체적인 조항 인용, 대안 문구, 협상 전략을 제시할 때는 근거를 명확히 합니다.
+- 한국어로 답변하되, 법률 용어는 영문 원어도 병기합니다.
+
+[계약서 분석 컨텍스트]
+{context}
+"""
+
+_CHAT_SYSTEM_EN = """You are a contract risk analysis AI assistant.
+Based on the analyzed results of the contract uploaded by the user, you provide ongoing negotiation support.
+
+[Role & Principles]
+- Provide specific answers about contract content, risk clauses, and negotiation points.
+- Provide analysis/opinions, not legal advice. Always recommend final legal judgment with a qualified attorney.
+- When citing specific clauses, alternative language, or negotiation strategies, make the basis clear.
+- Respond in English.
+
+[Contract Analysis Context]
+{context}
+"""
+
+
+@app.post("/api/v1/contracts/chat")
+def contract_chat(body: ContractChatBody):
+    from agents.llm_client import TIER_AGENT
+
+    context = f"계약서 요약:\n{body.contract_summary}\n\n주요 조항 분석:\n{body.clauses_context}"
+    system_template = _CHAT_SYSTEM_KO if body.language == "ko" else _CHAT_SYSTEM_EN
+    system = system_template.format(context=context)
+
+    history_lines = []
+    for msg in body.messages[:-1]:
+        prefix = "사용자" if msg.role == "user" else "어시스턴트"
+        history_lines.append(f"[{prefix}] {msg.content}")
+
+    last_user_msg = body.messages[-1].content if body.messages else ""
+    history_text = "\n".join(history_lines)
+    user_prompt = f"{history_text}\n\n[사용자] {last_user_msg}" if history_text else last_user_msg
+
+    try:
+        from agents.llm_client import chat as llm_chat
+        reply = llm_chat(system, user_prompt, temperature=0.3, tier=TIER_AGENT)
+        return {"reply": reply}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"채팅 응답 생성 중 오류가 발생했습니다: {e}")
+
 
 def _register_frontend_routes() -> None:
     if not STATIC_DIR.is_dir():

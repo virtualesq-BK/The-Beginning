@@ -5,6 +5,7 @@ import { requestExpert, openExpertMailto, type ExpertRequestType } from "../lib/
 import { RiskBadge } from "./RiskBadge";
 import { ClauseTypeIcon } from "./ClauseTypeIcon";
 import { useAuth } from "../contexts/AuthContext";
+import { ContractChat } from "./ContractChat";
 
 const EXPERT_EMAIL = "virtual.esq@gmail.com";
 
@@ -362,7 +363,10 @@ export function ReportView({ report }: { report: ContractReport }) {
         )}
       </section>
 
-      {/* 4. Expert connection */}
+      {/* 4. Negotiation chat */}
+      <ContractChat report={report} />
+
+      {/* 5. Expert connection */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-950">
         <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-[var(--tb-green)]">
           {t("report.expert.heading")}

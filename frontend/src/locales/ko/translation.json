@@ -897,5 +897,16 @@
       "loadFailed": "인허가 정보를 불러오지 못했습니다.",
       "analyzeFailed": "인허가 분석에 실패했습니다."
     }
+  },
+  "contractChat": {
+    "heading": "계약서 기반 협상 AI 채팅",
+    "subheading": "분석된 계약서를 바탕으로 조항 해석, 위험 대응 전략, 협상 문구 등을 질문하세요.",
+    "suggest1": "가장 위험한 조항은 무엇인가요?",
+    "suggest2": "면책 조항을 어떻게 협상해야 하나요?",
+    "suggest3": "이 계약서의 불균형한 부분을 요약해주세요.",
+    "placeholder": "계약서에 대해 질문하세요... (Shift+Enter: 줄바꿈)",
+    "send": "전송",
+    "hint": "Shift+Enter로 줄바꿈 · Enter로 전송",
+    "genericError": "채팅 응답 생성에 실패했습니다."
   }
 }

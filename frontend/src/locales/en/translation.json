@@ -897,5 +897,16 @@
       "loadFailed": "Could not load permitting information.",
       "analyzeFailed": "The permitting analysis failed."
     }
+  },
+  "contractChat": {
+    "heading": "Negotiation AI Chat",
+    "subheading": "Ask about clause interpretation, risk mitigation strategies, or negotiation language based on your contract.",
+    "suggest1": "What are the highest risk clauses?",
+    "suggest2": "How should I negotiate the indemnification clause?",
+    "suggest3": "Summarize the imbalanced areas of this contract.",
+    "placeholder": "Ask a question about the contract... (Shift+Enter: new line)",
+    "send": "Send",
+    "hint": "Shift+Enter for new line · Enter to send",
+    "genericError": "Failed to generate a chat response."
   }
 }
