@@ -12,10 +12,7 @@
       "config": { "maxDuration": 300 }
     }
   ],
-  "functions": {
-    "api/index.py": { "maxDuration": 300 }
-  },
-  "routes": [
+"routes": [
     { "src": "/health", "dest": "/api/index.py" },
     { "src": "/api/v1/(.*)", "dest": "/api/index.py" },
     { "src": "/(.*\\.[A-Za-z0-9]+)", "dest": "/frontend/$1" },
