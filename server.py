@@ -267,7 +267,15 @@ class ContractChatBody(BaseModel):
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    import os
+    from agents.llm_client import _TIER_MODELS, _IS_COPA, _OPENAI_CLIENT
+    return {
+        "status": "ok",
+        "models": _TIER_MODELS,
+        "is_copa": _IS_COPA,
+        "openai_base_url": os.environ.get("OPENAI_BASE_URL", "(not set)"),
+        "openai_client_configured": _OPENAI_CLIENT is not None,
+    }
 
 
 @app.post("/api/v1/contracts/analyze")
