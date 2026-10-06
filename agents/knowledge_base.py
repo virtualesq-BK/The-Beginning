@@ -86,12 +86,24 @@ def build_knowledge_store() -> LocalVectorStore:
 
 
 _shared_store: LocalVectorStore | None = None
+_store_build_failed: bool = False  # 빌드 실패 후 반복 시도 방지
 
 
-def _get_shared_store() -> LocalVectorStore:
-    global _shared_store
+def _get_shared_store() -> LocalVectorStore | None:
+    """벡터스토어를 지연 초기화한다. 임베딩 실패(403 등) 시 None을 반환하며
+    이후 호출에서 재시도하지 않는다 (병렬 워커가 반복 403을 보내는 것 방지)."""
+    global _shared_store, _store_build_failed
+    if _store_build_failed:
+        return None
     if _shared_store is None:
-        _shared_store = build_knowledge_store()
+        try:
+            _shared_store = build_knowledge_store()
+        except Exception as exc:
+            _store_build_failed = True
+            print(
+                f"[KnowledgeBase] 임베딩 인덱스 빌드 실패 — 시맨틱 검색 비활성화: "
+                f"{type(exc).__name__}: {exc}"
+            )
     return _shared_store
 
 
@@ -114,9 +126,19 @@ def hybrid_retrieve(
     rule_matches는 (1) 조항 자신의 유형, (2) 원문 키워드 트리거, (3) Clause
     Graph에서 명시적으로 연결된 조항의 유형 순으로 합쳐진다. 조항유형 분류가
     틀려도 Notice/Time Bar처럼 다른 클러스터에 속한 규칙을 놓치지 않기 위함이다.
+
+    임베딩 인덱스가 비활성화된 경우(빌드 실패 등) semantic_matches는 빈 리스트를
+    반환하고 rule_matches만으로 분석을 계속한다.
     """
     store = _get_shared_store()
-    semantic_matches = store.query(semantic_query, top_k=top_k)
+    if store is None:
+        semantic_matches = []
+    else:
+        try:
+            semantic_matches = store.query(semantic_query, top_k=top_k)
+        except Exception as exc:
+            print(f"[KnowledgeBase] 벡터 검색 실패 — 건너뜀: {type(exc).__name__}: {exc}")
+            semantic_matches = []
     candidates = risk_ontology.get_nodes_for_clause_type(clause_type)
     candidates += risk_ontology.get_nodes_by_keywords(clause_text)
     for related_type in related_clause_types or []:

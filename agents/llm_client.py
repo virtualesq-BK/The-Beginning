@@ -231,7 +231,10 @@ _EMBED_MODEL = os.environ.get("OPENAI_EMBED_MODEL", "text-embedding-3-small")
 
 
 def embed(texts: list[str]) -> list[list[float]]:
-    if _OPENAI_CLIENT is None:
-        raise RuntimeError("OpenAI embeddings client is not configured")
-    resp = _OPENAI_CLIENT.embeddings.create(model=_EMBED_MODEL, input=texts)
+    """Universal 게이트웨이 우선 — copa.codyssey.kr은 /v1/embeddings 미지원 (403 반환).
+    _client_for_tier()와 동일한 라우팅 전략을 따른다."""
+    client = _UNIVERSAL_CLIENT if _UNIVERSAL_CLIENT is not None else _OPENAI_CLIENT
+    if client is None:
+        raise RuntimeError("임베딩 클라이언트가 설정되지 않았습니다 (Universal_API 또는 OPENAI_API_KEY 필요)")
+    resp = client.embeddings.create(model=_EMBED_MODEL, input=texts)
     return [item.embedding for item in resp.data]
