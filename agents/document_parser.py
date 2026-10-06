@@ -1,4 +1,5 @@
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from .llm_client import chat_json
 
@@ -7,6 +8,10 @@ CLAUSE_TYPES = [
     "손해배상", "불가항력", "계약해지", "지급조건", "이행보증",
     "준거법", "분쟁해결", "보험", "지식재산권", "기타",
 ]
+
+# 게이트웨이 단일 요청 타임아웃 방지: 청크당 최대 글자 수
+_PARSE_CHUNK_SIZE = 6000
+_PARSE_WORKERS = 4
 
 _SYSTEM = f"""너는 해외 건설·인프라 계약서를 조항 단위로 분해하는 파서다.
 입력된 계약서 텍스트를 조항 단위로 나누고, 각 조항을 다음 유형 중 하나로 분류하라:
@@ -88,7 +93,59 @@ def normalize_clauses(clauses: list[dict]) -> list[dict]:
     return normalized
 
 
+def _split_into_chunks(text: str, chunk_size: int) -> list[str]:
+    """조항 경계를 최대한 보존하며 텍스트를 chunk_size 이하로 분할한다."""
+    if len(text) <= chunk_size:
+        return [text]
+
+    # 조항 구분 패턴(빈 줄 + 번호로 시작하는 줄)에서 분할 시도
+    _BOUNDARY = re.compile(
+        r"\n(?=\s*(?:Sub-?Clause|Clause|Article|Section|제\s*\d+\s*조)\s*[\d.])",
+        re.IGNORECASE,
+    )
+    parts = _BOUNDARY.split(text)
+
+    chunks: list[str] = []
+    current = ""
+    for part in parts:
+        if len(current) + len(part) > chunk_size and current:
+            chunks.append(current.strip())
+            current = part
+        else:
+            current = current + ("\n" if current else "") + part
+    if current.strip():
+        chunks.append(current.strip())
+
+    # 패턴 분할이 안 된 경우(단일 덩어리) → 강제 분할
+    if len(chunks) == 1 and len(chunks[0]) > chunk_size:
+        chunks = [text[i: i + chunk_size] for i in range(0, len(text), chunk_size)]
+
+    return chunks
+
+
+def _parse_chunk(chunk: str) -> list[dict]:
+    try:
+        result = chat_json(_SYSTEM, chunk, temperature=0.0)
+        return result.get("clauses", [])
+    except Exception:
+        return []
+
+
 def parse_contract(raw_text: str) -> dict:
-    parsed = chat_json(_SYSTEM, raw_text, temperature=0.0)
-    parsed["clauses"] = normalize_clauses(parsed.get("clauses", []))
-    return parsed
+    chunks = _split_into_chunks(raw_text, _PARSE_CHUNK_SIZE)
+
+    if len(chunks) == 1:
+        parsed = chat_json(_SYSTEM, chunks[0], temperature=0.0)
+        all_clauses = parsed.get("clauses", [])
+    else:
+        all_clauses = []
+        with ThreadPoolExecutor(max_workers=_PARSE_WORKERS) as executor:
+            futures = [executor.submit(_parse_chunk, chunk) for chunk in chunks]
+            for future in as_completed(futures):
+                all_clauses.extend(future.result())
+
+    # id 재부여 (청크별 중복 방지)
+    for i, clause in enumerate(all_clauses, start=1):
+        clause["id"] = i
+
+    return {"clauses": normalize_clauses(all_clauses)}
