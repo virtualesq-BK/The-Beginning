@@ -5,19 +5,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-_ANTHROPIC_CLIENT = None
 _OPENAI_CLIENT = None
-_UNIVERSAL_CLIENT = None
 _DEEPSEEK_CLIENT = None
-
-if os.environ.get("Universal_API"):
-    from openai import OpenAI
-
-    _UNIVERSAL_CLIENT = OpenAI(
-        api_key=os.environ["Universal_API"],
-        base_url=os.environ.get("Universal_URL"),
-        default_headers={"User-Agent": "curl/8.4.0"},
-    )
+_ANTHROPIC_CLIENT = None
 
 if os.environ.get("OPENAI_API_KEY"):
     from openai import OpenAI
@@ -49,6 +39,10 @@ if os.environ.get("ANTHROPIC_API_KEY") and os.environ.get("ANTHROPIC_ENABLE", "0
 _MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-3-5-sonnet-latest")
 _DEEPSEEK_MODEL = os.environ.get("DEEPSEEK_MODEL", "deepseek-chat")
 
+# copa.codyssey.kr는 system role 미지원 → user 메시지에 system 내용을 prefix로 병합
+_OPENAI_BASE_URL = os.environ.get("OPENAI_BASE_URL", "")
+_IS_COPA = "copa.codyssey.kr" in _OPENAI_BASE_URL
+
 # 역할(tier)별 모델:
 #   worker = 싸게 많이 처리하는 작업자 (파싱·번역·요약)
 #   agent  = 더 똑똑한 Agent 작업자 (조항 위험 분석·계약서 생성)
@@ -58,11 +52,10 @@ TIER_AGENT = "agent"
 TIER_EXPERT = "expert"
 
 _TIER_MODELS = {
-    TIER_WORKER: os.environ.get("LLM_MODEL_WORKER", "gpt-5.4-mini"),  # gpt-5-mini은 Universal 미지원
-    TIER_AGENT: os.environ.get("LLM_MODEL_AGENT", "gpt-5.6-luna"),
-    TIER_EXPERT: os.environ.get("LLM_MODEL_EXPERT", "gpt-5.6-sol"),
+    TIER_WORKER: os.environ.get("LLM_MODEL_WORKER", "gpt-5.4-mini"),
+    TIER_AGENT:  os.environ.get("LLM_MODEL_AGENT",  "gpt-5.5"),
+    TIER_EXPERT: os.environ.get("LLM_MODEL_EXPERT", "gpt-5.5"),
 }
-_UNIVERSAL_MODEL = os.environ.get("Universal_MODEL", "gpt-5-nano-chat")
 
 
 def _extract_text(response) -> str:
@@ -97,15 +90,21 @@ def _is_quota_exhausted(exc: Exception) -> bool:
 
 
 def _client_for_tier(tier: str):
-    """모든 티어에서 Universal 게이트웨이를 우선 사용한다.
-    copa.codyssey.kr(OPENAI_CLIENT)는 system 메시지를 지원하지 않아 파이프라인과 호환되지 않음."""
-    if _UNIVERSAL_CLIENT is not None:
-        return _UNIVERSAL_CLIENT
     return _OPENAI_CLIENT
 
 
 def _is_gpt5_family(model: str) -> bool:
     return model.startswith("gpt-5")
+
+
+def _build_messages(system: str, user: str) -> list[dict]:
+    """copa는 system role 미지원 → system 내용을 user 메시지에 prefix로 병합한다."""
+    if _IS_COPA:
+        return [{"role": "user", "content": f"{system}\n\n---\n\n{user}"}]
+    return [
+        {"role": "system", "content": system},
+        {"role": "user", "content": user},
+    ]
 
 
 def _chat_openai(system: str, user: str, temperature: float, json_mode: bool, tier: str = TIER_WORKER):
@@ -118,12 +117,9 @@ def _chat_openai(system: str, user: str, temperature: float, json_mode: bool, ti
         kwargs["temperature"] = temperature
         if json_mode:
             kwargs["response_format"] = {"type": "json_object"}
-    resp = _client_for_tier(tier).chat.completions.create(
+    resp = _OPENAI_CLIENT.chat.completions.create(
         model=model,
-        messages=[
-            {"role": "system", "content": system},
-            {"role": "user", "content": user},
-        ],
+        messages=_build_messages(system, user),
         **kwargs,
     )
     return _extract_text(resp)
@@ -152,7 +148,7 @@ def chat(
     json_mode: bool = False,
     tier: str = TIER_WORKER,
 ) -> str:
-    if _client_for_tier(tier) is not None:
+    if _OPENAI_CLIENT is not None:
         try:
             return _chat_openai(system, user, temperature, json_mode, tier)
         except Exception as exc:
@@ -182,39 +178,11 @@ def chat(
     raise RuntimeError("No LLM client configured")
 
 
-
-def chat_universal(
-    system: str,
-    user: str,
-    temperature: float = 0.2,
-    json_mode: bool = False,
-    model: str | None = None,
-) -> str:
-    """Universal_API/Universal_URL 게이트웨이(monorouter) 전용 클라이언트로 호출한다."""
-    if _UNIVERSAL_CLIENT is None:
-        raise RuntimeError("Universal LLM client is not configured (Universal_API/Universal_URL)")
-    kwargs = {}
-    if json_mode:
-        kwargs["response_format"] = {"type": "json_object"}
-    resp = _UNIVERSAL_CLIENT.chat.completions.create(
-        model=model or _UNIVERSAL_MODEL,
-        temperature=temperature,
-        messages=[
-            {"role": "system", "content": system},
-            {"role": "user", "content": user},
-        ],
-        **kwargs,
-    )
-    return _extract_text(resp)
-
-
 def _extract_json_str(raw: str) -> str:
     """마크다운 코드 블록(```json ... ```) 또는 순수 텍스트에서 JSON 문자열을 추출한다."""
     raw = raw.strip()
-    # ```json ... ``` 또는 ``` ... ``` 블록 제거
     if raw.startswith("```"):
         lines = raw.splitlines()
-        # 첫 줄(```json 또는 ```) 과 마지막 줄(```) 제거
         inner = lines[1:] if lines[-1].strip() == "```" else lines[1:]
         if inner and inner[-1].strip() == "```":
             inner = inner[:-1]
@@ -231,10 +199,9 @@ _EMBED_MODEL = os.environ.get("OPENAI_EMBED_MODEL", "text-embedding-3-small")
 
 
 def embed(texts: list[str]) -> list[list[float]]:
-    """Universal 게이트웨이 우선 — copa.codyssey.kr은 /v1/embeddings 미지원 (403 반환).
-    _client_for_tier()와 동일한 라우팅 전략을 따른다."""
-    client = _UNIVERSAL_CLIENT if _UNIVERSAL_CLIENT is not None else _OPENAI_CLIENT
-    if client is None:
-        raise RuntimeError("임베딩 클라이언트가 설정되지 않았습니다 (Universal_API 또는 OPENAI_API_KEY 필요)")
-    resp = client.embeddings.create(model=_EMBED_MODEL, input=texts)
-    return [item.embedding for item in resp.data]
+    """copa.codyssey.kr는 /v1/embeddings 미지원 (403).
+    knowledge_base.py/_get_shared_store()에서 이 예외를 잡아 시맨틱 검색을 비활성화한다."""
+    raise RuntimeError(
+        "copa.codyssey.kr does not support /v1/embeddings — "
+        "vector search disabled; rule-based analysis continues"
+    )
