@@ -103,16 +103,20 @@ def _client_for_tier(tier: str):
     return _OPENAI_CLIENT
 
 
+def _is_gpt5_family(model: str) -> bool:
+    return model.startswith("gpt-5")
+
+
 def _chat_openai(system: str, user: str, temperature: float, json_mode: bool, tier: str = TIER_WORKER):
     if tier not in _TIER_MODELS:
         raise ValueError(f"Unknown LLM tier: {tier!r} (expected one of {sorted(_TIER_MODELS)})")
     model = _TIER_MODELS[tier]
-    kwargs = {}
-    if json_mode:
-        kwargs["response_format"] = {"type": "json_object"}
-    # GPT-5 계열 추론 모델은 temperature 커스텀 값을 허용하지 않는다.
-    if not model.startswith("gpt-5"):
+    kwargs: dict = {}
+    # GPT-5 계열 추론 모델은 temperature / response_format 파라미터를 지원하지 않는다.
+    if not _is_gpt5_family(model):
         kwargs["temperature"] = temperature
+        if json_mode:
+            kwargs["response_format"] = {"type": "json_object"}
     resp = _client_for_tier(tier).chat.completions.create(
         model=model,
         messages=[
@@ -203,9 +207,23 @@ def chat_universal(
     return _extract_text(resp)
 
 
+def _extract_json_str(raw: str) -> str:
+    """마크다운 코드 블록(```json ... ```) 또는 순수 텍스트에서 JSON 문자열을 추출한다."""
+    raw = raw.strip()
+    # ```json ... ``` 또는 ``` ... ``` 블록 제거
+    if raw.startswith("```"):
+        lines = raw.splitlines()
+        # 첫 줄(```json 또는 ```) 과 마지막 줄(```) 제거
+        inner = lines[1:] if lines[-1].strip() == "```" else lines[1:]
+        if inner and inner[-1].strip() == "```":
+            inner = inner[:-1]
+        raw = "\n".join(inner).strip()
+    return raw
+
+
 def chat_json(system: str, user: str, temperature: float = 0.2, tier: str = TIER_WORKER) -> dict:
     raw = chat(system, user, temperature=temperature, json_mode=True, tier=tier)
-    return json.loads(raw)
+    return json.loads(_extract_json_str(raw))
 
 
 _EMBED_MODEL = os.environ.get("OPENAI_EMBED_MODEL", "text-embedding-3-small")
