@@ -65,44 +65,84 @@ def _extract_docx(file_bytes: bytes) -> str:
 
 
 def _extract_doc(file_bytes: bytes) -> str:
-    """구형 .doc는 python-docx로 읽을 수 없어, 로컬 MS Word를 자동화해 텍스트를 추출한다.
-    Windows + MS Word가 설치된 환경에서만 동작한다 (Phase 2 Linux 배포 시 별도 변환 서비스 필요)."""
-    if sys.platform != "win32":
-        raise ValueError(".doc 변환은 현재 Windows + MS Word 환경에서만 지원됩니다. .docx 또는 .pdf로 변환 후 업로드해주세요.")
+    """구형 .doc 텍스트 추출 — 두 단계 폴백.
 
+    1단계: python-docx로 열기 시도 (일부 .doc는 실제로 OOXML 포맷).
+    2단계: olefile로 OLE2 컨테이너를 열어 WordDocument 스트림에서
+           UTF-16LE 텍스트를 추출 (Word 97-2003 바이너리 포맷 대응).
+    Windows 로컬 환경에서는 추가로 MS Word COM 자동화를 시도한다.
+    """
+    # ── 1단계: python-docx (OOXML .doc) ──────────────────────────────────
     try:
-        import win32com.client as win32
-    except ImportError:
-        raise ValueError(".doc 변환에 필요한 pywin32가 설치되어 있지 않습니다.")
+        text = _extract_docx(file_bytes)
+        if text:
+            return text
+    except Exception:
+        pass
 
-    tmp_path = None
+    # ── 2단계: olefile OLE2 스트림 추출 (Word 97-2003 바이너리) ──────────
     try:
-        with tempfile.NamedTemporaryFile(suffix=".doc", delete=False) as tmp:
-            tmp.write(file_bytes)
-            tmp_path = tmp.name
+        import olefile
+        import re as _re
 
-        word = win32.gencache.EnsureDispatch("Word.Application")
-        word.Visible = False
-        try:
-            doc = word.Documents.Open(tmp_path, ReadOnly=True)
-            try:
-                # wdStatisticPages = 2
-                page_count = int(doc.ComputeStatistics(2))
-                _assert_page_limit(page_count)
-                text = doc.Content.Text
-            finally:
-                doc.Close(False)
-        finally:
-            word.Quit()
+        ole = olefile.OleFileIO(BytesIO(file_bytes))
+        if not ole.exists("WordDocument"):
+            raise ValueError(".doc 파일에서 WordDocument 스트림을 찾을 수 없습니다.")
+
+        raw = ole.openstream("WordDocument").read()
+        # 텍스트는 UTF-16LE로 저장되어 있음
+        text = raw.decode("utf-16-le", errors="ignore")
+        # 제어 문자 제거 (탭·줄바꿈 제외)
+        text = _re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", " ", text)
+        text = _re.sub(r" {2,}", " ", text).strip()
+        if text:
+            _assert_page_limit(_estimate_pages_from_text(text))
+            return text
     except ValueError:
         raise
     except Exception as e:
-        raise ValueError(f".doc 파일을 변환하지 못했습니다 (MS Word 설치 여부를 확인해주세요): {e}")
-    finally:
-        if tmp_path and os.path.exists(tmp_path):
-            os.unlink(tmp_path)
+        pass
 
-    text = text.strip()
-    if not text:
-        raise ValueError(".doc 파일에서 텍스트를 추출하지 못했습니다.")
-    return text
+    # ── 3단계: Windows + MS Word COM (로컬 개발 환경 전용) ───────────────
+    if sys.platform == "win32":
+        try:
+            import win32com.client as win32
+
+            tmp_path = None
+            try:
+                with tempfile.NamedTemporaryFile(suffix=".doc", delete=False) as tmp:
+                    tmp.write(file_bytes)
+                    tmp_path = tmp.name
+
+                word = win32.gencache.EnsureDispatch("Word.Application")
+                word.Visible = False
+                try:
+                    doc = word.Documents.Open(tmp_path, ReadOnly=True)
+                    try:
+                        page_count = int(doc.ComputeStatistics(2))
+                        _assert_page_limit(page_count)
+                        text = doc.Content.Text
+                    finally:
+                        doc.Close(False)
+                finally:
+                    word.Quit()
+            except ValueError:
+                raise
+            except Exception as e:
+                raise ValueError(f".doc 파일을 변환하지 못했습니다: {e}")
+            finally:
+                if tmp_path and os.path.exists(tmp_path):
+                    os.unlink(tmp_path)
+
+            text = text.strip()
+            if text:
+                return text
+        except ValueError:
+            raise
+        except Exception:
+            pass
+
+    raise ValueError(
+        ".doc 파일에서 텍스트를 추출하지 못했습니다. "
+        ".docx 또는 .pdf로 변환 후 다시 업로드해주세요."
+    )
