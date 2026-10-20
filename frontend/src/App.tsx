@@ -1,6 +1,6 @@
 import { lazy, Suspense, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { analyzeContract, getStandardContracts, type StandardContractItem } from "./lib/api";
+import { analyzeContract, analyzeContractText, getStandardContracts, type StandardContractItem } from "./lib/api";
 import { useEffect, useMemo } from "react";
 import { saveContractUpload } from "./lib/contracts";
 import type { ContractReport } from "./types";
@@ -146,6 +146,8 @@ export default function App() {
   const [selectedGroup, setSelectedGroup] = useState<string>("all");
   const [detailId, setDetailId] = useState<string | null>(null);
   const [contractTextInput, setContractTextInput] = useState<string>("");
+  const [analyzeMode, setAnalyzeMode] = useState<"file" | "paste">("file");
+  const [pasteText, setPasteText] = useState<string>("");
   const [comparisonResult, setComparisonResult] = useState<FIDICComparisonResponse | null>(null);
   const [comparisonError, setComparisonError] = useState<string | null>(null);
   const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
@@ -244,6 +246,25 @@ export default function App() {
       return;
     }
     inputRef.current?.click();
+  }
+
+  async function handlePasteText() {
+    if (!requireAuth(t("errors.authRequiredUpload"))) return;
+    if (!user) return;
+    if (!pasteText.trim()) return;
+
+    setStatus("loading");
+    setError(null);
+    setReport(null);
+    try {
+      const result = await analyzeContractText(pasteText);
+      setReport(result);
+      setStatus("idle");
+      uploadRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t("errors.unknown"));
+      setStatus("error");
+    }
   }
 
   async function handleCompareContractText() {
@@ -1068,33 +1089,85 @@ export default function App() {
       {/* Upload / results anchor */}
       <section ref={uploadRef} className="border-t border-[var(--tb-line)] px-6 py-20">
         <div className="mx-auto max-w-6xl">
-          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
-                Start Review
-              </p>
-              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                {t("startReview.titleLine1")}
-                <br />
-                {t("startReview.titleLine2")}
-              </h2>
-              <p className="mt-4 max-w-xl text-base text-[var(--tb-muted)]">
-                {t("startReview.formats")}
-                <br />
-                <span className="font-semibold text-[var(--tb-ink)]">
-                  {t("startReview.maxPages")}
-                </span>
-              </p>
-            </div>
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--tb-green)]">
+            Start Review
+          </p>
+          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+            {t("startReview.titleLine1")}
+            <br />
+            {t("startReview.titleLine2")}
+          </h2>
+
+          {/* Mode tabs */}
+          <div className="mt-8 flex border-b border-[var(--tb-line)]">
             <button
               type="button"
-              onClick={triggerUpload}
-              disabled={status === "loading"}
-              className="shrink-0 bg-[var(--tb-green)] px-7 py-3.5 text-base font-semibold text-white transition hover:bg-[var(--tb-green-deep)] disabled:opacity-50"
+              onClick={() => setAnalyzeMode("file")}
+              className={`px-5 py-2.5 text-sm font-semibold border-b-2 -mb-px transition ${analyzeMode === "file" ? "border-[var(--tb-green)] text-[var(--tb-green-deep)]" : "border-transparent text-[var(--tb-muted)] hover:text-[var(--tb-ink)]"}`}
             >
-              {status === "loading" ? t("hero.uploadCtaLoading") : t("hero.uploadCta")}
+              {t("startReview.tabFile")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setAnalyzeMode("paste")}
+              className={`px-5 py-2.5 text-sm font-semibold border-b-2 -mb-px transition ${analyzeMode === "paste" ? "border-[var(--tb-green)] text-[var(--tb-green-deep)]" : "border-transparent text-[var(--tb-muted)] hover:text-[var(--tb-ink)]"}`}
+            >
+              {t("startReview.tabPaste")}
             </button>
           </div>
+
+          {/* File upload mode */}
+          {analyzeMode === "file" && (
+            <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center">
+              <button
+                type="button"
+                onClick={triggerUpload}
+                disabled={status === "loading"}
+                className="shrink-0 bg-[var(--tb-green)] px-7 py-3.5 text-base font-semibold text-white transition hover:bg-[var(--tb-green-deep)] disabled:opacity-50"
+              >
+                {status === "loading" ? t("hero.uploadCtaLoading") : t("hero.uploadCta")}
+              </button>
+              <p className="text-sm text-[var(--tb-muted)]">
+                {t("startReview.formats")}
+                <br />
+                <span className="font-semibold text-[var(--tb-ink)]">{t("startReview.maxPages")}</span>
+              </p>
+            </div>
+          )}
+
+          {/* Paste text mode */}
+          {analyzeMode === "paste" && (
+            <div className="mt-6">
+              <p className="text-sm text-[var(--tb-muted)]">{t("startReview.pasteHint")}</p>
+              <label className="mt-4 block text-sm font-semibold text-[var(--tb-ink)]">
+                {t("startReview.pasteLabel")}
+              </label>
+              <textarea
+                value={pasteText}
+                onChange={(e) => setPasteText(e.target.value)}
+                rows={12}
+                placeholder={t("startReview.pastePlaceholder")}
+                className="mt-3 w-full border border-[var(--tb-line)] bg-[var(--tb-sand)] px-4 py-3 text-sm leading-relaxed text-[var(--tb-ink)] focus:border-[var(--tb-green)] focus:outline-none"
+              />
+              <div className="mt-4 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={handlePasteText}
+                  disabled={status === "loading" || !pasteText.trim()}
+                  className="bg-[var(--tb-green)] px-7 py-3.5 text-base font-semibold text-white transition hover:bg-[var(--tb-green-deep)] disabled:opacity-50"
+                >
+                  {status === "loading" ? t("hero.uploadCtaLoading") : t("startReview.pasteCta")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPasteText("")}
+                  className="border border-[var(--tb-line)] px-5 py-2.5 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-green-soft)]"
+                >
+                  {t("startReview.pasteReset")}
+                </button>
+              </div>
+            </div>
+          )}
 
           {error && (
             <div className="mt-8 border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">

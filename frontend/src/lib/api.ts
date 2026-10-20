@@ -51,6 +51,21 @@ export async function analyzeContract(file: File): Promise<ContractReport> {
   return res.json();
 }
 
+export async function analyzeContractText(text: string): Promise<ContractReport> {
+  const res = await fetch(`${API_BASE}/api/v1/contracts/analyze-text`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text, language: currentLanguage() }),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(errorDetail(body, `분析 요청에 실패했습니다 (HTTP ${res.status})`));
+  }
+
+  return res.json();
+}
+
 export function openExpertMailto(requestType: ExpertRequestType, to = "virtual.esq@gmail.com") {
   const subject = EXPERT_REQUEST_SUBJECTS[requestType];
   const body = `The Beginning에서 '${subject}'을(를) 요청합니다.`;

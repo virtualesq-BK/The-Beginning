@@ -304,6 +304,27 @@ async def analyze_contract(file: UploadFile = File(...), language: str = Form("k
     return report
 
 
+class AnalyzeTextBody(BaseModel):
+    text: str
+    language: str = "ko"
+
+
+@app.post("/api/v1/contracts/analyze-text")
+def analyze_contract_text(body: AnalyzeTextBody):
+    language = body.language if body.language in ("ko", "en") else "ko"
+    if not body.text.strip():
+        raise HTTPException(status_code=400, detail=_msg("unsupported_file_type", language, ext="(text)", allowed="text"))
+    try:
+        report = run_pipeline(body.text, language=language)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except AnthropicPermissionDeniedError as e:
+        raise HTTPException(status_code=502, detail=_msg("model_blocked", language)) from e
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=_msg("analyze_error", language, err=e))
+    return report
+
+
 @app.get("/api/v1/regulatory/sectors")
 def list_regulatory_sectors():
     return {"items": REGULATORY_GRAPH.supported_sectors()}

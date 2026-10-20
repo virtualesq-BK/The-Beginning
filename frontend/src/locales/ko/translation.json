@@ -105,7 +105,7 @@
     "subtitle": "각종 해외 계약서(복잡한 대규모 해외 인프라 투자/건설 PF 사업 관련 FIDIC·EPC 실무 포함)를 해외 법률 전문가들이 직접 훈련시킨 AI가 번역 요약부터 주요 리스크, 협상 체크리스트까지 한 번에 정리합니다.",
     "uploadCta": "계약서 업로드하고 분석하기",
     "uploadCtaLoading": "분석 중... (최대 1분)",
-    "formats": ".txt · .pdf · .docx · .doc · 최대 10페이지"
+    "formats": ".txt · .pdf · .docx · .doc · 최대 20페이지"
   },
   "metrics": {
     "item1": {
@@ -429,8 +429,15 @@
     "eyebrow": "Start Review",
     "titleLine1": "지금 바로 1차 검토를",
     "titleLine2": "시작하세요",
+    "tabFile": "파일 업로드",
+    "tabPaste": "텍스트 붙여넣기",
     "formats": "지원 형식: .txt · .pdf · .docx · .doc (스캔 이미지 PDF는 미지원)",
-    "maxPages": "최대 10페이지까지 업로드할 수 있습니다."
+    "maxPages": "최대 20페이지까지 업로드할 수 있습니다.",
+    "pasteLabel": "계약서 텍스트 붙여넣기",
+    "pastePlaceholder": "계약서 전문 또는 주요 조항을 붙여넣기 하세요...",
+    "pasteCta": "텍스트 분석하기",
+    "pasteReset": "초기화",
+    "pasteHint": "복사한 계약서 텍스트를 직접 붙여넣어 분析합니다. PDF/Word 파일 없이 특정 조항만 빠르게 확인할 때 유용합니다."
   },
   "footer": {
     "disclaimer": "본 서비스는 참고용 정보를 제공하며 법적 효력이 없습니다.",

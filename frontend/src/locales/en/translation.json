@@ -105,7 +105,7 @@
     "subtitle": "For every kind of overseas contract — including complex, large-scale FIDIC and EPC work tied to overseas infrastructure investment and construction project financing — an AI trained directly by overseas legal experts delivers a translation summary, key risks, and a negotiation checklist all at once.",
     "uploadCta": "Upload and Analyze Contract",
     "uploadCtaLoading": "Analyzing... (up to 1 min)",
-    "formats": ".txt · .pdf · .docx · .doc · up to 10 pages"
+    "formats": ".txt · .pdf · .docx · .doc · up to 20 pages"
   },
   "metrics": {
     "item1": {
@@ -429,8 +429,15 @@
     "eyebrow": "Start Review",
     "titleLine1": "Start your first-pass review",
     "titleLine2": "right now",
+    "tabFile": "Upload File",
+    "tabPaste": "Paste Text",
     "formats": "Supported formats: .txt · .pdf · .docx · .doc (scanned image PDFs not supported)",
-    "maxPages": "You can upload up to 10 pages."
+    "maxPages": "You can upload up to 20 pages.",
+    "pasteLabel": "Paste Contract Text",
+    "pastePlaceholder": "Paste the full contract text or key clauses here...",
+    "pasteCta": "Analyze Text",
+    "pasteReset": "Reset",
+    "pasteHint": "Paste copied contract text directly for analysis. Useful when you do not have a PDF/Word file or want to quickly check specific clauses."
   },
   "footer": {
     "disclaimer": "This service provides reference information only and has no legal effect.",
