@@ -1153,8 +1153,6 @@ export default function App() {
           </Suspense>
         </div>
       </section>
-        </div>
-      </section>
 
       <footer className="border-t border-[var(--tb-line)] bg-[var(--tb-ink)] px-6 py-12 text-white/70">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
