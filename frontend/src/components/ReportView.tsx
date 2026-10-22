@@ -228,8 +228,13 @@ export function ReportView({ report }: { report: ContractReport }) {
         </div>
       )}
 
-      <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-        {t("report.disclaimerPrefix")} {report.disclaimer}
+      <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/40">
+        <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+          {t("report.disclaimerPrefix")}
+        </p>
+        <p className="mt-1 text-sm leading-relaxed text-amber-900 dark:text-amber-200">
+          {t("report.disclaimerStatic")}
+        </p>
       </div>
 
       {/* 1. Translation summary */}

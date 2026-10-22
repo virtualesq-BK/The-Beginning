@@ -467,6 +467,10 @@ export default function App() {
           <p className="tb-fade-up tb-fade-up-delay-2 mt-5 max-w-xl text-base leading-relaxed text-white/80 sm:text-lg">
             {t("hero.subtitle")}
           </p>
+          <p className="tb-fade-up tb-fade-up-delay-2 mt-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white/70">
+            <span aria-hidden>⚖</span>
+            {t("hero.legalNotice")}
+          </p>
           <div className="tb-fade-up tb-fade-up-delay-3 mt-8">
             <input
               ref={inputRef}

@@ -103,6 +103,7 @@
     "titleLine1": "해외 계약 서명 전,",
     "titleEm": "5분이면 충분합니다",
     "subtitle": "각종 해외 계약서(복잡한 대규모 해외 인프라 투자/건설 PF 사업 관련 FIDIC·EPC 실무 포함)를 해외 법률 전문가들이 직접 훈련시킨 AI가 번역 요약부터 주요 리스크, 협상 체크리스트까지 한 번에 정리합니다.",
+    "legalNotice": "본 서비스는 변호사법상 법률자문이 아닌 AI 기반 계약 리스크 분석 도구(LegalOps)입니다.",
     "uploadCta": "계약서 업로드하고 분석하기",
     "uploadCtaLoading": "분석 중... (최대 1분)",
     "formats": ".txt · .pdf · .docx · .doc · 최대 20페이지"
@@ -449,7 +450,7 @@
     "pdfBtnTitle": "분석 리포트를 PDF로 저장합니다"
   },
   "footer": {
-    "disclaimer": "본 서비스는 참고용 정보를 제공하며 법적 효력이 없습니다.",
+    "disclaimer": "본 서비스는 변호사법상 법률자문이 아닙니다. AI가 생성한 분석 결과는 계약 검토를 위한 참고용 정보(LegalOps·리스크 분석)이며, 법적 구속력이나 효력이 없습니다. 구체적인 법적 판단이 필요한 경우 반드시 변호사 등 전문가와 상담하시기 바랍니다.",
     "copyright": "© 2026 The Beginning · NoFear"
   },
   "errors": {
@@ -581,7 +582,8 @@
     }
   },
   "report": {
-    "disclaimerPrefix": "⚠",
+    "disclaimerPrefix": "⚠ 법률자문 아님 —",
+    "disclaimerStatic": "이 분석 결과는 변호사법상 법률자문이 아닙니다. AI가 생성한 리스크 점수·조항 해석·수정 권고는 계약 검토를 돕는 참고 정보(LegalOps)이며, 어떠한 법적 구속력이나 효력도 없습니다. 계약 체결·분쟁 대응 등 법적 판단이 필요한 경우 반드시 변호사 등 전문가와 별도로 상담하시기 바랍니다.",
     "translationSummary": {
       "heading": "번역 요약",
       "totalClauses": "총 조항",
