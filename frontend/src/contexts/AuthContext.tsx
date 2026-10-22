@@ -22,6 +22,7 @@ type AuthContextValue = {
   session: Session | null;
   profile: UserProfile | null;
   profileComplete: boolean;
+  isPro: boolean;
   loading: boolean;
   configured: boolean;
   authOpen: boolean;
@@ -104,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data, error } = await supabase
       .from("profiles")
       .select(
-        "id, email, full_name, phone, company_name, job_title, address, usage_purposes, other_requests",
+        "id, email, full_name, phone, company_name, job_title, address, usage_purposes, other_requests, is_pro, pro_since",
       )
       .eq("id", userId)
       .maybeSingle();
@@ -363,6 +364,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const profileComplete = isProfileComplete(profile);
+  const isPro = profile?.is_pro === true;
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -370,6 +372,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       profile,
       profileComplete,
+      isPro,
       loading,
       configured: isSupabaseConfigured,
       authOpen,
@@ -390,6 +393,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       profile,
       profileComplete,
+      isPro,
       loading,
       authOpen,
       authMode,

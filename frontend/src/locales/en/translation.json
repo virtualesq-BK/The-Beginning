@@ -439,6 +439,15 @@
     "pasteReset": "Reset",
     "pasteHint": "Paste copied contract text directly for analysis. Useful when you do not have a PDF/Word file or want to quickly check specific clauses."
   },
+  "paywall": {
+    "title": "Pro Plan Feature",
+    "desc": "Full clause analysis, cross-clause risks, AI negotiation chat, and PDF download are available on the Pro plan.",
+    "cta": "Upgrade to Pro · ₩49,000/report",
+    "hint": "Send a purchase inquiry and we'll activate Pro access within 24 hours.",
+    "authRequired": "Please sign in to access Pro features.",
+    "pdfBtn": "Download PDF",
+    "pdfBtnTitle": "Save the analysis report as a PDF"
+  },
   "footer": {
     "disclaimer": "This service provides reference information only and has no legal effect.",
     "copyright": "© 2026 The Beginning · NoFear"

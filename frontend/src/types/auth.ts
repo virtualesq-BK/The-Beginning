@@ -28,6 +28,8 @@ export type UserProfile = {
   address: string | null;
   usage_purposes: string[] | null;
   other_requests: string | null;
+  is_pro: boolean;
+  pro_since: string | null;
 };
 
 export function isProfileComplete(profile: UserProfile | null | undefined): boolean {

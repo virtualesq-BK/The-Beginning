@@ -6,6 +6,8 @@ import { RiskBadge } from "./RiskBadge";
 import { ClauseTypeIcon } from "./ClauseTypeIcon";
 import { useAuth } from "../contexts/AuthContext";
 import { ContractChat } from "./ContractChat";
+import { PaywallGate } from "./PaywallGate";
+import { downloadReportPDF } from "../lib/reportPdf";
 
 const EXPERT_EMAIL = "virtual.esq@gmail.com";
 
@@ -112,8 +114,9 @@ function ClauseDetailCard({ clause, clausesById }: { clause: Clause; clausesById
 
 export function ReportView({ report }: { report: ContractReport }) {
   const { t } = useTranslation();
-  const { requireAuth } = useAuth();
+  const { requireAuth, isPro } = useAuth();
   const [showRiskDetails, setShowRiskDetails] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
   const [showExpertOptions, setShowExpertOptions] = useState(false);
   const [expertStatus, setExpertStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [expertMessage, setExpertMessage] = useState<string | null>(null);
@@ -123,10 +126,21 @@ export function ReportView({ report }: { report: ContractReport }) {
       setShowRiskDetails(false);
       return;
     }
-    if (!requireAuth(t("report.riskDetailsAuthRequired"))) {
+    if (!requireAuth(t("report.riskDetailsAuthRequired"))) return;
+    if (!isPro) {
+      setShowPaywall(true);
       return;
     }
     setShowRiskDetails(true);
+  }
+
+  function handleDownloadPDF() {
+    if (!requireAuth(t("paywall.authRequired"))) return;
+    if (!isPro) {
+      setShowPaywall(true);
+      return;
+    }
+    downloadReportPDF(report);
   }
 
   async function handleExpertRequest(requestType: ExpertRequestType) {
@@ -173,6 +187,47 @@ export function ReportView({ report }: { report: ContractReport }) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
+      {/* Pro 배지 + PDF 버튼 행 */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        {isPro ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--tb-green)] px-3 py-1 text-xs font-semibold text-white">
+            ✓ Pro
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--tb-line)] px-3 py-1 text-xs font-semibold text-[var(--tb-muted)]">
+            Free
+          </span>
+        )}
+        <button
+          type="button"
+          onClick={handleDownloadPDF}
+          title={t("paywall.pdfBtnTitle")}
+          className="inline-flex items-center gap-2 border border-[var(--tb-line)] px-4 py-2 text-sm font-semibold text-[var(--tb-ink)] transition hover:bg-[var(--tb-sand)] disabled:opacity-50"
+        >
+          ↓ {t("paywall.pdfBtn")}
+          {!isPro && <span className="rounded-full bg-[var(--tb-green)]/10 px-2 py-0.5 text-xs text-[var(--tb-green-deep)]">Pro</span>}
+        </button>
+      </div>
+
+      {/* 페이월 모달 */}
+      {showPaywall && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6" onClick={() => setShowPaywall(false)}>
+          <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-xl dark:bg-slate-900" onClick={(e) => e.stopPropagation()}>
+            <span className="text-4xl">🔒</span>
+            <h3 className="mt-4 text-lg font-semibold text-slate-900 dark:text-white">{t("paywall.title")}</h3>
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t("paywall.desc")}</p>
+            <a
+              href={`mailto:virtual.esq@gmail.com?subject=${encodeURIComponent("Pro 플랜 구매 요청")}&body=${encodeURIComponent("The Beginning Pro 플랜(₩49,000/건) 구매를 요청합니다.\n\n이름:\n회사명:\n이메일:")}`}
+              className="mt-6 inline-flex items-center gap-2 bg-[var(--tb-green)] px-7 py-3 text-sm font-semibold text-white transition hover:bg-[var(--tb-green-deep)]"
+            >
+              {t("paywall.cta")} →
+            </a>
+            <p className="mt-3 text-xs text-slate-400">{t("paywall.hint")}</p>
+            <button type="button" onClick={() => setShowPaywall(false)} className="mt-4 text-sm text-slate-400 hover:text-slate-600">닫기</button>
+          </div>
+        </div>
+      )}
+
       <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
         {t("report.disclaimerPrefix")} {report.disclaimer}
       </div>
@@ -250,8 +305,9 @@ export function ReportView({ report }: { report: ContractReport }) {
         )}
       </section>
 
-      {/* 2.5. Cross-clause combination risks */}
+      {/* 2.5. Cross-clause combination risks — Pro */}
       {report.cross_clause_risks && report.cross_clause_risks.length > 0 && (
+        <PaywallGate desc={t("paywall.desc")}>
         <section className="rounded-2xl border border-rose-200 bg-rose-50/60 p-6 dark:border-rose-900/60 dark:bg-rose-950/20">
           <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-rose-700 dark:text-rose-300">
             {t("report.crossClauseRisks.heading")}
@@ -324,6 +380,7 @@ export function ReportView({ report }: { report: ContractReport }) {
             ))}
           </ul>
         </section>
+        </PaywallGate>
       )}
 
       {/* 3. Negotiation checklist */}
@@ -363,8 +420,10 @@ export function ReportView({ report }: { report: ContractReport }) {
         )}
       </section>
 
-      {/* 4. Negotiation chat */}
-      <ContractChat report={report} />
+      {/* 4. Negotiation chat — Pro */}
+      <PaywallGate>
+        <ContractChat report={report} />
+      </PaywallGate>
 
       {/* 5. Expert connection */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-950">
