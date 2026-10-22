@@ -456,6 +456,9 @@ export default function App() {
         </div>
 
         <div className="relative mx-auto flex min-h-[min(92vh,920px)] max-w-6xl flex-col justify-end px-6 pb-16 pt-28 sm:pb-24 sm:pt-32">
+          <div className="tb-fade-up mb-5 inline-flex items-center gap-2 rounded-full bg-[var(--tb-green)] px-4 py-1.5 text-sm font-semibold text-white shadow-sm">
+            {t("hero.freeTrial")}
+          </div>
           <p className="tb-fade-up font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl md:text-6xl">
             The Beginning
           </p>
