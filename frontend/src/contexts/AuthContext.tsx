@@ -364,7 +364,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const profileComplete = isProfileComplete(profile);
-  const isPro = profile?.is_pro === true;
+  const isPro = true; // 전체 무료 개방 — 결제 연동 전까지
 
   const value = useMemo<AuthContextValue>(
     () => ({

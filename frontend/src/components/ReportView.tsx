@@ -222,6 +222,12 @@ export function ReportView({ report }: { report: ContractReport }) {
             >
               {t("paywall.cta")} →
             </a>
+            <div className="mt-4 rounded-lg bg-slate-50 px-4 py-3 dark:bg-slate-800">
+              <p className="text-xs text-slate-400 dark:text-slate-500">메일 앱이 열리지 않으면 아래 주소로 보내주세요</p>
+              <p className="mt-1 select-all font-mono text-sm text-slate-800 dark:text-slate-200">
+                {EXPERT_EMAIL}
+              </p>
+            </div>
             <p className="mt-3 text-xs text-slate-400">{t("paywall.hint")}</p>
             <button type="button" onClick={() => setShowPaywall(false)} className="mt-4 text-sm text-slate-400 hover:text-slate-600">닫기</button>
           </div>
